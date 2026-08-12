@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: submoduleを最新化
-        run: git submodule update --remote --merge
+        run: git submodule update --remote
 
       - name: uvをセットアップ
         uses: astral-sh/setup-uv@v3
