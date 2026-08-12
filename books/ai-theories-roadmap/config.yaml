@@ -13,7 +13,3 @@ chapters:
   - "003_positional_encoding_rope-theory"
   - "003_positional_encoding_rope-practice-1"
   - "003_positional_encoding_rope-practice-2"
-  - "004_normalization_and_activation-theory"
-  - "004_normalization_and_activation-practice-1"
-  - "004_normalization_and_activation-practice-2"
-  - "004_normalization_and_activation-practice-3"
