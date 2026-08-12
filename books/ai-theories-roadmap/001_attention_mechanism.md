@@ -1,9 +1,5 @@
 ---
 title: "注意機構(Attention Mechanism)"
-emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
-type: "tech"
-topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: true
 ---
 
 # 001. 注意機構(Attention Mechanism)
@@ -1318,9 +1314,3 @@ for head in range(N_HEADS_COPY):
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/001_attention_mechanism.ipynb
-
-
-<!-- zenn-nav:start -->
----
-- 次: [Transformer Block(理論編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory)
-<!-- zenn-nav:end -->

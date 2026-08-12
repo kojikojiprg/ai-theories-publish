@@ -27,13 +27,13 @@ jobs:
       - name: uvをセットアップ
         uses: astral-sh/setup-uv@v3
 
-      - name: 記事を生成
+      - name: 章を生成
         run: |
           uv run --with nbconvert python3 scripts/nb_to_zenn.py \
             "${{ inputs.notebook_number }}" \
             --repo "${{ github.repository }}"
 
-      - name: 本(book)を再生成
+      - name: 本(book)のはじめに・章一覧を再生成
         run: |
           python3 scripts/generate_book.py
 
@@ -42,7 +42,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add articles/ images/ books/ ai-theories
+          git add images/ books/ ai-theories
 
           if git diff --cached --quiet; then
             echo "差分がないため、コミットをスキップします。"

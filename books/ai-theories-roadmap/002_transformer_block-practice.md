@@ -1,12 +1,8 @@
 ---
 title: "Transformer Block(実装・実験編)"
-emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
-type: "tech"
-topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: true
 ---
 
-この記事は後編(実装・実験編)です。前編(理論編)は [こちら](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory)。
+この記事は後編(実装・実験編)です。前編(理論編)は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/002_transformer_block-theory)。
 
 ## 4. 実装方針 / Implementation Plan
 
@@ -1444,10 +1440,3 @@ print(f"ヘッド平均の対角成分の重み: {diagonal_mass_s2s:.4f}(1.0 = �
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/002_transformer_block.ipynb
-
-
-<!-- zenn-nav:start -->
----
-- 前: [Transformer Block(理論編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory)
-- 次: [位置エンコーディング(Positional Encoding)/ RoPE(理論編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)
-<!-- zenn-nav:end -->

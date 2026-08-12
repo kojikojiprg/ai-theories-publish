@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""ai-theories の theories/README.md と scripts/manifest.json から Zenn本を生成するスクリプト。
+"""ai-theories の theories/README.md と scripts/manifest.json から Zenn本の
+「はじめに」章(0_introduction.md)と config.yaml の chapters 配列を生成するスクリプト。
 
-実行のたびに books/ai-theories-roadmap/ 配下をまるごと再生成する(差分マージは行わない)。
-手動編集は前提としないため、既存ファイルはすべて削除してから生成し直す。
+各トピックの本文(章ファイル)は scripts/nb_to_zenn.py が直接生成する。
+このスクリプトは 0_introduction.md と config.yaml の再構築のみを行い、
+他の章ファイルには一切触れない。
 """
 
 from __future__ import annotations
@@ -10,7 +12,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shutil
 import sys
 from pathlib import Path
 
@@ -20,30 +21,35 @@ MANIFEST_PATH = REPO_ROOT / "scripts" / "manifest.json"
 BOOKS_DIR = REPO_ROOT / "books"
 BOOK_SLUG = "ai-theories-roadmap"
 BOOK_DIR = BOOKS_DIR / BOOK_SLUG
+CONFIG_PATH = BOOK_DIR / "config.yaml"
+INTRODUCTION_PATH = BOOK_DIR / "0_introduction.md"
 
 # Zennのユーザー名。将来変わる可能性があるため、環境変数での上書きも可能にしておく(nb_to_zenn.pyと同様)。
 ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
 
 AI_THEORIES_GITHUB_URL = "https://github.com/kojikojiprg/ai-theories"
 
-BOOK_TITLE = "LLM / VLM理論学習ロードマップ"
-BOOK_SUMMARY = (
+# config.yaml が存在しない場合の初期値。既存の config.yaml があればそちらの値を優先する。
+DEFAULT_BOOK_TITLE = "LLM / VLM理論学習ロードマップ"
+DEFAULT_BOOK_SUMMARY = (
     "LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論を、"
     "PyTorchによるスクラッチ実装とあわせて基礎から学ぶロードマップです。"
 )
-BOOK_TOPICS = ["llm", "vlm", "pytorch", "deeplearning"]
+DEFAULT_BOOK_TOPICS = ["llm", "vlm", "pytorch", "deeplearning"]
+DEFAULT_PRICE = "0"
+DEFAULT_PUBLISHED = "false"
 
 TABLE_HEADER_PREFIX = "| #"
 NUMBER_PATTERN = re.compile(r"^\d{3}$")
-PREREQUISITE_NUMBER_PATTERN = re.compile(r"\d{3}")
+
+CONFIG_SCALAR_FIELDS = ("title", "summary", "topics", "price", "published")
+CONFIG_FIELD_PATTERN = re.compile(
+    r"^(" + "|".join(CONFIG_SCALAR_FIELDS) + r"):\s*(.*)$"
+)
 
 
 def build_zenn_book_chapter_url(chapter_slug: str) -> str:
     return f"https://zenn.dev/{ZENN_USERNAME}/books/{BOOK_SLUG}/viewer/{chapter_slug}"
-
-
-def build_zenn_article_url(slug: str) -> str:
-    return f"https://zenn.dev/{ZENN_USERNAME}/articles/{slug}"
 
 
 def load_manifest() -> dict:
@@ -103,31 +109,47 @@ def parse_topics(readme_text: str) -> list[dict]:
     return topics
 
 
-def parse_prerequisite_numbers(prerequisites: str) -> list[str]:
-    if "なし" in prerequisites:
-        return []
-    return PREREQUISITE_NUMBER_PATTERN.findall(prerequisites)
+def resolve_chapter_slug(number: str, manifest: dict) -> str | None:
+    entry = manifest.get(number)
+    if entry is None:
+        return None
+    if entry["split"]:
+        return next(s for s in entry["slugs"] if s.endswith("-theory"))
+    return entry["slugs"][0]
 
 
-def build_config_yaml(topics: list[dict]) -> str:
+def build_chapter_slugs(manifest: dict) -> list[str]:
+    slugs = []
+    for number in sorted(manifest.keys(), key=int):
+        slugs.extend(manifest[number]["slugs"])
+    return slugs
+
+
+def build_topic_table_row(topic: dict, manifest: dict) -> str:
+    slug = resolve_chapter_slug(topic["number"], manifest)
+    if slug is not None:
+        topic_cell = f"[{topic['topic']}]({build_zenn_book_chapter_url(slug)})"
+    else:
+        topic_cell = f"{topic['topic']}(🚧 準備中)"
+
+    return (
+        f"| {topic['number']} | {topic_cell} | {topic['category']} | "
+        f"{topic['prerequisites']} | {topic['contents']} |"
+    )
+
+
+def build_topics_table(topics: list[dict], manifest: dict) -> str:
     lines = [
-        f'title: "{BOOK_TITLE}"',
-        f'summary: "{BOOK_SUMMARY}"',
-        f"topics: {json.dumps(BOOK_TOPICS, ensure_ascii=False)}",
-        "price: 0",
-        "published: false",
-        "chapters:",
-        '  - "0_introduction"',
+        "| # | トピック / Topic | カテゴリ / Category | 前提知識 / Prerequisites | 扱う内容 / Contents |",
+        "| --- | --- | --- | --- | --- |",
     ]
-    for topic in topics:
-        # 数字のみのチャプター名(例: "010")はクォートしないとYAMLの8進数リテラルと
-        # 誤認識され、Zennのchapters検証(配列のネストやハッシュ不可)に失敗するため、
-        # 文字列であることを明示するために引用符で囲む。
-        lines.append(f'  - "{topic["number"]}"')
-    return "\n".join(lines) + "\n"
+    lines.extend(build_topic_table_row(topic, manifest) for topic in topics)
+    return "\n".join(lines)
 
 
-def build_introduction_body() -> str:
+def build_introduction_body(topics: list[dict], manifest: dict) -> str:
+    topics_table = build_topics_table(topics, manifest)
+
     return f"""---
 title: "はじめに"
 ---
@@ -141,13 +163,11 @@ title: "はじめに"
 
 ## 本書の構成
 
-各章は、1つの学習トピックに対応しています。
+以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。下表は `theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧です。トピック名がリンクになっているものは既に章として収録済みで、リンクをクリックすると該当の章に移動します。**まだ章になっていないトピックは「🚧 準備中」と表示**しています。
 
-- 章の本文には、トピックのカテゴリ・前提知識・扱う内容の概要を掲載します。
-- 対応するノートブックがすでにZenn記事化されている場合は、章末にその記事へのリンクを掲載します。
-- **記事がまだ準備中のトピックは、概要のみの掲載となります**(🚧 マークで示します)。準備が整い次第、記事へのリンクを追記します。
+## 推奨学習順序 / Recommended Order
 
-本書は [ai-theories]({AI_THEORIES_GITHUB_URL}) の `theories/README.md` と記事の生成状況をもとに自動生成しています。
+{topics_table}
 
 ## コードのライセンス
 
@@ -159,107 +179,75 @@ title: "はじめに"
 """
 
 
-def build_prerequisites_section(
-    prerequisites: str, topics_by_number: dict[str, dict]
-) -> str:
-    numbers = parse_prerequisite_numbers(prerequisites)
-    if not numbers:
-        return prerequisites
+def parse_existing_config(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
 
-    lines = []
-    for number in numbers:
-        prereq_topic = topics_by_number.get(number)
-        label = f"{number}. {prereq_topic['topic']}" if prereq_topic else number
-        url = build_zenn_book_chapter_url(number)
-        lines.append(f"- [{label}]({url})")
-    return "\n".join(lines)
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("chapters:"):
+            break
+        match = CONFIG_FIELD_PATTERN.match(line)
+        if match:
+            values[match.group(1)] = match.group(2)
+    return values
 
 
-def build_related_article_section(number: str, manifest: dict) -> str:
-    entry = manifest.get(number)
-    if entry is None:
-        return "🚧 このトピックはまだ記事化されていません(準備中)"
+def build_config_yaml(existing: dict[str, str], chapter_slugs: list[str]) -> str:
+    title = existing.get("title", f'"{DEFAULT_BOOK_TITLE}"')
+    summary = existing.get("summary", f'"{DEFAULT_BOOK_SUMMARY}"')
+    topics = existing.get("topics", json.dumps(DEFAULT_BOOK_TOPICS, ensure_ascii=False))
+    price = existing.get("price", DEFAULT_PRICE)
+    published = existing.get("published", DEFAULT_PUBLISHED)
 
-    if entry["split"]:
-        index = next(
-            i for i, slug in enumerate(entry["slugs"]) if slug.endswith("-theory")
-        )
-    else:
-        index = 0
-
-    slug = entry["slugs"][index]
-    title = entry["titles"][index]
-    url = build_zenn_article_url(slug)
-    return f"この章の詳細記事はこちら: [{title}]({url})"
-
-
-def build_topic_body(
-    topic: dict, topics_by_number: dict[str, dict], manifest: dict
-) -> str:
-    prerequisites_section = build_prerequisites_section(
-        topic["prerequisites"], topics_by_number
-    )
-    related_article_section = build_related_article_section(topic["number"], manifest)
-
-    return f"""---
-title: "{topic['topic']}"
----
-
-## カテゴリ / Category
-
-{topic['category']}
-
-## 前提知識 / Prerequisites
-
-{prerequisites_section}
-
-## 扱う内容 / Contents
-
-{topic['contents']}
-
-## 関連記事 / Related Article
-
-{related_article_section}
-"""
+    lines = [
+        f"title: {title}",
+        f"summary: {summary}",
+        f"topics: {topics}",
+        f"price: {price}",
+        f"published: {published}",
+        "chapters:",
+        '  - "0_introduction"',
+    ]
+    for slug in chapter_slugs:
+        # クォートしないとYAMLのフロースカラーの解釈やZennのchapters検証に
+        # 影響しうるため、文字列であることを明示するために引用符で囲む。
+        lines.append(f'  - "{slug}"')
+    return "\n".join(lines) + "\n"
 
 
-def generate_book() -> tuple[list[dict], int]:
+def generate_book() -> tuple[list[dict], list[str], int]:
     readme_text = THEORIES_README_PATH.read_text(encoding="utf-8")
     topics = parse_topics(readme_text)
-    topics_by_number = {topic["number"]: topic for topic in topics}
     manifest = load_manifest()
 
-    if BOOK_DIR.exists():
-        shutil.rmtree(BOOK_DIR)
-    BOOK_DIR.mkdir(parents=True)
+    BOOK_DIR.mkdir(parents=True, exist_ok=True)
 
-    (BOOK_DIR / "config.yaml").write_text(
-        build_config_yaml(topics), encoding="utf-8"
+    chapter_slugs = build_chapter_slugs(manifest)
+    existing_config = parse_existing_config(CONFIG_PATH)
+
+    CONFIG_PATH.write_text(
+        build_config_yaml(existing_config, chapter_slugs), encoding="utf-8"
     )
-    (BOOK_DIR / "0_introduction.md").write_text(
-        build_introduction_body(), encoding="utf-8"
+    INTRODUCTION_PATH.write_text(
+        build_introduction_body(topics, manifest), encoding="utf-8"
     )
 
-    tbd_count = 0
-    for topic in topics:
-        body = build_topic_body(topic, topics_by_number, manifest)
-        (BOOK_DIR / f"{topic['number']}.md").write_text(body, encoding="utf-8")
-        if topic["number"] not in manifest:
-            tbd_count += 1
+    tbd_count = sum(1 for topic in topics if topic["number"] not in manifest)
 
-    return topics, tbd_count
+    return topics, chapter_slugs, tbd_count
 
 
 def main() -> None:
-    topics, tbd_count = generate_book()
+    topics, chapter_slugs, tbd_count = generate_book()
 
-    print(f"{BOOK_DIR.relative_to(REPO_ROOT)} を再生成しました。")
-    print(f"- config.yaml")
-    print(f"- 0_introduction.md")
-    for topic in topics:
-        print(f"- {topic['number']}.md")
+    print(f"{INTRODUCTION_PATH.relative_to(REPO_ROOT)} を再生成しました。")
+    print(f"{CONFIG_PATH.relative_to(REPO_ROOT)} の chapters を再構築しました。")
+    print("chapters:")
+    print("  - 0_introduction")
+    for slug in chapter_slugs:
+        print(f"  - {slug}")
     print(f"準備中(未記事化)のトピック数: {tbd_count} / {len(topics)}")
-    print("config.yaml の published は false(下書き)です。")
 
 
 if __name__ == "__main__":

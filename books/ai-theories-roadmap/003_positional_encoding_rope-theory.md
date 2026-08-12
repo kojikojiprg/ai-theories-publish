@@ -1,12 +1,8 @@
 ---
 title: "位置エンコーディング(Positional Encoding)/ RoPE(理論編)"
-emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
-type: "tech"
-topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: true
 ---
 
-この記事は前編(理論編)です。実装・実験編は [こちら](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-practice)。
+この記事は前編(理論編)です。実装・実験編は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-practice)。
 
 # 003. 位置エンコーディング(Positional Encoding)/ RoPE
 
@@ -17,7 +13,7 @@ published: true
 
 ## 1. 概要 / Overview
 
-[002](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory) では、Transformer Block(多頭注意機構と順伝播ネットワークの組み合わせ)が単体では入力の並び替えに対して置換同変(permutation equivariant)であることを述べ、系列の順序情報を与えるために正弦波(sinusoidal)方式の位置エンコーディング(Positional Encoding)を暫定的に導入した。
+[002](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/002_transformer_block-theory) では、Transformer Block(多頭注意機構と順伝播ネットワークの組み合わせ)が単体では入力の並び替えに対して置換同変(permutation equivariant)であることを述べ、系列の順序情報を与えるために正弦波(sinusoidal)方式の位置エンコーディング(Positional Encoding)を暫定的に導入した。
 
 本ノートブックでは、位置情報をどこに・どのように注入するかで方式を統一的に分類したうえで、学習可能な絶対位置埋め込み(Learned Absolute Positional Embedding)・相対位置エンコーディング(Relative Positional Encoding、Shaw et al. 方式・T5 の相対位置バイアス)・ALiBi(Attention with Linear Biases)・RoPE(Rotary Position Embedding)を数式レベルで比較する。中心となるのは RoPE の数学的導出であり、「Query・Key の内積が相対位置のみに依存する」という要請から回転行列による解を導き、効率的な実装まで扱う。
 
@@ -354,10 +350,3 @@ RoPE は **Query と Key のみに適用し、Value には適用しない**。Ro
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb
-
-
-<!-- zenn-nav:start -->
----
-- 前: [Transformer Block(実装・実験編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-practice)
-- 次: [位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-practice)
-<!-- zenn-nav:end -->

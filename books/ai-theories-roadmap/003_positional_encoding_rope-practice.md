@@ -1,12 +1,8 @@
 ---
 title: "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編)"
-emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
-type: "tech"
-topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: true
 ---
 
-この記事は後編(実装・実験編)です。前編(理論編)は [こちら](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)。
+この記事は後編(実装・実験編)です。前編(理論編)は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory)。
 
 ## 4. 実装方針 / Implementation Plan
 
@@ -1434,10 +1430,3 @@ plt.show()
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb
-
-
-<!-- zenn-nav:start -->
----
-- 前: [位置エンコーディング(Positional Encoding)/ RoPE(理論編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)
-- 次: 004(未作成)
-<!-- zenn-nav:end -->

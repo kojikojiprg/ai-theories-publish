@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ai-theories のノートブックを Zenn 記事(Markdown)の下書きに変換するスクリプト。"""
+"""ai-theories のノートブックを Zenn 本(book)の章(Markdown)の下書きに変換するスクリプト。"""
 
 from __future__ import annotations
 
@@ -15,9 +15,12 @@ from nbconvert import MarkdownExporter
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AI_THEORIES_THEORIES_DIR = REPO_ROOT / "ai-theories" / "theories"
-ARTICLES_DIR = REPO_ROOT / "articles"
 IMAGES_DIR = REPO_ROOT / "images"
 MANIFEST_PATH = REPO_ROOT / "scripts" / "manifest.json"
+
+# 本(book)のスラッグ。scripts/generate_book.py と共通。
+BOOK_SLUG = "ai-theories-roadmap"
+BOOK_DIR = REPO_ROOT / "books" / BOOK_SLUG
 
 NOTEBOOK_NUMBER_PATTERN = re.compile(r"^\d{3}$")
 SLUG_PATTERN = re.compile(r"^[a-z0-9_-]{12,50}$")
@@ -28,15 +31,6 @@ IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
 NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+\.ipynb)\)")
 NOTEBOOK_LINK_NUMBER_PATTERN = re.compile(r"^(\d{3})_")
 NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
-
-NAV_START_MARKER = "<!-- zenn-nav:start -->"
-NAV_END_MARKER = "<!-- zenn-nav:end -->"
-NAV_BLOCK_PATTERN = re.compile(
-    re.escape(NAV_START_MARKER) + r".*?" + re.escape(NAV_END_MARKER), re.DOTALL
-)
-
-DEFAULT_EMOJI = "📝"
-DEFAULT_TOPICS = ["ai", "llm", "vlm", "pytorch", "machine learning"]
 
 # Zennの記事本文の文字数上限(80,000文字)に対して安全マージンを持たせた分割閾値。
 CHAR_THRESHOLD = 70_000
@@ -111,85 +105,12 @@ def load_manifest() -> dict:
 
 
 def save_manifest(manifest: dict) -> None:
+    # "slugs" は本(book)の章ファイル名(拡張子を除く)、すなわち
+    # books/ai-theories-roadmap/<slug>.md を指す値であり、
+    # Zennの章URL(.../books/ai-theories-roadmap/viewer/<slug>)の組み立てに使われる。
     MANIFEST_PATH.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
-    )
-
-
-def build_flat_article_list(manifest: dict) -> list[dict]:
-    flat = []
-    for number in sorted(manifest.keys(), key=int):
-        entry = manifest[number]
-        for slug, title in zip(entry["slugs"], entry["titles"]):
-            flat.append({"number": number, "slug": slug, "title": title})
-    return flat
-
-
-def build_nav_lines(manifest: dict, current_number: str, current_slug: str) -> list[str]:
-    flat = build_flat_article_list(manifest)
-    index = next(i for i, article in enumerate(flat) if article["slug"] == current_slug)
-
-    lines = [NAV_START_MARKER, "---"]
-    if index > 0:
-        prev = flat[index - 1]
-        lines.append(f"- 前: [{prev['title']}]({build_zenn_article_url(prev['slug'])})")
-    if index < len(flat) - 1:
-        nxt = flat[index + 1]
-        lines.append(f"- 次: [{nxt['title']}]({build_zenn_article_url(nxt['slug'])})")
-    else:
-        next_number = f"{int(current_number) + 1:03d}"
-        lines.append(f"- 次: {next_number}(未作成)")
-    lines.append(NAV_END_MARKER)
-    return lines
-
-
-def build_nav_block(manifest: dict, current_number: str, current_slug: str) -> str:
-    core = "\n".join(build_nav_lines(manifest, current_number, current_slug))
-    return f"\n\n{core}\n"
-
-
-def find_previous_manifest_number(manifest: dict, current_number: str) -> str | None:
-    candidates = [n for n in manifest if int(n) < int(current_number)]
-    if not candidates:
-        return None
-    return max(candidates, key=int)
-
-
-def backfill_previous_article(manifest: dict, current_number: str) -> None:
-    prev_number = find_previous_manifest_number(manifest, current_number)
-    if prev_number is None:
-        return
-
-    prev_slug = manifest[prev_number]["slugs"][-1]
-    prev_path = ARTICLES_DIR / f"{prev_slug}.md"
-    if not prev_path.exists():
-        print(
-            f"警告: バックフィル対象の記事 {prev_path.relative_to(REPO_ROOT)} が"
-            "見つかりません。ナビゲーションの更新をスキップしました。",
-            file=sys.stderr,
-        )
-        return
-
-    content = prev_path.read_text(encoding="utf-8")
-    new_core = "\n".join(build_nav_lines(manifest, prev_number, prev_slug))
-
-    if not NAV_BLOCK_PATTERN.search(content):
-        print(
-            f"警告: {prev_path.relative_to(REPO_ROOT)} にnav区間のマーカーが"
-            "見つからないため、バックフィルをスキップしました。",
-            file=sys.stderr,
-        )
-        return
-
-    updated_content = NAV_BLOCK_PATTERN.sub(lambda _: new_core, content, count=1)
-    if updated_content == content:
-        return
-
-    prev_path.write_text(updated_content, encoding="utf-8")
-    print(
-        f"{prev_path.relative_to(REPO_ROOT)} のナビゲーション(次: {current_number})を"
-        "更新しました。"
     )
 
 
@@ -224,7 +145,7 @@ def resolve_notebook_link(relpath: str, manifest: dict) -> str | None:
             chosen_slug = theory_slugs[0] if theory_slugs else slugs[0]
         else:
             chosen_slug = slugs[0]
-        return build_zenn_article_url(chosen_slug)
+        return build_zenn_book_chapter_url(chosen_slug)
 
     category = target_notebook.parent.name
     filename = target_notebook.name
@@ -260,7 +181,7 @@ def extract_slug(notebook_path: Path) -> str:
         print(
             f"エラー: ファイル名から抽出した slug '{slug}' が Zenn の要件"
             "(半角英小文字・数字・ハイフン・アンダースコアのみ、12〜50文字)を満たしていません。"
-            "articles/ 配下のファイル名を手動で修正してください。",
+            "theories/ 配下のノートブックのファイル名を確認してください。",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -296,16 +217,7 @@ def convert_to_markdown(nb: nbformat.NotebookNode, slug: str, publish_repo: str)
 
 
 def build_frontmatter(title: str) -> str:
-    topics = json.dumps(DEFAULT_TOPICS, ensure_ascii=False)
-    return (
-        "---\n"
-        f'title: "{title}"\n'
-        f'emoji: "{DEFAULT_EMOJI}" # 仮の絵文字。公開前に手動で調整すること\n'
-        'type: "tech"\n'
-        f"topics: {topics} # 初期値。公開前に内容に応じて手動で追記・調整すること\n"
-        "published: false\n"
-        "---\n\n"
-    )
+    return f'---\ntitle: "{title}"\n---\n\n'
 
 
 def build_source_link(notebook_path: Path) -> str:
@@ -322,7 +234,7 @@ def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
     match = IMPLEMENTATION_PLAN_HEADING_PATTERN.search(body)
     if not match:
         print(
-            "エラー: 記事本文が文字数上限に近いため前編・後編への分割を試みましたが、"
+            "エラー: 章の本文が文字数上限に近いため前編・後編への分割を試みましたが、"
             "分割の境界となる「実装方針」の見出しが見つかりませんでした。"
             "ノートブック側の見出し表記(表記ゆれ)を確認してください。",
             file=sys.stderr,
@@ -331,22 +243,22 @@ def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
     return body[: match.start()], body[match.start() :]
 
 
-def build_zenn_article_url(slug: str) -> str:
-    return f"https://zenn.dev/{ZENN_USERNAME}/articles/{slug}"
+def build_zenn_book_chapter_url(slug: str) -> str:
+    return f"https://zenn.dev/{ZENN_USERNAME}/books/{BOOK_SLUG}/viewer/{slug}"
 
 
 def build_theory_part_intro(practice_slug: str) -> str:
-    url = build_zenn_article_url(practice_slug)
+    url = build_zenn_book_chapter_url(practice_slug)
     return f"この記事は前編(理論編)です。実装・実験編は [こちら]({url})。\n\n"
 
 
 def build_practice_part_intro(theory_slug: str) -> str:
-    url = build_zenn_article_url(theory_slug)
+    url = build_zenn_book_chapter_url(theory_slug)
     return f"この記事は後編(実装・実験編)です。前編(理論編)は [こちら]({url})。\n\n"
 
 
-def write_article(article_path: Path, title: str, content_body: str) -> int:
-    article_path.write_text(build_frontmatter(title) + content_body, encoding="utf-8")
+def write_chapter(chapter_path: Path, title: str, content_body: str) -> int:
+    chapter_path.write_text(build_frontmatter(title) + content_body, encoding="utf-8")
     return len(content_body)
 
 
@@ -368,6 +280,8 @@ def main() -> None:
     publish_repo = resolve_publish_repo(args.repo)
     manifest = load_manifest()
 
+    BOOK_DIR.mkdir(parents=True, exist_ok=True)
+
     notebook_path = find_notebook(args.notebook_number)
     slug = extract_slug(notebook_path)
 
@@ -384,18 +298,15 @@ def main() -> None:
             "split": False,
             "titles": [title],
         }
-        nav_block = build_nav_block(manifest, args.notebook_number, slug)
 
-        article_path = ARTICLES_DIR / f"{slug}.md"
-        length = write_article(article_path, title, body + source_link + nav_block)
-        print(f"{article_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
+        chapter_path = BOOK_DIR / f"{slug}.md"
+        length = write_chapter(chapter_path, title, body + source_link)
+        print(f"{chapter_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
         print(
-            "published: false の下書きとして生成しました。"
-            "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
-            "手動で行ってください。"
+            "本(book)の下書きの章として生成しました。"
+            "公開前に、実装セクションの要約などの調整を手動で行ってください。"
         )
 
-        backfill_previous_article(manifest, args.notebook_number)
         save_manifest(manifest)
         print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
         return
@@ -419,29 +330,25 @@ def main() -> None:
         "split": True,
         "titles": [theory_title, practice_title],
     }
-    theory_content += build_nav_block(manifest, args.notebook_number, theory_slug)
-    practice_content += build_nav_block(manifest, args.notebook_number, practice_slug)
 
-    theory_path = ARTICLES_DIR / f"{theory_slug}.md"
-    practice_path = ARTICLES_DIR / f"{practice_slug}.md"
+    theory_path = BOOK_DIR / f"{theory_slug}.md"
+    practice_path = BOOK_DIR / f"{practice_slug}.md"
 
-    theory_length = write_article(theory_path, theory_title, theory_content)
-    practice_length = write_article(practice_path, practice_title, practice_content)
+    theory_length = write_chapter(theory_path, theory_title, theory_content)
+    practice_length = write_chapter(practice_path, practice_title, practice_content)
 
     print(
         f"本文が閾値({CHAR_THRESHOLD}文字)を超えたため、"
-        "前編(理論編)・後編(実装・実験編)の2記事に分割生成しました。"
+        "前編(理論編)・後編(実装・実験編)の2章に分割生成しました。"
     )
     print(f"{theory_path.relative_to(REPO_ROOT)} を生成しました({theory_length}文字)。")
     print(f"{practice_path.relative_to(REPO_ROOT)} を生成しました({practice_length}文字)。")
     print(
-        "published: false の下書きとして生成しました。"
+        "本(book)の下書きの章として生成しました。"
         "前編・後編間の相互リンクは確定URLで埋め込み済みです。"
-        "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
-        "手動で行ってください。"
+        "公開前に、実装セクションの要約などの調整を手動で行ってください。"
     )
 
-    backfill_previous_article(manifest, args.notebook_number)
     save_manifest(manifest)
     print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
 

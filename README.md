@@ -6,28 +6,32 @@
 
 本リポジトリは、[ai-theories](https://github.com/kojikojiprg/ai-theories) で学習した LLM(Large Language Model、大規模言語モデル)・VLM(Vision-Language Model、視覚言語モデル)の理論を Zenn で公開するための、Zenn 連携用リポジトリです。
 
-`ai-theories` は本リポジトリに **参照専用の submodule として含まれ**、本リポジトリ側から直接編集することはありません。ノートブックの追加・修正は `ai-theories` 側で行い、本リポジトリでは Workflow を通じてその内容を Zenn 記事の下書きに変換・公開します。
+`ai-theories` は本リポジトリに **参照専用の submodule として含まれ**、本リポジトリ側から直接編集することはありません。ノートブックの追加・修正は `ai-theories` 側で行い、本リポジトリでは Workflow を通じてその内容を Zenn 本(book)の章の下書きに変換・公開します。
+
+公開先は Zenn の本(book)**「LLM / VLM理論学習ロードマップ」(`books/ai-theories-roadmap/`)に一本化**しています。個別の記事(article)としての公開は行いません。
 
 ## ディレクトリ構成
 
 ```
 ai-theories-publish/
-├── ai-theories/             # ai-theories リポジトリの submodule(参照専用)
-├── articles/                # Zenn 記事(Markdown)
-├── images/                  # 記事内で参照する画像
+├── ai-theories/              # ai-theories リポジトリの submodule(参照専用)
+├── images/                   # 章内で参照する画像
 ├── books/
-│   └── ai-theories-roadmap/ # Zenn 本(学習ロードマップ、生成物)
+│   └── ai-theories-roadmap/  # Zenn 本(学習ロードマップ、生成物)
+│       ├── config.yaml       # 本のタイトル・概要・章の並び順など
+│       ├── 0_introduction.md # 「はじめに」章(本の目的・推奨学習順序の一覧表など)
+│       └── <slug>.md         # 各トピックの章(ノートブックからの変換結果)
 ├── scripts/
-│   ├── nb_to_zenn.py        # ノートブックを Zenn 記事に変換するスクリプト
-│   ├── generate_book.py     # theories/README.md・manifest.json から Zenn 本を生成するスクリプト
-│   └── manifest.json        # ノートブック番号 → 生成済み記事slug・タイトルの対応表(生成物)
+│   ├── nb_to_zenn.py         # ノートブックを本の章に変換するスクリプト
+│   ├── generate_book.py      # theories/README.md・manifest.json から「はじめに」章・config.yamlのchaptersを生成するスクリプト
+│   └── manifest.json         # ノートブック番号 → 生成済み章slug・タイトルの対応表(生成物)
 └── .github/workflows/
-    └── publish_notebook.yml # 記事生成・pushを行う Workflow
+    └── publish_notebook.yml  # 章生成・pushを行う Workflow
 ```
 
 ---
 
-## 記事投稿手順
+## 章投稿手順
 
 ### Workflowの実行手順
 
@@ -35,57 +39,49 @@ ai-theories-publish/
 2. `Run workflow` から、変換対象ノートブックの3桁連番(例: `003`)を `notebook_number` に入力して実行する。
 3. Workflow が以下を自動で行う。
    - `ai-theories` submoduleの最新化
-   - `scripts/nb_to_zenn.py` によるノートブック → Zenn記事(Markdown)への変換
-   - `scripts/generate_book.py` による本(book)の再生成
-   - `articles/` ・`images/` ・`books/` ・submodule参照の更新差分のコミット・push
+   - `scripts/nb_to_zenn.py` によるノートブック → 本の章(Markdown)への変換(`books/ai-theories-roadmap/<slug>.md`)
+   - `scripts/generate_book.py` による `0_introduction.md`・`config.yaml` の chapters の再構築
+   - `images/` ・`books/` ・submodule参照の更新差分のコミット・push
 
 Workflowは `workflow_dispatch` による手動実行のみをトリガーとします。push検知等による自動実行は行いません。
 
 ### Workflow実行後に手動で行う作業
 
-Workflowによって生成される記事は `published: false` の下書きです。公開前に、以下を手動で行ってください。
+Workflowによって生成される章は下書きです。公開前に、以下を手動で行ってください。
 
-- 実装セクションの要約(ノートブックの実装セルの内容がそのまま転記されるため、記事として読みやすい分量・粒度に要約する)
-- frontmatterの `emoji` を、記事内容に合った絵文字に調整する
-- frontmatterの `topics` を、記事内容に合わせて追記・調整する
-- 内容を確認したうえで `published: true` に変更し、push する
+- 生成された章ファイル(`books/ai-theories-roadmap/<slug>.md`)の内容を確認する。実装セクションの要約(ノートブックの実装セルの内容がそのまま転記されるため、章として読みやすい分量・粒度に要約する)などが必要であれば調整する。
+- `books/ai-theories-roadmap/config.yaml` の `published` を `true` に変更し、push する。
+
+`0_introduction.md`・`config.yaml` の chapters は `scripts/generate_book.py` によって実行のたびに再構築されるため、直接の手動編集は次回 Workflow 実行時に上書きされます。内容を変えたい場合は、章の並び順は `ai-theories` 側の `theories/README.md`(推奨学習順序表)を、`config.yaml` の `title` ・`summary` ・`topics` ・`price` ・`published` は `books/ai-theories-roadmap/config.yaml` を直接編集してください(これらのフィールドは再生成時も既存の値を保持します)。
 
 ---
 
 ## Workflow実行内容
 
-### 本(book)の自動生成
+### 本(book)の「はじめに」章・章一覧の自動生成
 
-`books/ai-theories-roadmap/` は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(記事化状況)から `scripts/generate_book.py` によって**自動生成**される Zenn 本です。
+`books/ai-theories-roadmap/0_introduction.md` と `config.yaml` の `chapters` 配列は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(章化状況)から `scripts/generate_book.py` によって**自動生成**されます。
 
-- 各章はトピック 1 つに対応し、カテゴリ・前提知識・扱う内容の概要と、記事化済みであれば対応する Zenn 記事へのリンクを掲載します。まだ記事化されていないトピックの章は概要のみで、`🚧 このトピックはまだ記事化されていません(準備中)`と表示されます。
-- `scripts/generate_book.py` は実行のたびに `books/ai-theories-roadmap/` 配下を**まるごと再生成**します(差分マージは行いません)。**このディレクトリ配下を手動編集しても、次回の Workflow 実行時に上書きされ、反映されません**。内容を変えたい場合は `ai-theories` 側の `theories/README.md` を修正してください。
-- 生成される `config.yaml` の `published` は常に `false`(下書き)です。内容を確認のうえ、公開する場合は手動で `true` に切り替えてください。
+- `0_introduction.md` には、本の目的・コードのライセンス・`ai-theories` 本体へのリンクに加え、`theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧表を掲載します。`manifest.json` に章が存在するトピックはトピック名が該当章へのリンクになり、まだ章になっていないトピックは「🚧 準備中」と表示されます(行自体は残ります)。
+- `config.yaml` の `chapters` 配列は、先頭が常に `0_introduction`、以降は `manifest.json` に存在する章slugをノートブック番号の昇順(前編・後編分割時は前編→後編の順)で並べたものに再構築されます。`title` ・`summary` ・`topics` ・`price` ・`published` は既存の値を保持します(`config.yaml` が存在しない場合のみ初期値を設定し、`published` の初期値は `false` です)。
+- 各トピックの章本文自体は `scripts/generate_book.py` ではなく `scripts/nb_to_zenn.py` が生成します。`scripts/generate_book.py` は `0_introduction.md` と `config.yaml` の chapters 以外のファイルには一切触れません。
 
-### 記事の自動分割(前編・後編)
+### 章の自動分割(前編・後編)
 
-Zennの記事本文には文字数上限(80,000文字)があります。生成した記事本文(frontmatterを除く)が閾値(70,000文字。上限に対して安全マージンを持たせた値)を超える場合、`scripts/nb_to_zenn.py` は自動的に以下の2記事に分割生成します。
+Zennの記事本文には文字数上限(80,000文字)があります。生成した章本文(frontmatterを除く)が閾値(70,000文字。上限に対して安全マージンを持たせた値)を超える場合、`scripts/nb_to_zenn.py` は自動的に以下の2章に分割生成します。
 
 - 前編(理論編): `<slug>-theory.md`(タイトル〜理論までのセクション)
 - 後編(実装・実験編): `<slug>-practice.md`(実装方針〜結果・考察までのセクション)
 
-分割時、画像フォルダ(`images/<slug>/`)は分割せず両記事で共有参照します。Zennの記事URLはslugから生成時点で確定するため、前編・後編それぞれの冒頭には相互リンク(`https://zenn.dev/<Zennユーザー名>/articles/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一記事(`<slug>.md`)として生成されます。
+分割時、画像フォルダ(`images/<slug>/`)は分割せず両章で共有参照します。Zennの章URLはslugから生成時点で確定するため、前編・後編それぞれの冒頭には相互リンク(`https://zenn.dev/<Zennユーザー名>/books/ai-theories-roadmap/viewer/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一の章(`<slug>.md`)として生成されます。
 
 ### ノートブック間リンクの変換
 
-ai-theoriesのノートブックは、Markdownセル内で他のノートブックを `[001](./001_attention_mechanism.ipynb)` のような相対パスのリンクで参照することがあります。`scripts/nb_to_zenn.py` はこれを検出し、`scripts/manifest.json`(ノートブック番号 → 生成済み記事slugの対応表。記事生成のたびに自動更新される生成物)を参照して、以下のようにリンク先を書き換えます。リンクテキスト(`[001]`の部分)は変更しません。
+ai-theoriesのノートブックは、Markdownセル内で他のノートブックを `[001](./001_attention_mechanism.ipynb)` のような相対パスのリンクで参照することがあります。`scripts/nb_to_zenn.py` はこれを検出し、`scripts/manifest.json`(ノートブック番号 → 生成済み章slugの対応表。章生成のたびに自動更新される生成物)を参照して、以下のようにリンク先を書き換えます。リンクテキスト(`[001]`の部分)は変更しません。
 
-- リンク先のノートブック番号が `manifest.json` に登録済み(すでにZenn記事化済み)の場合: ZennのURL(`https://zenn.dev/<Zennユーザー名>/articles/<slug>`)に置き換える。前編・後編に分割された記事の場合は、前編(理論編)のリンクに固定する。
+- リンク先のノートブック番号が `manifest.json` に登録済み(すでに章化済み)の場合: 本の章のURL(`https://zenn.dev/<Zennユーザー名>/books/ai-theories-roadmap/viewer/<slug>`)に置き換える。前編・後編に分割された章の場合は、前編(理論編)のリンクに固定する。
 - リンク先のノートブックはai-theories内に存在するが、まだ `manifest.json` に登録されていない(未変換)場合: GitHubの絶対URL(`https://github.com/kojikojiprg/ai-theories/blob/main/theories/<カテゴリ>/<ファイル名>`)に置き換える(相対パスのままではZenn上でリンク切れになるため)。
 - リンク先のノートブックがai-theories内に見つからない場合(未作成のトピックなど): リンクは変更せず、実行ログに警告を出力する。
-
-### 記事末尾のナビゲーション(前後リンク)の自動生成
-
-`scripts/manifest.json` に登録済みの記事を、ノートブック番号の昇順・各エントリの `slugs` 配列の順で連結した「フラットな並び」に基づき、各記事の直前・直後の記事へのリンクを記事本文の末尾に自動追記します。区間は `<!-- zenn-nav:start -->` 〜 `<!-- zenn-nav:end -->` のマーカーで囲まれており、後から機械的に検出・置換できるようになっています。
-
-- 並びの先頭の記事(直前が存在しない)は「前」の行を省略する。
-- 並びの末尾の記事(まだ次の番号が `manifest.json` に登録されていない)は「次」の行を `- 次: <次の番号>(未作成)` というリンクなしのプレーンテキストにする。
-- 新しいノートブックを変換すると、直前の記事(`manifest.json` 内で対象番号未満の最大の番号のエントリの最後のslug)のnav区間だけを機械的に書き換え、「(未作成)」だった「次」を実リンクにバックフィルする。本文の他の部分(手動で編集済みの内容)には影響しない。
 
 ---
 
