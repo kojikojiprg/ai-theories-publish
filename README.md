@@ -13,8 +13,11 @@ ai-theories-publish/
 ├── ai-theories/             # ai-theories リポジトリの submodule(参照専用)
 ├── articles/                # Zenn 記事(Markdown)
 ├── images/                  # 記事内で参照する画像
+├── books/
+│   └── ai-theories-roadmap/ # Zenn 本(学習ロードマップ、生成物)
 ├── scripts/
 │   ├── nb_to_zenn.py        # ノートブックを Zenn 記事に変換するスクリプト
+│   ├── generate_book.py     # theories/README.md・manifest.json から Zenn 本を生成するスクリプト
 │   └── manifest.json        # ノートブック番号 → 生成済み記事slug・タイトルの対応表(生成物)
 └── .github/workflows/
     └── publish_notebook.yml # 記事生成・pushを行う Workflow
@@ -27,9 +30,18 @@ ai-theories-publish/
 3. Workflow が以下を自動で行う。
    - `ai-theories` submoduleの最新化
    - `scripts/nb_to_zenn.py` によるノートブック → Zenn記事(Markdown)への変換
-   - `articles/` ・`images/` ・submodule参照の更新差分のコミット・push
+   - `scripts/generate_book.py` による本(book)の再生成
+   - `articles/` ・`images/` ・`books/` ・submodule参照の更新差分のコミット・push
 
 Workflowは `workflow_dispatch` による手動実行のみをトリガーとします。push検知等による自動実行は行いません。
+
+## 本(book)の自動生成
+
+`books/ai-theories-roadmap/` は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(記事化状況)から `scripts/generate_book.py` によって**自動生成**される Zenn 本です。
+
+- 各章はトピック 1 つに対応し、カテゴリ・前提知識・扱う内容の概要と、記事化済みであれば対応する Zenn 記事へのリンクを掲載します。まだ記事化されていないトピックの章は概要のみで、`🚧 このトピックはまだ記事化されていません(準備中)`と表示されます。
+- `scripts/generate_book.py` は実行のたびに `books/ai-theories-roadmap/` 配下を**まるごと再生成**します(差分マージは行いません)。**このディレクトリ配下を手動編集しても、次回の Workflow 実行時に上書きされ、反映されません**。内容を変えたい場合は `ai-theories` 側の `theories/README.md` を修正してください。
+- 生成される `config.yaml` の `published` は常に `false`(下書き)です。内容を確認のうえ、公開する場合は手動で `true` に切り替えてください。
 
 ## 記事の自動分割(前編・後編)
 
