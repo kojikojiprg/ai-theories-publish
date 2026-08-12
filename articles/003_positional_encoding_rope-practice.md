@@ -1434,3 +1434,10 @@ plt.show()
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb
+
+
+<!-- zenn-nav:start -->
+---
+- 前: [位置エンコーディング(Positional Encoding)/ RoPE(理論編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)
+- 次: 004(未作成)
+<!-- zenn-nav:end -->

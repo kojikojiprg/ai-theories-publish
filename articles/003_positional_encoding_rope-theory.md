@@ -354,3 +354,10 @@ RoPE は **Query と Key のみに適用し、Value には適用しない**。Ro
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb
+
+
+<!-- zenn-nav:start -->
+---
+- 前: [Transformer Block(実装・実験編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-practice)
+- 次: [位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-practice)
+<!-- zenn-nav:end -->

@@ -3,20 +3,31 @@
     "slugs": [
       "001_attention_mechanism"
     ],
-    "split": false
+    "split": false,
+    "titles": [
+      "注意機構(Attention Mechanism)"
+    ]
   },
   "002": {
     "slugs": [
       "002_transformer_block-theory",
       "002_transformer_block-practice"
     ],
-    "split": true
+    "split": true,
+    "titles": [
+      "Transformer Block(理論編)",
+      "Transformer Block(実装・実験編)"
+    ]
   },
   "003": {
     "slugs": [
       "003_positional_encoding_rope-theory",
       "003_positional_encoding_rope-practice"
     ],
-    "split": true
+    "split": true,
+    "titles": [
+      "位置エンコーディング(Positional Encoding)/ RoPE(理論編)",
+      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編)"
+    ]
   }
 }

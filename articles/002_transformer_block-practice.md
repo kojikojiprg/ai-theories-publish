@@ -1444,3 +1444,10 @@ print(f"ヘッド平均の対角成分の重み: {diagonal_mass_s2s:.4f}(1.0 = �
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/002_transformer_block.ipynb
+
+
+<!-- zenn-nav:start -->
+---
+- 前: [Transformer Block(理論編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory)
+- 次: [位置エンコーディング(Positional Encoding)/ RoPE(理論編)](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)
+<!-- zenn-nav:end -->

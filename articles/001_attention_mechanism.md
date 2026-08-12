@@ -1318,3 +1318,9 @@ for head in range(N_HEADS_COPY):
 ## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/001_attention_mechanism.ipynb
+
+
+<!-- zenn-nav:start -->
+---
+- 次: [Transformer Block(理論編)](https://zenn.dev/kojikojiprg/articles/002_transformer_block-theory)
+<!-- zenn-nav:end -->

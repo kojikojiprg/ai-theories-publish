@@ -27,6 +27,13 @@ IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
 )
 NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+\.ipynb)\)")
 NOTEBOOK_LINK_NUMBER_PATTERN = re.compile(r"^(\d{3})_")
+NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
+
+NAV_START_MARKER = "<!-- zenn-nav:start -->"
+NAV_END_MARKER = "<!-- zenn-nav:end -->"
+NAV_BLOCK_PATTERN = re.compile(
+    re.escape(NAV_START_MARKER) + r".*?" + re.escape(NAV_END_MARKER), re.DOTALL
+)
 
 DEFAULT_EMOJI = "📝"
 DEFAULT_TOPICS = ["ai", "llm", "vlm", "pytorch", "machine learning"]
@@ -110,6 +117,82 @@ def save_manifest(manifest: dict) -> None:
     )
 
 
+def build_flat_article_list(manifest: dict) -> list[dict]:
+    flat = []
+    for number in sorted(manifest.keys(), key=int):
+        entry = manifest[number]
+        for slug, title in zip(entry["slugs"], entry["titles"]):
+            flat.append({"number": number, "slug": slug, "title": title})
+    return flat
+
+
+def build_nav_lines(manifest: dict, current_number: str, current_slug: str) -> list[str]:
+    flat = build_flat_article_list(manifest)
+    index = next(i for i, article in enumerate(flat) if article["slug"] == current_slug)
+
+    lines = [NAV_START_MARKER, "---"]
+    if index > 0:
+        prev = flat[index - 1]
+        lines.append(f"- 前: [{prev['title']}]({build_zenn_article_url(prev['slug'])})")
+    if index < len(flat) - 1:
+        nxt = flat[index + 1]
+        lines.append(f"- 次: [{nxt['title']}]({build_zenn_article_url(nxt['slug'])})")
+    else:
+        next_number = f"{int(current_number) + 1:03d}"
+        lines.append(f"- 次: {next_number}(未作成)")
+    lines.append(NAV_END_MARKER)
+    return lines
+
+
+def build_nav_block(manifest: dict, current_number: str, current_slug: str) -> str:
+    core = "\n".join(build_nav_lines(manifest, current_number, current_slug))
+    return f"\n\n{core}\n"
+
+
+def find_previous_manifest_number(manifest: dict, current_number: str) -> str | None:
+    candidates = [n for n in manifest if int(n) < int(current_number)]
+    if not candidates:
+        return None
+    return max(candidates, key=int)
+
+
+def backfill_previous_article(manifest: dict, current_number: str) -> None:
+    prev_number = find_previous_manifest_number(manifest, current_number)
+    if prev_number is None:
+        return
+
+    prev_slug = manifest[prev_number]["slugs"][-1]
+    prev_path = ARTICLES_DIR / f"{prev_slug}.md"
+    if not prev_path.exists():
+        print(
+            f"警告: バックフィル対象の記事 {prev_path.relative_to(REPO_ROOT)} が"
+            "見つかりません。ナビゲーションの更新をスキップしました。",
+            file=sys.stderr,
+        )
+        return
+
+    content = prev_path.read_text(encoding="utf-8")
+    new_core = "\n".join(build_nav_lines(manifest, prev_number, prev_slug))
+
+    if not NAV_BLOCK_PATTERN.search(content):
+        print(
+            f"警告: {prev_path.relative_to(REPO_ROOT)} にnav区間のマーカーが"
+            "見つからないため、バックフィルをスキップしました。",
+            file=sys.stderr,
+        )
+        return
+
+    updated_content = NAV_BLOCK_PATTERN.sub(lambda _: new_core, content, count=1)
+    if updated_content == content:
+        return
+
+    prev_path.write_text(updated_content, encoding="utf-8")
+    print(
+        f"{prev_path.relative_to(REPO_ROOT)} のナビゲーション(次: {current_number})を"
+        "更新しました。"
+    )
+
+
 def find_notebook_by_number(number: str) -> Path | None:
     matches = sorted(AI_THEORIES_THEORIES_DIR.rglob(f"{number}_*.ipynb"))
     if len(matches) != 1:
@@ -160,6 +243,14 @@ def rewrite_notebook_links(body: str, manifest: dict) -> str:
         return f"[{link_text}]({new_url})"
 
     return NOTEBOOK_LINK_PATTERN.sub(replace, body)
+
+
+def remove_not_yet_created_markers(body: str) -> str:
+    def replace(match: re.Match) -> str:
+        leading_space, trailing_space = match.group(1), match.group(2)
+        return " " if leading_space or trailing_space else ""
+
+    return NOT_YET_CREATED_PATTERN.sub(replace, body)
 
 
 def extract_slug(notebook_path: Path) -> str:
@@ -284,11 +375,19 @@ def main() -> None:
     title = extract_title(nb)
     body = convert_to_markdown(nb, slug, publish_repo)
     body = rewrite_notebook_links(body, manifest)
+    body = remove_not_yet_created_markers(body)
     source_link = build_source_link(notebook_path)
 
     if len(body + source_link) <= CHAR_THRESHOLD:
+        manifest[args.notebook_number] = {
+            "slugs": [slug],
+            "split": False,
+            "titles": [title],
+        }
+        nav_block = build_nav_block(manifest, args.notebook_number, slug)
+
         article_path = ARTICLES_DIR / f"{slug}.md"
-        length = write_article(article_path, title, body + source_link)
+        length = write_article(article_path, title, body + source_link + nav_block)
         print(f"{article_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
         print(
             "published: false の下書きとして生成しました。"
@@ -296,13 +395,15 @@ def main() -> None:
             "手動で行ってください。"
         )
 
-        manifest[args.notebook_number] = {"slugs": [slug], "split": False}
+        backfill_previous_article(manifest, args.notebook_number)
         save_manifest(manifest)
         print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
         return
 
     theory_slug = f"{slug}-theory"
     practice_slug = f"{slug}-practice"
+    theory_title = f"{title}(理論編)"
+    practice_title = f"{title}(実装・実験編)"
 
     theory_body, practice_body = split_body_at_implementation_plan(body)
     theory_content = build_theory_part_intro(practice_slug) + theory_body + source_link
@@ -313,13 +414,19 @@ def main() -> None:
     check_char_limit("前編(理論編)", theory_content)
     check_char_limit("後編(実装・実験編)", practice_content)
 
+    manifest[args.notebook_number] = {
+        "slugs": [theory_slug, practice_slug],
+        "split": True,
+        "titles": [theory_title, practice_title],
+    }
+    theory_content += build_nav_block(manifest, args.notebook_number, theory_slug)
+    practice_content += build_nav_block(manifest, args.notebook_number, practice_slug)
+
     theory_path = ARTICLES_DIR / f"{theory_slug}.md"
     practice_path = ARTICLES_DIR / f"{practice_slug}.md"
 
-    theory_length = write_article(theory_path, f"{title}(理論編)", theory_content)
-    practice_length = write_article(
-        practice_path, f"{title}(実装・実験編)", practice_content
-    )
+    theory_length = write_article(theory_path, theory_title, theory_content)
+    practice_length = write_article(practice_path, practice_title, practice_content)
 
     print(
         f"本文が閾値({CHAR_THRESHOLD}文字)を超えたため、"
@@ -334,10 +441,7 @@ def main() -> None:
         "手動で行ってください。"
     )
 
-    manifest[args.notebook_number] = {
-        "slugs": [theory_slug, practice_slug],
-        "split": True,
-    }
+    backfill_previous_article(manifest, args.notebook_number)
     save_manifest(manifest)
     print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
 
