@@ -3,7 +3,7 @@ title: "注意機構(Attention Mechanism)"
 emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
 type: "tech"
 topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: false
+published: true
 ---
 
 # 001. 注意機構(Attention Mechanism)

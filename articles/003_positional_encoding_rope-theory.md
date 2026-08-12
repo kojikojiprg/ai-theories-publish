@@ -3,7 +3,7 @@ title: "位置エンコーディング(Positional Encoding)/ RoPE(理論編)"
 emoji: "📝" # 仮の絵文字。公開前に手動で調整すること
 type: "tech"
 topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開前に内容に応じて手動で追記・調整すること
-published: false
+published: true
 ---
 
 この記事は前編(理論編)です。実装・実験編は [こちら](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-practice)。
