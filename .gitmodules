@@ -1,0 +1,3 @@
+[submodule "ai-theories"]
+	path = ai-theories
+	url = https://github.com/kojikojiprg/ai-theories.git

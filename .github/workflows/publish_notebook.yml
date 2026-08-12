@@ -1,0 +1,50 @@
+name: Publish Notebook
+
+on:
+  workflow_dispatch:
+    inputs:
+      notebook_number:
+        description: "変換対象ノートブックの3桁連番(例: 003)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをsubmodule込みでcheckout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: submoduleを最新化
+        run: git submodule update --remote --merge
+
+      - name: uvをセットアップ
+        uses: astral-sh/setup-uv@v3
+
+      - name: 記事を生成
+        run: |
+          uv run --with nbconvert python3 scripts/nb_to_zenn.py \
+            "${{ inputs.notebook_number }}" \
+            --repo "${{ github.repository }}"
+
+      - name: 差分をコミット・push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add articles/ images/ ai-theories
+
+          if git diff --cached --quiet; then
+            echo "差分がないため、コミットをスキップします。"
+            exit 0
+          fi
+
+          SUBMODULE_SHA=$(git -C ai-theories rev-parse --short HEAD)
+          git commit -m "docs: add draft article for notebook ${{ inputs.notebook_number }} (ai-theories@${SUBMODULE_SHA})"
+          git push
