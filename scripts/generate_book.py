@@ -117,10 +117,13 @@ def build_config_yaml(topics: list[dict]) -> str:
         "price: 0",
         "published: false",
         "chapters:",
-        "  - 0_introduction",
+        '  - "0_introduction"',
     ]
     for topic in topics:
-        lines.append(f"  - {topic['number']}")
+        # 数字のみのチャプター名(例: "010")はクォートしないとYAMLの8進数リテラルと
+        # 誤認識され、Zennのchapters検証(配列のネストやハッシュ不可)に失敗するため、
+        # 文字列であることを明示するために引用符で囲む。
+        lines.append(f'  - "{topic["number"]}"')
     return "\n".join(lines) + "\n"
 
 
