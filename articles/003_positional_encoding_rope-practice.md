@@ -6,7 +6,7 @@ topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開
 published: false
 ---
 
-この記事は後編(実装・実験編)です。前編(理論編)はこちら: <!-- TODO: 前編のURLに置き換え -->
+この記事は後編(実装・実験編)です。前編(理論編)は [こちら](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-theory)。
 
 ## 4. 実装方針 / Implementation Plan
 

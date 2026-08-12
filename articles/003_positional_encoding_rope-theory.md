@@ -6,9 +6,7 @@ topics: ["ai", "llm", "vlm", "pytorch", "machine learning"] # 初期値。公開
 published: false
 ---
 
-この記事は前編(理論編)です。実装・実験編は近日公開予定です。
-
-<!-- TODO: 後編公開後にリンクを追加 -->
+この記事は前編(理論編)です。実装・実験編は [こちら](https://zenn.dev/kojikojiprg/articles/003_positional_encoding_rope-practice)。
 
 # 003. 位置エンコーディング(Positional Encoding)/ RoPE
 

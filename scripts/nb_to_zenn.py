@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -31,6 +32,9 @@ DEFAULT_TOPICS = ["ai", "llm", "vlm", "pytorch", "machine learning"]
 CHAR_THRESHOLD = 70_000
 CHAR_HARD_LIMIT = 80_000
 
+# Zennのユーザー名。将来変わる可能性があるため、環境変数での上書きも可能にしておく。
+ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -50,8 +54,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def resolve_publish_repo(repo_arg: str | None) -> str:
-    import os
-
     repo = repo_arg or os.environ.get("GITHUB_REPOSITORY")
     if not repo:
         print(
@@ -170,18 +172,18 @@ def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
     return body[: match.start()], body[match.start() :]
 
 
-def build_theory_part_intro() -> str:
-    return (
-        "この記事は前編(理論編)です。実装・実験編は近日公開予定です。\n\n"
-        "<!-- TODO: 後編公開後にリンクを追加 -->\n\n"
-    )
+def build_zenn_article_url(slug: str) -> str:
+    return f"https://zenn.dev/{ZENN_USERNAME}/articles/{slug}"
 
 
-def build_practice_part_intro() -> str:
-    return (
-        "この記事は後編(実装・実験編)です。前編(理論編)はこちら: "
-        "<!-- TODO: 前編のURLに置き換え -->\n\n"
-    )
+def build_theory_part_intro(practice_slug: str) -> str:
+    url = build_zenn_article_url(practice_slug)
+    return f"この記事は前編(理論編)です。実装・実験編は [こちら]({url})。\n\n"
+
+
+def build_practice_part_intro(theory_slug: str) -> str:
+    url = build_zenn_article_url(theory_slug)
+    return f"この記事は後編(実装・実験編)です。前編(理論編)は [こちら]({url})。\n\n"
 
 
 def write_article(article_path: Path, title: str, content_body: str) -> int:
@@ -225,15 +227,20 @@ def main() -> None:
         )
         return
 
+    theory_slug = f"{slug}-theory"
+    practice_slug = f"{slug}-practice"
+
     theory_body, practice_body = split_body_at_implementation_plan(body)
-    theory_content = build_theory_part_intro() + theory_body + source_link
-    practice_content = build_practice_part_intro() + practice_body + source_link
+    theory_content = build_theory_part_intro(practice_slug) + theory_body + source_link
+    practice_content = (
+        build_practice_part_intro(theory_slug) + practice_body + source_link
+    )
 
     check_char_limit("前編(理論編)", theory_content)
     check_char_limit("後編(実装・実験編)", practice_content)
 
-    theory_path = ARTICLES_DIR / f"{slug}-theory.md"
-    practice_path = ARTICLES_DIR / f"{slug}-practice.md"
+    theory_path = ARTICLES_DIR / f"{theory_slug}.md"
+    practice_path = ARTICLES_DIR / f"{practice_slug}.md"
 
     theory_length = write_article(theory_path, f"{title}(理論編)", theory_content)
     practice_length = write_article(
@@ -248,9 +255,9 @@ def main() -> None:
     print(f"{practice_path.relative_to(REPO_ROOT)} を生成しました({practice_length}文字)。")
     print(
         "published: false の下書きとして生成しました。"
-        "記事として公開する前に、実装セクションの要約・emoji・topicsの調整、"
-        "および前編・後編間の相互リンク(本文中のTODOコメント箇所)の手動追加を"
-        "行ってください。"
+        "前編・後編間の相互リンクは確定URLで埋め込み済みです。"
+        "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
+        "手動で行ってください。"
     )
 
 
