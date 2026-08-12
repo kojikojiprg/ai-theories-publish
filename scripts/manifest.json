@@ -1,0 +1,22 @@
+{
+  "001": {
+    "slugs": [
+      "001_attention_mechanism"
+    ],
+    "split": false
+  },
+  "002": {
+    "slugs": [
+      "002_transformer_block-theory",
+      "002_transformer_block-practice"
+    ],
+    "split": true
+  },
+  "003": {
+    "slugs": [
+      "003_positional_encoding_rope-theory",
+      "003_positional_encoding_rope-practice"
+    ],
+    "split": true
+  }
+}

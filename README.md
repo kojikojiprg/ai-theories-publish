@@ -14,7 +14,8 @@ ai-theories-publish/
 ├── articles/                # Zenn 記事(Markdown)
 ├── images/                  # 記事内で参照する画像
 ├── scripts/
-│   └── nb_to_zenn.py        # ノートブックを Zenn 記事に変換するスクリプト
+│   ├── nb_to_zenn.py        # ノートブックを Zenn 記事に変換するスクリプト
+│   └── manifest.json        # ノートブック番号 → 生成済み記事slugの対応表(生成物)
 └── .github/workflows/
     └── publish_notebook.yml # 記事生成・pushを行う Workflow
 ```
@@ -38,6 +39,14 @@ Zennの記事本文には文字数上限(80,000文字)があります。生成�
 - 後編(実装・実験編): `<slug>-practice.md`(実装方針〜結果・考察までのセクション)
 
 分割時、画像フォルダ(`images/<slug>/`)は分割せず両記事で共有参照します。Zennの記事URLはslugから生成時点で確定するため、前編・後編それぞれの冒頭には相互リンク(`https://zenn.dev/<Zennユーザー名>/articles/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一記事(`<slug>.md`)として生成されます。
+
+## ノートブック間リンクの変換
+
+ai-theoriesのノートブックは、Markdownセル内で他のノートブックを `[001](./001_attention_mechanism.ipynb)` のような相対パスのリンクで参照することがあります。`scripts/nb_to_zenn.py` はこれを検出し、`scripts/manifest.json`(ノートブック番号 → 生成済み記事slugの対応表。記事生成のたびに自動更新される生成物)を参照して、以下のようにリンク先を書き換えます。リンクテキスト(`[001]`の部分)は変更しません。
+
+- リンク先のノートブック番号が `manifest.json` に登録済み(すでにZenn記事化済み)の場合: ZennのURL(`https://zenn.dev/<Zennユーザー名>/articles/<slug>`)に置き換える。前編・後編に分割された記事の場合は、前編(理論編)のリンクに固定する。
+- リンク先のノートブックはai-theories内に存在するが、まだ `manifest.json` に登録されていない(未変換)場合: GitHubの絶対URL(`https://github.com/kojikojiprg/ai-theories/blob/main/theories/<カテゴリ>/<ファイル名>`)に置き換える(相対パスのままではZenn上でリンク切れになるため)。
+- リンク先のノートブックがai-theories内に見つからない場合(未作成のトピックなど): リンクは変更せず、実行ログに警告を出力する。
 
 ## 実行後に手動で行う作業
 

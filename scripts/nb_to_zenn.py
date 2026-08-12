@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 AI_THEORIES_THEORIES_DIR = REPO_ROOT / "ai-theories" / "theories"
 ARTICLES_DIR = REPO_ROOT / "articles"
 IMAGES_DIR = REPO_ROOT / "images"
+MANIFEST_PATH = REPO_ROOT / "scripts" / "manifest.json"
 
 NOTEBOOK_NUMBER_PATTERN = re.compile(r"^\d{3}$")
 SLUG_PATTERN = re.compile(r"^[a-z0-9_-]{12,50}$")
@@ -24,6 +25,8 @@ TITLE_HEADING_PATTERN = re.compile(r"^#\s*\d{3}\.\s*(.+?)\s*$")
 IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
     r"^##\s*\d+\.\s*実装方針(?:\s*/.*)?\s*$", re.MULTILINE
 )
+NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+\.ipynb)\)")
+NOTEBOOK_LINK_NUMBER_PATTERN = re.compile(r"^(\d{3})_")
 
 DEFAULT_EMOJI = "📝"
 DEFAULT_TOPICS = ["ai", "llm", "vlm", "pytorch", "machine learning"]
@@ -92,6 +95,71 @@ def find_notebook(notebook_number: str) -> Path:
         sys.exit(1)
 
     return matches[0]
+
+
+def load_manifest() -> dict:
+    if not MANIFEST_PATH.exists():
+        return {}
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def save_manifest(manifest: dict) -> None:
+    MANIFEST_PATH.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def find_notebook_by_number(number: str) -> Path | None:
+    matches = sorted(AI_THEORIES_THEORIES_DIR.rglob(f"{number}_*.ipynb"))
+    if len(matches) != 1:
+        return None
+    return matches[0]
+
+
+def resolve_notebook_link(relpath: str, manifest: dict) -> str | None:
+    basename = Path(relpath).name
+    number_match = NOTEBOOK_LINK_NUMBER_PATTERN.match(basename)
+    if not number_match:
+        return None
+    number = number_match.group(1)
+
+    target_notebook = find_notebook_by_number(number)
+    if target_notebook is None:
+        print(
+            f"警告: リンク先ノートブック(番号: {number})が見つかりません。"
+            "リンクは変更しません。",
+            file=sys.stderr,
+        )
+        return None
+
+    entry = manifest.get(number)
+    if entry is not None:
+        slugs = entry["slugs"]
+        if entry["split"]:
+            theory_slugs = [s for s in slugs if s.endswith("-theory")]
+            chosen_slug = theory_slugs[0] if theory_slugs else slugs[0]
+        else:
+            chosen_slug = slugs[0]
+        return build_zenn_article_url(chosen_slug)
+
+    category = target_notebook.parent.name
+    filename = target_notebook.name
+    return (
+        "https://github.com/kojikojiprg/ai-theories/blob/main/theories/"
+        f"{category}/{filename}"
+    )
+
+
+def rewrite_notebook_links(body: str, manifest: dict) -> str:
+    def replace(match: re.Match) -> str:
+        link_text, relpath = match.group(1), match.group(2)
+        new_url = resolve_notebook_link(relpath, manifest)
+        if new_url is None:
+            return match.group(0)
+        return f"[{link_text}]({new_url})"
+
+    return NOTEBOOK_LINK_PATTERN.sub(replace, body)
 
 
 def extract_slug(notebook_path: Path) -> str:
@@ -207,6 +275,7 @@ def check_char_limit(part_label: str, content_body: str) -> None:
 def main() -> None:
     args = parse_args()
     publish_repo = resolve_publish_repo(args.repo)
+    manifest = load_manifest()
 
     notebook_path = find_notebook(args.notebook_number)
     slug = extract_slug(notebook_path)
@@ -214,6 +283,7 @@ def main() -> None:
     nb = nbformat.read(notebook_path, as_version=4)
     title = extract_title(nb)
     body = convert_to_markdown(nb, slug, publish_repo)
+    body = rewrite_notebook_links(body, manifest)
     source_link = build_source_link(notebook_path)
 
     if len(body + source_link) <= CHAR_THRESHOLD:
@@ -225,6 +295,10 @@ def main() -> None:
             "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
             "手動で行ってください。"
         )
+
+        manifest[args.notebook_number] = {"slugs": [slug], "split": False}
+        save_manifest(manifest)
+        print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
         return
 
     theory_slug = f"{slug}-theory"
@@ -259,6 +333,13 @@ def main() -> None:
         "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
         "手動で行ってください。"
     )
+
+    manifest[args.notebook_number] = {
+        "slugs": [theory_slug, practice_slug],
+        "split": True,
+    }
+    save_manifest(manifest)
+    print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
 
 
 if __name__ == "__main__":
