@@ -1,4 +1,6 @@
-# ai-theories-publish
+# The AI Theories 投稿用リポジトリ
+
+---
 
 ## このリポジトリの位置づけ
 
@@ -23,7 +25,11 @@ ai-theories-publish/
     └── publish_notebook.yml # 記事生成・pushを行う Workflow
 ```
 
-## Workflowの実行手順
+---
+
+## 記事投稿手順
+
+### Workflowの実行手順
 
 1. GitHubの Actions タブから `Publish Notebook` Workflow を開く。
 2. `Run workflow` から、変換対象ノートブックの3桁連番(例: `003`)を `notebook_number` に入力して実行する。
@@ -35,7 +41,20 @@ ai-theories-publish/
 
 Workflowは `workflow_dispatch` による手動実行のみをトリガーとします。push検知等による自動実行は行いません。
 
-## 本(book)の自動生成
+### Workflow実行後に手動で行う作業
+
+Workflowによって生成される記事は `published: false` の下書きです。公開前に、以下を手動で行ってください。
+
+- 実装セクションの要約(ノートブックの実装セルの内容がそのまま転記されるため、記事として読みやすい分量・粒度に要約する)
+- frontmatterの `emoji` を、記事内容に合った絵文字に調整する
+- frontmatterの `topics` を、記事内容に合わせて追記・調整する
+- 内容を確認したうえで `published: true` に変更し、push する
+
+---
+
+## Workflow実行内容
+
+### 本(book)の自動生成
 
 `books/ai-theories-roadmap/` は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(記事化状況)から `scripts/generate_book.py` によって**自動生成**される Zenn 本です。
 
@@ -43,7 +62,7 @@ Workflowは `workflow_dispatch` による手動実行のみをトリガーとし
 - `scripts/generate_book.py` は実行のたびに `books/ai-theories-roadmap/` 配下を**まるごと再生成**します(差分マージは行いません)。**このディレクトリ配下を手動編集しても、次回の Workflow 実行時に上書きされ、反映されません**。内容を変えたい場合は `ai-theories` 側の `theories/README.md` を修正してください。
 - 生成される `config.yaml` の `published` は常に `false`(下書き)です。内容を確認のうえ、公開する場合は手動で `true` に切り替えてください。
 
-## 記事の自動分割(前編・後編)
+### 記事の自動分割(前編・後編)
 
 Zennの記事本文には文字数上限(80,000文字)があります。生成した記事本文(frontmatterを除く)が閾値(70,000文字。上限に対して安全マージンを持たせた値)を超える場合、`scripts/nb_to_zenn.py` は自動的に以下の2記事に分割生成します。
 
@@ -52,7 +71,7 @@ Zennの記事本文には文字数上限(80,000文字)があります。生成�
 
 分割時、画像フォルダ(`images/<slug>/`)は分割せず両記事で共有参照します。Zennの記事URLはslugから生成時点で確定するため、前編・後編それぞれの冒頭には相互リンク(`https://zenn.dev/<Zennユーザー名>/articles/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一記事(`<slug>.md`)として生成されます。
 
-## ノートブック間リンクの変換
+### ノートブック間リンクの変換
 
 ai-theoriesのノートブックは、Markdownセル内で他のノートブックを `[001](./001_attention_mechanism.ipynb)` のような相対パスのリンクで参照することがあります。`scripts/nb_to_zenn.py` はこれを検出し、`scripts/manifest.json`(ノートブック番号 → 生成済み記事slugの対応表。記事生成のたびに自動更新される生成物)を参照して、以下のようにリンク先を書き換えます。リンクテキスト(`[001]`の部分)は変更しません。
 
@@ -60,7 +79,7 @@ ai-theoriesのノートブックは、Markdownセル内で他のノートブッ�
 - リンク先のノートブックはai-theories内に存在するが、まだ `manifest.json` に登録されていない(未変換)場合: GitHubの絶対URL(`https://github.com/kojikojiprg/ai-theories/blob/main/theories/<カテゴリ>/<ファイル名>`)に置き換える(相対パスのままではZenn上でリンク切れになるため)。
 - リンク先のノートブックがai-theories内に見つからない場合(未作成のトピックなど): リンクは変更せず、実行ログに警告を出力する。
 
-## 記事末尾のナビゲーション(前後リンク)の自動生成
+### 記事末尾のナビゲーション(前後リンク)の自動生成
 
 `scripts/manifest.json` に登録済みの記事を、ノートブック番号の昇順・各エントリの `slugs` 配列の順で連結した「フラットな並び」に基づき、各記事の直前・直後の記事へのリンクを記事本文の末尾に自動追記します。区間は `<!-- zenn-nav:start -->` 〜 `<!-- zenn-nav:end -->` のマーカーで囲まれており、後から機械的に検出・置換できるようになっています。
 
@@ -68,18 +87,7 @@ ai-theoriesのノートブックは、Markdownセル内で他のノートブッ�
 - 並びの末尾の記事(まだ次の番号が `manifest.json` に登録されていない)は「次」の行を `- 次: <次の番号>(未作成)` というリンクなしのプレーンテキストにする。
 - 新しいノートブックを変換すると、直前の記事(`manifest.json` 内で対象番号未満の最大の番号のエントリの最後のslug)のnav区間だけを機械的に書き換え、「(未作成)」だった「次」を実リンクにバックフィルする。本文の他の部分(手動で編集済みの内容)には影響しない。
 
-## "(未作成)" 表記の自動除去
-
-記事本文(frontmatterを除く)に含まれる `(未作成)` ・ `(未作成 / TBD)` という文字列は、Zenn記事化された時点で不要になる注記であるため自動的に除去されます。この処理は本リポジトリ内で完結し、ai-theories側の `theories/README.md` には一切適用されません。
-
-## 実行後に手動で行う作業
-
-Workflowによって生成される記事は `published: false` の下書きです。公開前に、以下を手動で行ってください。
-
-- 実装セクションの要約(ノートブックの実装セルの内容がそのまま転記されるため、記事として読みやすい分量・粒度に要約する)
-- frontmatterの `emoji` を、記事内容に合った絵文字に調整する
-- frontmatterの `topics` を、記事内容に合わせて追記・調整する
-- 内容を確認したうえで `published: true` に変更し、push する
+---
 
 ## 用語・Markdown記法のルール
 
