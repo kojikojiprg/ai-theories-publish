@@ -20,9 +20,16 @@ IMAGES_DIR = REPO_ROOT / "images"
 NOTEBOOK_NUMBER_PATTERN = re.compile(r"^\d{3}$")
 SLUG_PATTERN = re.compile(r"^[a-z0-9_-]{12,50}$")
 TITLE_HEADING_PATTERN = re.compile(r"^#\s*\d{3}\.\s*(.+?)\s*$")
+IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
+    r"^##\s*\d+\.\s*実装方針(?:\s*/.*)?\s*$", re.MULTILINE
+)
 
 DEFAULT_EMOJI = "📝"
 DEFAULT_TOPICS = ["ai", "llm", "vlm", "pytorch", "machine learning"]
+
+# Zennの記事本文の文字数上限(80,000文字)に対して安全マージンを持たせた分割閾値。
+CHAR_THRESHOLD = 70_000
+CHAR_HARD_LIMIT = 80_000
 
 
 def parse_args() -> argparse.Namespace:
@@ -150,6 +157,51 @@ def build_source_link(notebook_path: Path) -> str:
     return f"\n\n## 元ノートブック(実装の全文はこちら)\n\n{url}\n"
 
 
+def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
+    match = IMPLEMENTATION_PLAN_HEADING_PATTERN.search(body)
+    if not match:
+        print(
+            "エラー: 記事本文が文字数上限に近いため前編・後編への分割を試みましたが、"
+            "分割の境界となる「実装方針」の見出しが見つかりませんでした。"
+            "ノートブック側の見出し表記(表記ゆれ)を確認してください。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return body[: match.start()], body[match.start() :]
+
+
+def build_theory_part_intro() -> str:
+    return (
+        "この記事は前編(理論編)です。実装・実験編は近日公開予定です。\n\n"
+        "<!-- TODO: 後編公開後にリンクを追加 -->\n\n"
+    )
+
+
+def build_practice_part_intro() -> str:
+    return (
+        "この記事は後編(実装・実験編)です。前編(理論編)はこちら: "
+        "<!-- TODO: 前編のURLに置き換え -->\n\n"
+    )
+
+
+def write_article(article_path: Path, title: str, content_body: str) -> int:
+    article_path.write_text(build_frontmatter(title) + content_body, encoding="utf-8")
+    return len(content_body)
+
+
+def check_char_limit(part_label: str, content_body: str) -> None:
+    length = len(content_body)
+    if length > CHAR_THRESHOLD:
+        print(
+            f"エラー: {part_label}の本文が {length} 文字となり、"
+            f"分割後も閾値({CHAR_THRESHOLD}文字。Zennの上限は{CHAR_HARD_LIMIT}文字)を"
+            "超えています。実装または実験セクションの内容をノートブック側か"
+            "スクリプト側でさらに絞り込む必要があります。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def main() -> None:
     args = parse_args()
     publish_repo = resolve_publish_repo(args.repo)
@@ -160,16 +212,45 @@ def main() -> None:
     nb = nbformat.read(notebook_path, as_version=4)
     title = extract_title(nb)
     body = convert_to_markdown(nb, slug, publish_repo)
-    body += build_source_link(notebook_path)
+    source_link = build_source_link(notebook_path)
 
-    article_path = ARTICLES_DIR / f"{slug}.md"
-    article_path.write_text(build_frontmatter(title) + body, encoding="utf-8")
+    if len(body + source_link) <= CHAR_THRESHOLD:
+        article_path = ARTICLES_DIR / f"{slug}.md"
+        length = write_article(article_path, title, body + source_link)
+        print(f"{article_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
+        print(
+            "published: false の下書きとして生成しました。"
+            "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
+            "手動で行ってください。"
+        )
+        return
 
-    print(f"{article_path.relative_to(REPO_ROOT)} を生成しました。")
+    theory_body, practice_body = split_body_at_implementation_plan(body)
+    theory_content = build_theory_part_intro() + theory_body + source_link
+    practice_content = build_practice_part_intro() + practice_body + source_link
+
+    check_char_limit("前編(理論編)", theory_content)
+    check_char_limit("後編(実装・実験編)", practice_content)
+
+    theory_path = ARTICLES_DIR / f"{slug}-theory.md"
+    practice_path = ARTICLES_DIR / f"{slug}-practice.md"
+
+    theory_length = write_article(theory_path, f"{title}(理論編)", theory_content)
+    practice_length = write_article(
+        practice_path, f"{title}(実装・実験編)", practice_content
+    )
+
+    print(
+        f"本文が閾値({CHAR_THRESHOLD}文字)を超えたため、"
+        "前編(理論編)・後編(実装・実験編)の2記事に分割生成しました。"
+    )
+    print(f"{theory_path.relative_to(REPO_ROOT)} を生成しました({theory_length}文字)。")
+    print(f"{practice_path.relative_to(REPO_ROOT)} を生成しました({practice_length}文字)。")
     print(
         "published: false の下書きとして生成しました。"
-        "記事として公開する前に、実装セクションの要約・emoji・topicsの調整を"
-        "手動で行ってください。"
+        "記事として公開する前に、実装セクションの要約・emoji・topicsの調整、"
+        "および前編・後編間の相互リンク(本文中のTODOコメント箇所)の手動追加を"
+        "行ってください。"
     )
 
 
