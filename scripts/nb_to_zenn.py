@@ -28,13 +28,19 @@ TITLE_HEADING_PATTERN = re.compile(r"^#\s*\d{3}\.\s*(.+?)\s*$")
 IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
     r"^##\s*\d+\.\s*実装方針(?:\s*/.*)?\s*$", re.MULTILINE
 )
+TOP_HEADING_PATTERN = re.compile(r"^##\s+\S.*$", re.MULTILINE)
+SUB_HEADING_PATTERN = re.compile(r"^###\s+\S.*$", re.MULTILINE)
 NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+\.ipynb)\)")
 NOTEBOOK_LINK_NUMBER_PATTERN = re.compile(r"^(\d{3})_")
 NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
 
-# Zennの記事本文の文字数上限(80,000文字)に対して安全マージンを持たせた分割閾値。
-CHAR_THRESHOLD = 70_000
-CHAR_HARD_LIMIT = 80_000
+# Zennの本(book)の章(chapter)本文の文字数上限。実際のデプロイエラー
+# (「本文のmarkdownには最大50000文字まで使用できます」)により判明した値。
+# 記事(article)の80,000文字上限とは異なる、より厳しい制限であることに注意。
+CHAR_HARD_LIMIT = 50_000
+# 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文・元ノートブックへの
+# リンクなど分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
+CHAR_THRESHOLD = 45_000
 
 # Zennのユーザー名。将来変わる可能性があるため、環境変数での上書きも可能にしておく。
 ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
@@ -243,18 +249,91 @@ def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
     return body[: match.start()], body[match.start() :]
 
 
+def split_at_headings(text: str, pattern: re.Pattern) -> list[str]:
+    """`pattern` に一致する見出し単位で `text` を分割する。
+    先頭の見出しより前のテキスト(存在する場合)も 1 つのチャンクとして扱う。
+    """
+    matches = list(pattern.finditer(text))
+    if not matches:
+        return [text]
+
+    chunks = []
+    if matches[0].start() > 0:
+        chunks.append(text[: matches[0].start()])
+    for i, match in enumerate(matches):
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        chunks.append(text[match.start() : end])
+    return chunks
+
+
+def pack_sections(sections: list[str], threshold: int) -> list[str]:
+    """連続するセクションを、連結後の文字数が threshold を超えない範囲で
+    先頭から貪欲に詰め込む。"""
+    groups: list[str] = []
+    current = ""
+    for section in sections:
+        candidate = current + section
+        if current and len(candidate) > threshold:
+            groups.append(current)
+            current = section
+        else:
+            current = candidate
+    if current:
+        groups.append(current)
+    return groups
+
+
+def split_body_into_chunks(body: str, threshold: int) -> list[str]:
+    """`##`見出し単位で body を閾値以下のチャンクにパッキングする。
+    1つの`##`セクションが単体で閾値を超える場合は、`###`見出し単位でさらに
+    分割してからパッキングする(それでも単体で閾値を超えるセクションが
+    残った場合は、そのまま1チャンクとして返し、呼び出し側の文字数検証に委ねる)。
+    """
+    top_sections = split_at_headings(body, TOP_HEADING_PATTERN)
+
+    expanded: list[str] = []
+    for section in top_sections:
+        if len(section) > threshold:
+            sub_sections = split_at_headings(section, SUB_HEADING_PATTERN)
+            if len(sub_sections) > 1:
+                expanded.extend(sub_sections)
+                continue
+        expanded.append(section)
+
+    return pack_sections(expanded, threshold)
+
+
 def build_zenn_book_chapter_url(slug: str) -> str:
     return f"https://zenn.dev/{ZENN_USERNAME}/books/{BOOK_SLUG}/viewer/{slug}"
 
 
-def build_theory_part_intro(practice_slug: str) -> str:
-    url = build_zenn_book_chapter_url(practice_slug)
-    return f"この記事は前編(理論編)です。実装・実験編は [こちら]({url})。\n\n"
+def build_part_slug(base_slug: str, kind: str, index: int, total: int) -> str:
+    if total == 1:
+        return f"{base_slug}-{kind}"
+    return f"{base_slug}-{kind}-{index + 1}"
 
 
-def build_practice_part_intro(theory_slug: str) -> str:
-    url = build_zenn_book_chapter_url(theory_slug)
-    return f"この記事は後編(実装・実験編)です。前編(理論編)は [こちら]({url})。\n\n"
+def build_part_title(base_title: str, kind: str, index: int, total: int) -> str:
+    kind_label = "理論編" if kind == "theory" else "実装・実験編"
+    if total == 1:
+        return f"{base_title}({kind_label})"
+    return f"{base_title}({kind_label} {index + 1}/{total})"
+
+
+def build_part_intro(part: dict, prev_part: dict | None, next_part: dict | None) -> str:
+    part_label = "前編" if part["kind"] == "theory" else "後編"
+    kind_label = "理論編" if part["kind"] == "theory" else "実装・実験編"
+    if part["total"] > 1:
+        kind_label = f"{kind_label} {part['index'] + 1}/{part['total']}"
+
+    lines = [f"この記事は{part_label}({kind_label})です。"]
+    if prev_part is not None:
+        url = build_zenn_book_chapter_url(prev_part["slug"])
+        lines.append(f"前の内容は [こちら]({url})。")
+    if next_part is not None:
+        url = build_zenn_book_chapter_url(next_part["slug"])
+        lines.append(f"続きは [こちら]({url})。")
+    return "".join(lines) + "\n\n"
 
 
 def write_chapter(chapter_path: Path, title: str, content_body: str) -> int:
@@ -267,9 +346,11 @@ def check_char_limit(part_label: str, content_body: str) -> None:
     if length > CHAR_THRESHOLD:
         print(
             f"エラー: {part_label}の本文が {length} 文字となり、"
-            f"分割後も閾値({CHAR_THRESHOLD}文字。Zennの上限は{CHAR_HARD_LIMIT}文字)を"
-            "超えています。実装または実験セクションの内容をノートブック側か"
-            "スクリプト側でさらに絞り込む必要があります。",
+            f"分割後も閾値({CHAR_THRESHOLD}文字。Zennの本(book)の章の上限は"
+            f"{CHAR_HARD_LIMIT}文字)を超えています。1つの`###`小節だけで"
+            "閾値を超えているなど、見出し単位の自動分割では対応できない可能性があります。"
+            "ノートブック側の内容を絞り込むか、見出しを追加して分割可能な単位を"
+            "細かくしてください。",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -311,44 +392,46 @@ def main() -> None:
         print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
         return
 
-    theory_slug = f"{slug}-theory"
-    practice_slug = f"{slug}-practice"
-    theory_title = f"{title}(理論編)"
-    practice_title = f"{title}(実装・実験編)"
-
     theory_body, practice_body = split_body_at_implementation_plan(body)
-    theory_content = build_theory_part_intro(practice_slug) + theory_body + source_link
-    practice_content = (
-        build_practice_part_intro(theory_slug) + practice_body + source_link
-    )
+    theory_chunks = split_body_into_chunks(theory_body, CHAR_THRESHOLD)
+    practice_chunks = split_body_into_chunks(practice_body, CHAR_THRESHOLD)
 
-    check_char_limit("前編(理論編)", theory_content)
-    check_char_limit("後編(実装・実験編)", practice_content)
+    parts: list[dict] = []
+    for i, chunk in enumerate(theory_chunks):
+        parts.append({"kind": "theory", "index": i, "total": len(theory_chunks), "body": chunk})
+    for i, chunk in enumerate(practice_chunks):
+        parts.append({"kind": "practice", "index": i, "total": len(practice_chunks), "body": chunk})
 
-    manifest[args.notebook_number] = {
-        "slugs": [theory_slug, practice_slug],
-        "split": True,
-        "titles": [theory_title, practice_title],
-    }
+    for part in parts:
+        part["slug"] = build_part_slug(slug, part["kind"], part["index"], part["total"])
+        part["title"] = build_part_title(title, part["kind"], part["index"], part["total"])
 
-    theory_path = BOOK_DIR / f"{theory_slug}.md"
-    practice_path = BOOK_DIR / f"{practice_slug}.md"
+    for i, part in enumerate(parts):
+        prev_part = parts[i - 1] if i > 0 else None
+        next_part = parts[i + 1] if i + 1 < len(parts) else None
+        content = build_part_intro(part, prev_part, next_part) + part["body"] + source_link
+        check_char_limit(part["title"], content)
 
-    theory_length = write_chapter(theory_path, theory_title, theory_content)
-    practice_length = write_chapter(practice_path, practice_title, practice_content)
+        chapter_path = BOOK_DIR / f"{part['slug']}.md"
+        length = write_chapter(chapter_path, part["title"], content)
+        print(f"{chapter_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
 
     print(
         f"本文が閾値({CHAR_THRESHOLD}文字)を超えたため、"
-        "前編(理論編)・後編(実装・実験編)の2章に分割生成しました。"
+        f"{len(parts)}章(理論編{len(theory_chunks)}章・実装/実験編{len(practice_chunks)}章)に"
+        "分割生成しました。"
     )
-    print(f"{theory_path.relative_to(REPO_ROOT)} を生成しました({theory_length}文字)。")
-    print(f"{practice_path.relative_to(REPO_ROOT)} を生成しました({practice_length}文字)。")
     print(
         "本(book)の下書きの章として生成しました。"
-        "前編・後編間の相互リンクは確定URLで埋め込み済みです。"
+        "各章の冒頭には前後の章への相互リンクを確定URLで埋め込み済みです。"
         "公開前に、実装セクションの要約などの調整を手動で行ってください。"
     )
 
+    manifest[args.notebook_number] = {
+        "slugs": [part["slug"] for part in parts],
+        "split": True,
+        "titles": [part["title"] for part in parts],
+    }
     save_manifest(manifest)
     print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
 

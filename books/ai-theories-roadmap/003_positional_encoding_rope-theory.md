@@ -2,7 +2,7 @@
 title: "位置エンコーディング(Positional Encoding)/ RoPE(理論編)"
 ---
 
-この記事は前編(理論編)です。実装・実験編は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-practice)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-practice-1)。
 
 # 003. 位置エンコーディング(Positional Encoding)/ RoPE
 

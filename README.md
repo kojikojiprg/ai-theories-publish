@@ -66,14 +66,16 @@ Workflowによって生成される章は下書きです。公開前に、以下
 - `config.yaml` の `chapters` 配列は、先頭が常に `0_introduction`、以降は `manifest.json` に存在する章slugをノートブック番号の昇順(前編・後編分割時は前編→後編の順)で並べたものに再構築されます。`title` ・`summary` ・`topics` ・`price` ・`published` は既存の値を保持します(`config.yaml` が存在しない場合のみ初期値を設定し、`published` の初期値は `false` です)。
 - 各トピックの章本文自体は `scripts/generate_book.py` ではなく `scripts/nb_to_zenn.py` が生成します。`scripts/generate_book.py` は `0_introduction.md` と `config.yaml` の chapters 以外のファイルには一切触れません。
 
-### 章の自動分割(前編・後編)
+### 章の自動分割(前編・後編、および実装・実験編のさらなる分割)
 
-Zennの記事本文には文字数上限(80,000文字)があります。生成した章本文(frontmatterを除く)が閾値(70,000文字。上限に対して安全マージンを持たせた値)を超える場合、`scripts/nb_to_zenn.py` は自動的に以下の2章に分割生成します。
+Zennの**本(book)の章**の本文には、実際のデプロイエラー(「本文のmarkdownには最大50000文字まで使用できます」)により判明した**50,000文字**という上限があります(記事(article)の80,000文字上限とは異なる、より厳しい制限です)。生成した章本文(frontmatterを除く)が閾値(45,000文字。上限に対して安全マージンを持たせた値)を超える場合、`scripts/nb_to_zenn.py` は「実装方針」の見出しを境界に、以下の2つに分割生成します。
 
 - 前編(理論編): `<slug>-theory.md`(タイトル〜理論までのセクション)
 - 後編(実装・実験編): `<slug>-practice.md`(実装方針〜結果・考察までのセクション)
 
-分割時、画像フォルダ(`images/<slug>/`)は分割せず両章で共有参照します。Zennの章URLはslugから生成時点で確定するため、前編・後編それぞれの冒頭には相互リンク(`https://zenn.dev/<Zennユーザー名>/books/ai-theories-roadmap/viewer/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一の章(`<slug>.md`)として生成されます。
+さらに、後編(実装・実験編)側の「実験」セクションなどが大きく、分割後もなお閾値を超える場合は、`##`見出し単位(収まらなければ`###`見出し単位)でさらに複数章に分割し、`<slug>-practice-1.md`, `<slug>-practice-2.md`, ... のように連番付きで生成します(理論編側が同様に閾値を超える場合は `<slug>-theory-1.md`, `<slug>-theory-2.md`, ... となります)。分割が1つの前編・1つの後編に収まる場合は、従来通り連番なしの `<slug>-theory.md` / `<slug>-practice.md` になります。
+
+分割時、画像フォルダ(`images/<slug>/`)は分割せず全ての章で共有参照します。Zennの章URLはslugから生成時点で確定するため、分割された各章の冒頭には前後の章への相互リンク(`https://zenn.dev/<Zennユーザー名>/books/ai-theories-roadmap/viewer/<相手のslug>`)を確定URLとして埋め込み済みの状態で生成されます(公開後に手動でリンクを追加する必要はありません)。Zennユーザー名はスクリプト内の定数 `ZENN_USERNAME` で管理しており、環境変数 `ZENN_USERNAME` でも上書きできます。分割されない場合は、従来通り単一の章(`<slug>.md`)として生成されます。
 
 ### ノートブック間リンクの変換
 

@@ -2,11 +2,14 @@ title: "LLM / VLM理論学習ロードマップ"
 summary: "LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論を、PyTorchによるスクラッチ実装とあわせて基礎から学ぶロードマップです。"
 topics: ["llm", "vlm", "pytorch", "deeplearning"]
 price: 0
-published: false
+published: true
 chapters:
   - "0_introduction"
-  - "001_attention_mechanism"
+  - "001_attention_mechanism-theory"
+  - "001_attention_mechanism-practice"
   - "002_transformer_block-theory"
-  - "002_transformer_block-practice"
+  - "002_transformer_block-practice-1"
+  - "002_transformer_block-practice-2"
   - "003_positional_encoding_rope-theory"
-  - "003_positional_encoding_rope-practice"
+  - "003_positional_encoding_rope-practice-1"
+  - "003_positional_encoding_rope-practice-2"
