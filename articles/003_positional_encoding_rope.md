@@ -934,7 +934,7 @@ print(f"相対距離 {rel_distances_a4[-1]} 近傍(末尾 {window} 点)の平均
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/positional_encoding_rope/output_37_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/003_positional_encoding_rope/output_37_0.png)
     
 
 
@@ -1320,7 +1320,7 @@ for name in names_b1:
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/positional_encoding_rope/output_47_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/003_positional_encoding_rope/output_47_0.png)
     
 
 
@@ -1376,7 +1376,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/positional_encoding_rope/output_49_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/003_positional_encoding_rope/output_49_0.png)
     
 
 
@@ -1704,7 +1704,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/positional_encoding_rope/output_55_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/003_positional_encoding_rope/output_55_0.png)
     
 
 

@@ -85,9 +85,8 @@ def find_notebook(notebook_number: str) -> Path:
     return matches[0]
 
 
-def extract_slug(notebook_path: Path, notebook_number: str) -> str:
-    stem = notebook_path.stem
-    slug = stem[len(notebook_number) + 1 :]
+def extract_slug(notebook_path: Path) -> str:
+    slug = notebook_path.stem
 
     if not SLUG_PATTERN.match(slug):
         print(
@@ -156,7 +155,7 @@ def main() -> None:
     publish_repo = resolve_publish_repo(args.repo)
 
     notebook_path = find_notebook(args.notebook_number)
-    slug = extract_slug(notebook_path, args.notebook_number)
+    slug = extract_slug(notebook_path)
 
     nb = nbformat.read(notebook_path, as_version=4)
     title = extract_title(nb)

@@ -691,7 +691,7 @@ print(f"出力 Z の形状: {tuple(out1.shape)} = (S_q, d_v)")
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_21_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_21_0.png)
     
 
 
@@ -814,7 +814,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_24_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_24_0.png)
     
 
 
@@ -915,7 +915,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_28_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_28_1.png)
     
 
 
@@ -984,7 +984,7 @@ print(f'位置 0 ("the") が各 "the" に割り当てた重み: '
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_30_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_30_0.png)
     
 
 
@@ -1230,7 +1230,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_36_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_36_0.png)
     
 
 
@@ -1270,7 +1270,7 @@ for head in range(N_HEADS_COPY):
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/attention_mechanism/output_37_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/001_attention_mechanism/output_37_1.png)
     
 
 

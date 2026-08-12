@@ -574,7 +574,7 @@ print(f"位置 1 のベクトルのノルム: {out_pos_enc[0, 1].norm().item():.
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_23_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_23_1.png)
     
 
 
@@ -1031,7 +1031,7 @@ for n in (1, 2, 3, 4):
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_37_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_37_0.png)
     
 
 
@@ -1245,7 +1245,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_41_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_41_0.png)
     
 
 
@@ -1374,7 +1374,7 @@ for r in D_FF_RATIOS:
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_45_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_45_0.png)
     
 
 
@@ -1633,7 +1633,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_51_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_51_0.png)
     
 
 
@@ -1699,7 +1699,7 @@ print(f"ヘッド平均の対角成分の重み: {diagonal_mass_s2s:.4f}(1.0 = �
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/transformer_block/output_53_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/002_transformer_block/output_53_0.png)
     
 
 
