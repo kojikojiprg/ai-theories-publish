@@ -35,5 +35,20 @@
       "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/2)",
       "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 2/2)"
     ]
+  },
+  "004": {
+    "slugs": [
+      "004_normalization_and_activation-theory",
+      "004_normalization_and_activation-practice-1",
+      "004_normalization_and_activation-practice-2",
+      "004_normalization_and_activation-practice-3"
+    ],
+    "split": true,
+    "titles": [
+      "正規化と活性化の系譜(理論編)",
+      "正規化と活性化の系譜(実装・実験編 1/3)",
+      "正規化と活性化の系譜(実装・実験編 2/3)",
+      "正規化と活性化の系譜(実装・実験編 3/3)"
+    ]
   }
 }
