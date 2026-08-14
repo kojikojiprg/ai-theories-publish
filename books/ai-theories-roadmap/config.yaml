@@ -17,3 +17,7 @@ chapters:
   - "004_normalization_and_activation-practice-1"
   - "004_normalization_and_activation-practice-2"
   - "004_normalization_and_activation-practice-3"
+  - "005_tokenizer-theory"
+  - "005_tokenizer-practice-1"
+  - "005_tokenizer-practice-2"
+  - "005_tokenizer-practice-3"
