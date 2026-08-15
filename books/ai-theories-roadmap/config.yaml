@@ -1,5 +1,5 @@
-title: "LLM / VLM理論学習ロードマップ"
-summary: "LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論を、PyTorchによるスクラッチ実装とあわせて基礎から学ぶロードマップです。"
+title: "The AI Theories"
+summary: "LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論を、PyTorchによるスクラッチ実装とあわせて基礎から学ぶロードマップです。Attention機構、Transformerブロック、RoPE(回転位置エンコーディング)、正規化・活性化関数、トークナイザといったLLMを支える主要コンポーネントを、各テーマごとに「理論編」と「実装編」に分けて解説します。理論編では数式やアーキテクチャの背景を丁寧に説明し、実装編ではPyTorchでゼロからコードを書きながら仕組みを理解していきます。数学・機械学習の基礎知識がある方を対象に、LLM/VLMの内部構造を体系的に学べる構成です。Github上にコードを公開しています。https://github.com/kojikojiprg/ai-theories"
 topics: ["llm", "vlm", "pytorch", "deeplearning"]
 price: 0
 published: true
