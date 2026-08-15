@@ -9,6 +9,28 @@ title: "はじめに"
 - 理論的に本質的な部分は、可能な限り**PyTorchによるスクラッチ実装**で確認します(Attention計算、正規化、LoRAの低ランク分解など)。
 - 学習・実験は**Google Colab無料枠(T4 GPUなど)で完結する規模**のモデル・データセットで構成しています。
 
+## 学習カテゴリ
+### 01_foundations
+Transformer の基本構造。以降すべての理論の前提となる。
+
+### 02_pretraining
+言語モデルの事前学習・生成・スケーリングに関わる理論(トークナイザ、デコーディング戦略、スケーリング則など)。
+
+### 03_efficient_training
+限られた計算資源(Colab 無料枠)で学習・推論するための効率化技術(LoRA、量子化、Flash Attention など)。
+
+### 04_alignment
+モデルを人間の意図に沿わせるための手法(SFT、DPO、RLHF など)。
+
+### 05_vision_language
+画像とテキストを統合的に扱う VLM の理論(対照学習、Vision-Language 融合など)。
+
+### 06_architectures
+Transformer 以外も含む、モデルアーキテクチャの発展形(MoE、State Space Model など)。
+
+### 07_retrieval
+テキスト埋め込みと検索(Retrieval)の理論。RAG アプリの理論的基盤となる。
+
 ## 本書の構成
 
 以降の章は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の各学習トピックのノートブックをそのまま章として収録したものです。下表は `theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧です。トピック名がリンクになっているものは既に章として収録済みで、リンクをクリックすると該当の章に移動します。**まだ章になっていないトピックは「🚧 準備中」と表示**しています。
