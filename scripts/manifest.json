@@ -65,5 +65,22 @@
       "トークナイザと部分語分割(実装・実験編 2/3)",
       "トークナイザと部分語分割(実装・実験編 3/3)"
     ]
+  },
+  "006": {
+    "slugs": [
+      "006_pretraining_small_gpt-theory",
+      "006_pretraining_small_gpt-practice-1",
+      "006_pretraining_small_gpt-practice-2",
+      "006_pretraining_small_gpt-practice-3",
+      "006_pretraining_small_gpt-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "小型 GPT の事前学習(Pretraining a Small GPT)(理論編)",
+      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 1/4)",
+      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 2/4)",
+      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 3/4)",
+      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 4/4)"
+    ]
   }
 }

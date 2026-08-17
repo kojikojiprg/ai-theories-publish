@@ -9,28 +9,6 @@ title: "はじめに"
 - 理論的に本質的な部分は、可能な限り**PyTorchによるスクラッチ実装**で確認します(Attention計算、正規化、LoRAの低ランク分解など)。
 - 学習・実験は**Google Colab無料枠(T4 GPUなど)で完結する規模**のモデル・データセットで構成しています。
 
-## 学習カテゴリ
-### 01_foundations
-Transformer の基本構造。以降すべての理論の前提となる。
-
-### 02_pretraining
-言語モデルの事前学習・生成・スケーリングに関わる理論(トークナイザ、デコーディング戦略、スケーリング則など)。
-
-### 03_efficient_training
-限られた計算資源(Colab 無料枠)で学習・推論するための効率化技術(LoRA、量子化、Flash Attention など)。
-
-### 04_alignment
-モデルを人間の意図に沿わせるための手法(SFT、DPO、RLHF など)。
-
-### 05_vision_language
-画像とテキストを統合的に扱う VLM の理論(対照学習、Vision-Language 融合など)。
-
-### 06_architectures
-Transformer 以外も含む、モデルアーキテクチャの発展形(MoE、State Space Model など)。
-
-### 07_retrieval
-テキスト埋め込みと検索(Retrieval)の理論。RAG アプリの理論的基盤となる。
-
 ## 本書の構成
 
 以降の章は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の各学習トピックのノートブックをそのまま章として収録したものです。下表は `theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧です。トピック名がリンクになっているものは既に章として収録済みで、リンクをクリックすると該当の章に移動します。**まだ章になっていないトピックは「🚧 準備中」と表示**しています。
@@ -44,7 +22,7 @@ Transformer 以外も含む、モデルアーキテクチャの発展形(MoE、S
 | 003 | [位置エンコーディング / RoPE](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory) | 01_foundations | 002 | 002 で暫定導入した正弦波(sinusoidal)方式に加え、学習可能な絶対位置埋め込み(Learned Absolute Positional Embedding)・相対位置エンコーディング(Shaw et al. 方式・T5 の相対位置バイアス)・ALiBi(Attention with Linear Biases)を比較し、回転位置エンコーディング(RoPE: Rotary Position Embedding)の数学的導出と実装を扱う。実装は`src/layers/positional_encoding.py`にスクラッチ実装し、`MultiHeadAttention`に注入する形で組み込む。可変長 copy task による 7 条件の比較(学習長内の精度と学習長を超える外挿性能)および Attention 重みの定量分析で検証する |
 | 004 | [正規化と活性化の系譜](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation-theory) | 01_foundations | 002 | 002 でスクラッチ実装した層正規化(Layer Normalization)を起点に RMSNorm(Root Mean Square Normalization)への変遷、ReLU から GELU、GLU(Gated Linear Unit)を経て SwiGLU に至る活性化関数の変遷を扱う。平均減算の有無・分散除算の有無による除去実験、常に負のユニット(always-negative unit)の測定、**乗法的相互作用の合成タスクとそれを含まない陰性対照(negative control)タスクの比較** によって各機構の寄与を検証する。学習には条件比較のための最小限の文字レベル言語モデリングを用い、条件間比較の評価ノイズを抑えるため固定した評価用バッチ集合を使う(本格的な自己回帰言語モデリングの事前学習は 006 で扱う) |
 | 005 | [トークナイザと部分語分割](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/005_tokenizer-theory) | 02_pretraining | 001 | BPE(Byte Pair Encoding)の学習・符号化(タイブレーク規則を固定、空白をチャンク先頭に保持する可逆な事前分割)とバイトレベル BPE(byte-level BPE)をスクラッチ実装し、WordPiece のスコア関数を理論として位置づける。Unigram 言語モデル(Unigram Language Model)の Viterbi 最尤分割をスクラッチ実装し(語彙学習は sentencepiece に委譲)、SentencePiece が「アルゴリズムではなく実装である」ことを明確にする。英語・日本語(日本語版 Wikipedia、CC BY-SA 4.0、記事とリビジョン ID を固定して取得)・コードの 3 ドメインで語彙サイズ別の fertility を比較し、空白による事前分割(pre-tokenization)が日本語で機能しないことを英語・コードを陰性対照(negative control)として検証する。初期語彙方式(バイトレベル・文字レベル)と語彙サイズの相互作用を語彙サイズの掃引で検証し、語彙サイズと系列長・計算量のトレードオフを理論計算で示す |
-| 006 | 小型 GPT の事前学習(🚧 準備中) | 02_pretraining | 003, 004, 005 | 005 で比較したトークナイザ(方式・語彙サイズ)を改めて選定したうえで、自己回帰言語モデリング(Autoregressive Language Modeling)の学習ループを実装し、loss 曲線と perplexity で学習の進行を評価する |
+| 006 | [小型 GPT の事前学習](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/006_pretraining_small_gpt-theory) | 02_pretraining | 003, 004, 005 | 001〜005 の部品(Transformer Block、RoPE、RMSNorm、SwiGLU、トークナイザ)を統合し、decoder-only な自己回帰言語モデル(`GPTLanguageModel`)の事前学習を初めて最後まで実行する。重み共有(weight tying)、perplexity と bits-per-byte の使い分け(トークナイザ間比較には bits-per-byte、言語間の絶対値比較はしない)を理論として扱う。日本語版・英語版 Wikipedia コーパス(段階 1 で取得、各 20 MB 以上)を用い、文字レベル・バイトレベル BPE(公比 2 の等比数列で 4 語彙サイズ)・Unigram 言語モデル(byte fallback により未知語による情報損失を排除、BPE の 1 条件と語彙サイズを厳密に一致させる)の計 5 トークナイザ条件を比較する(実験 A〜H)。ノイズ床を日英それぞれ 5 シードで測定し(標本標準偏差の過小バイアスを抑えるため)、対比量の誤差伝播に基づく判定閾値(実験 D・E・F)で支持 / 反証 / 判定不能の 3 値判定を行う。非埋め込みパラメータ数を条件間で揃えることで語彙サイズの影響を分離し、実験 G は model サイズを固定してステップ数のみを増やす。学習ステップ数は全言語・全トークナイザ条件の訓練トークン数を実測し、エポック上限(実験 C〜F は 1/2 エポック、実験 G は 1 エポック)から計算式で決定する。**本番実行の結果、部分語分割(BPE・Unigram)が文字レベルより優れるかは言語に依存することが判明した**(日本語は文字レベルが最良、英語は文字レベルが最悪で bits-per-byte の順序が言語間で反転する) |
 | 007 | 学習の安定化(🚧 準備中) | 02_pretraining | 006 | 002 で観測した正規化後置の勾配の不均衡、および 004 で観測した正規化を欠いた条件のシード間のばらつきの増大を踏まえ、AdamW、warmup + cosine スケジュール、gradient clipping、mixed precision など、大規模言語モデルの学習を安定化させる技術を扱う |
 | 008 | デコーディング戦略(🚧 準備中) | 02_pretraining | 006 | greedy / temperature / top-k / top-p / beam search など複数のデコーディング手法(Decoding Strategies)を実装し、生成品質を比較する |
 | 009 | スケーリング則(🚧 準備中) | 02_pretraining | 007 | Kaplan らおよび Chinchilla のスケーリング則(Scaling Laws)を扱い、計算量最適(compute-optimal)なモデルサイズとデータ量の関係を導く |

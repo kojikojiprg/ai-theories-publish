@@ -21,3 +21,8 @@ chapters:
   - "005_tokenizer-practice-1"
   - "005_tokenizer-practice-2"
   - "005_tokenizer-practice-3"
+  - "006_pretraining_small_gpt-theory"
+  - "006_pretraining_small_gpt-practice-1"
+  - "006_pretraining_small_gpt-practice-2"
+  - "006_pretraining_small_gpt-practice-3"
+  - "006_pretraining_small_gpt-practice-4"
