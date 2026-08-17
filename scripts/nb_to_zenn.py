@@ -41,6 +41,13 @@ CHAR_HARD_LIMIT = 50_000
 # 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文・元ノートブックへの
 # リンクなど分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
 CHAR_THRESHOLD = 45_000
+# `##`/`###`見出し単位でのパッキング(split_body_into_chunks)に使う閾値。
+# パッキング後に build_part_intro() のナビゲーション文と build_source_link() の
+# リンクが追加されるため、CHAR_THRESHOLD よりさらに余裕を持たせておく必要がある
+# (そうしないと、パッキング結果ぎりぎりの章にナビ文を足しただけで CHAR_THRESHOLD を
+# 超えてしまうことがある)。
+PART_OVERHEAD_MARGIN = 800
+PACKING_THRESHOLD = CHAR_THRESHOLD - PART_OVERHEAD_MARGIN
 
 # Zennのユーザー名。将来変わる可能性があるため、環境変数での上書きも可能にしておく。
 ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
@@ -393,8 +400,8 @@ def main() -> None:
         return
 
     theory_body, practice_body = split_body_at_implementation_plan(body)
-    theory_chunks = split_body_into_chunks(theory_body, CHAR_THRESHOLD)
-    practice_chunks = split_body_into_chunks(practice_body, CHAR_THRESHOLD)
+    theory_chunks = split_body_into_chunks(theory_body, PACKING_THRESHOLD)
+    practice_chunks = split_body_into_chunks(practice_body, PACKING_THRESHOLD)
 
     parts: list[dict] = []
     for i, chunk in enumerate(theory_chunks):
