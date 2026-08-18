@@ -17,7 +17,7 @@ title: "正規化と活性化の系譜(実装・実験編 2/3)"
 
 条件 1(層正規化)と条件 2(RMSNorm)の間に差が出ない場合、それは「差を検出できなかった」ではなく、**この学習率($10^{-2}$)のもとでは平均減算(re-centering)が不要であることを示した** と解釈する。条件 3・4 で明確な劣化が観測されることが、この解釈(測定系に十分な感度がある)を支える根拠になる。
 
-まず、1 run の所要時間を実測し、実験 C・実験 E 合わせて 35 run が CLAUDE.md の目標(70 分以内)に収まる step 数を決定する。
+まず、1 run の所要時間を実測し、実験 C・実験 E 合わせて 35 run が目標(70 分以内)に収まる step 数を決定する。
 
 
 ```python
@@ -55,7 +55,7 @@ def synchronize_device(device: torch.device) -> None:
 
 **較正セルについて**: 1 step あたりの所要時間は、GPU 上の演算が非同期に実行されるため、計測の前後で明示的に同期を取らないと不正確になりうる。加えて、較正の step 数が短すぎると、CUDA カーネルの初回コンパイルや cuDNN のオートチューニングといった **一度きりのウォームアップコスト** が計測全体に均等に按分され、定常状態の速度を大きく過大評価してしまう(実際、50 step だけの較正では 1 step あたり実測 $284.9\,\text{ms}$ と見積もったのに対し、後続の実験 C の実測は 1 step あたり約 $55\,\text{ms}$ しかなく、5 倍以上の過大評価だった)。
 
-そこで較正は 2 段階に分ける。まず`CALIBRATION_WARMUP_STEPS`だけ学習を実行してウォームアップコストをここで払い(この区間は計測しない)、続けて`CALIBRATION_TIMED_STEPS`にわたって改めて計測する。ウォームアップの影響を除いた定常状態の 1 step あたりの時間に、安全係数(2 倍)を掛けたうえで採用 step 数を決める。`TARGET_MINUTES`は CLAUDE.md の定める 70 分の目標値としてある。
+そこで較正は 2 段階に分ける。まず`CALIBRATION_WARMUP_STEPS`だけ学習を実行してウォームアップコストをここで払い(この区間は計測しない)、続けて`CALIBRATION_TIMED_STEPS`にわたって改めて計測する。ウォームアップの影響を除いた定常状態の 1 step あたりの時間に、安全係数(2 倍)を掛けたうえで採用 step 数を決める。`TARGET_MINUTES`は 70 分の目標値としてある。
 
 
 ```python
@@ -112,7 +112,7 @@ print(
 print(f"1 step あたりの所要時間(評価込み、実測): {per_step_time_measured * 1000:.1f} ms")
 print(f"安全係数({SAFETY_FACTOR}倍)適用後: {per_step_time_with_safety * 1000:.1f} ms")
 
-TARGET_MINUTES = 70.0  # CLAUDE.md の定める目標値
+TARGET_MINUTES = 70.0  # 目標値
 MINIMUM_STEPS_TARGET = 1000
 
 budget_seconds_per_run = TARGET_MINUTES * 60 / N_TOTAL_LANGUAGE_MODEL_RUNS
