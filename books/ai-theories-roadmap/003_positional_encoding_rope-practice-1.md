@@ -1,8 +1,8 @@
 ---
-title: "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/2)"
+title: "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/3)"
 ---
 
-この記事は後編(実装・実験編 1/2)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-practice-2)。
+この記事は後編(実装・実験編 1/3)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-practice-2)。
 
 ## 4. 実装方針 / Implementation Plan
 

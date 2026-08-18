@@ -17,7 +17,7 @@ title: "Transformer Block(理論編)"
 
 具体的には、(1) 残差接続・層正規化・順伝播ネットワークをそれぞれスクラッチ実装し、(2) 正規化を残差経路の前に置く **正規化前置(Pre-Layer Normalization)** と後に置く **正規化後置(Post-Layer Normalization)** という 2 つの構造を比較し、(3) 自己注意のみからなる **Encoder Block** と、交差注意(cross-attention)を含む **Decoder Block** を実装する。あわせて、系列の順序情報を与えるために **正弦波(sinusoidal)方式の位置エンコーディング(Positional Encoding)を暫定的に** 導入する(この方式を選ぶ理論的根拠には踏み込まず、あくまで実験を成立させるための足場として扱う。詳細は 3.6 節の注記を参照)。
 
-正規化・活性化関数のさらなる発展(RMSNorm、SwiGLU など)は [004](./004_normalization_and_activation.ipynb) で、位置エンコーディングの各方式の比較・回転位置エンコーディング(RoPE)は [003](https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb) で、学習を安定化させる warmup などの最適化技術は 007 で扱う。
+正規化・活性化関数のさらなる発展(RMSNorm、SwiGLU など)は [004](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation-theory) で、位置エンコーディングの各方式の比較・回転位置エンコーディング(RoPE)は [003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory) で、学習を安定化させる warmup などの最適化技術は 007 で扱う。
 
 ## 2. 参考論文 / References
 
