@@ -84,5 +84,20 @@
       "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 3/4)",
       "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 4/4)"
     ]
+  },
+  "007": {
+    "slugs": [
+      "007_training_stabilization-theory",
+      "007_training_stabilization-practice-1",
+      "007_training_stabilization-practice-2",
+      "007_training_stabilization-practice-3"
+    ],
+    "split": true,
+    "titles": [
+      "学習の安定化(Training Stabilization)(理論編)",
+      "学習の安定化(Training Stabilization)(実装・実験編 1/3)",
+      "学習の安定化(Training Stabilization)(実装・実験編 2/3)",
+      "学習の安定化(Training Stabilization)(実装・実験編 3/3)"
+    ]
   }
 }

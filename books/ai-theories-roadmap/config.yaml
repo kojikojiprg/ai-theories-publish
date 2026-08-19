@@ -27,3 +27,7 @@ chapters:
   - "006_pretraining_small_gpt-practice-2"
   - "006_pretraining_small_gpt-practice-3"
   - "006_pretraining_small_gpt-practice-4"
+  - "007_training_stabilization-theory"
+  - "007_training_stabilization-practice-1"
+  - "007_training_stabilization-practice-2"
+  - "007_training_stabilization-practice-3"
