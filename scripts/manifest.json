@@ -99,5 +99,18 @@
       "学習の安定化(Training Stabilization)(実装・実験編 2/3)",
       "学習の安定化(Training Stabilization)(実装・実験編 3/3)"
     ]
+  },
+  "008": {
+    "slugs": [
+      "008_decoding_strategies-theory",
+      "008_decoding_strategies-practice-1",
+      "008_decoding_strategies-practice-2"
+    ],
+    "split": true,
+    "titles": [
+      "デコーディング戦略(Decoding Strategies)(理論編)",
+      "デコーディング戦略(Decoding Strategies)(実装・実験編 1/2)",
+      "デコーディング戦略(Decoding Strategies)(実装・実験編 2/2)"
+    ]
   }
 }
