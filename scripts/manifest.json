@@ -112,5 +112,20 @@
       "デコーディング戦略(Decoding Strategies)(実装・実験編 1/2)",
       "デコーディング戦略(Decoding Strategies)(実装・実験編 2/2)"
     ]
+  },
+  "009": {
+    "slugs": [
+      "009_scaling_laws-theory",
+      "009_scaling_laws-practice-1",
+      "009_scaling_laws-practice-2",
+      "009_scaling_laws-practice-3"
+    ],
+    "split": true,
+    "titles": [
+      "スケーリング則(Scaling Laws)(理論編)",
+      "スケーリング則(Scaling Laws)(実装・実験編 1/3)",
+      "スケーリング則(Scaling Laws)(実装・実験編 2/3)",
+      "スケーリング則(Scaling Laws)(実装・実験編 3/3)"
+    ]
   }
 }
