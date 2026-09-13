@@ -423,7 +423,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_59_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_58_0.png)
     
 
 
@@ -506,7 +506,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_62_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_61_0.png)
     
 
 
@@ -591,7 +591,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_65_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_64_0.png)
     
 
 
@@ -612,7 +612,7 @@ plt.show()
 
 gradient clipping 閾値は、採用した学習率での較正実行における勾配ノルムの 90% 分位点として **0.6341** に決定した。
 
-本番学習(2,181 ステップ)の実測時間は **376.9 秒** であり、5.9 節末尾のスケーリング外挿(6.1 分 ≈ 366 秒)とほぼ一致した。学習曲線(下図)では、訓練損失が約 9(ほぼ一様分布相当)から単調に低下し 2,181 ステップ時点で 3.5〜4 nats 付近まで下がっており、バッチ由来のノイズはあるものの発散の兆候はない。検証 bits-per-byte も最初の評価(200 ステップ、2.48)から最終ステップ(2,181 ステップ、1.6707)まで単調に減少し、前提条件 P0 の閾値 `PRECONDITION_BPB_THRESHOLD=2.5` を最初の評価時点から一貫して下回っている。
+本番学習(2,181 ステップ)の実測時間は **359.1 秒** であり、5.9 節末尾のスケーリング外挿(5.8 分 ≈ 348 秒)とほぼ一致した。学習曲線(下図)では、訓練損失が約 9(ほぼ一様分布相当)から単調に低下し 2,181 ステップ時点で 3.5〜4 nats 付近まで下がっており、バッチ由来のノイズはあるものの発散の兆候はない。検証 bits-per-byte も最初の評価(200 ステップ、2.48)から最終ステップ(2,181 ステップ、1.6707)まで単調に減少し、前提条件 P0 の閾値 `PRECONDITION_BPB_THRESHOLD=2.5` を最初の評価時点から一貫して下回っている。
 
 **最終検証 bits-per-byte = 1.6707 は閾値 2.5 を大きく下回り、前提条件 P0(学習の進行)は成立する。**
 
@@ -675,7 +675,9 @@ beam size を増やすと best 候補のスコアは単調に改善する一方�
 
 ### 8.6 Hugging Face Hub へのアップロード
 
-学習済みモデル・トークナイザ・モデルカードは [kojikojiprg/ai-theories-small-gpt-en](https://huggingface.co/kojikojiprg/ai-theories-small-gpt-en) に公開した(5.12 節のセル出力「アップロード完了」を確認済み)。
+モデルの重み・設定・モデルカードは [kojikojiprg/ai-theories-small-gpt-en](https://huggingface.co/kojikojiprg/ai-theories-small-gpt-en) に公開した(5.12 節のセル出力「アップロード完了」を確認済み)。**トークナイザ(`tokenizer.json`)はこのリポジトリに同梱していない。** トークナイザには [kojikojiprg/ai-theories-tokenizer-en](https://huggingface.co/kojikojiprg/ai-theories-tokenizer-en) を使用すること(モデルカードに明記済み)。
+
+アップロード前にリポジトリを削除してから作り直しており(5.12 節のセル出力「削除してから作り直す: kojikojiprg/ai-theories-small-gpt-en」を確認済み)、過去のアップロードで同梱されていた`tokenizer.json`は残っていない。
 
 アップロード前の不変条件アサーション(6 節(1)、state_dict の保存・再読み込みラウンドトリップで logits が完全一致すること)は、本番学習したモデルに対しても成立を確認している(6 節のセル出力「OK: state_dict 保存・再読み込みラウンドトリップで logits が完全一致」)。これにより、アップロードしたアーティファクト(state_dict)がネットワーク呼び出しを介さずに検証済みの正しいものであることを担保している。
 

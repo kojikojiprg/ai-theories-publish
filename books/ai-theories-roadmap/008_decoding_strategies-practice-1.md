@@ -46,34 +46,40 @@ if IN_COLAB:
 ```
 
     Cloning into 'ai-theories'...
-    remote: Enumerating objects: 471, done.[K
-    remote: Counting objects: 100% (471/471), done.[K
-    remote: Compressing objects: 100% (310/310), done.[K
-    remote: Total 471 (delta 239), reused 346 (delta 142), pack-reused 0 (from 0)[K
-    Receiving objects: 100% (471/471), 5.90 MiB | 359.00 KiB/s, done.
-    Resolving deltas: 100% (239/239), done.
+    remote: Enumerating objects: 681, done.[K
+    remote: Counting objects: 100% (179/179), done.[K
+    remote: Compressing objects: 100% (115/115), done.[K
+    remote: Total 681 (delta 99), reused 123 (delta 63), pack-reused 502 (from 1)[K
+    Receiving objects: 100% (681/681), 7.92 MiB | 20.43 MiB/s, done.
+    Resolving deltas: 100% (355/355), done.
     /content/ai-theories
-    [2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m23.7/23.7 MB[0m [31m72.1 MB/s[0m eta [36m0:00:00[0m
-    [?25h[2mUsing Python 3.12.13 environment at: /usr[0m
-    [2K[2mResolved [1m52 packages[0m [2min 352ms[0m[0m
-    [2K[2mPrepared [1m28 packages[0m [2min 1m 02s[0m[0m
-    [2mUninstalled [1m14 packages[0m [2min 974ms[0m[0m
-    [2K[2mInstalled [1m28 packages[0m [2min 502ms[0m[0m
+    [2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m20.0/20.0 MB[0m [31m69.0 MB/s[0m eta [36m0:00:00[0m
+    [?25h[2mUsing Python 3.13.15 environment at: /usr[0m
+    [2K[2mResolved [1m52 packages[0m [2min 312ms[0m[0m
+    [2K[2mPrepared [1m31 packages[0m [2min 48.51s[0m[0m
+    [2mUninstalled [1m17 packages[0m [2min 1.17s[0m[0m
+    [2K[2mInstalled [1m31 packages[0m [2min 298ms[0m[0m
+     [31m-[39m [1mclick[0m[2m==8.5.0[0m
+     [32m+[39m [1mclick[0m[2m==8.4.2[0m
      [31m-[39m [1mcuda-bindings[0m[2m==12.9.7[0m
      [32m+[39m [1mcuda-bindings[0m[2m==13.3.1[0m
+     [31m-[39m [1mcuda-pathfinder[0m[2m==1.8.0[0m
+     [32m+[39m [1mcuda-pathfinder[0m[2m==1.6.0[0m
      [31m-[39m [1mcuda-toolkit[0m[2m==12.8.1[0m
      [32m+[39m [1mcuda-toolkit[0m[2m==13.0.3.0[0m
-     [31m-[39m [1mfilelock[0m[2m==3.32.3[0m
+     [31m-[39m [1mfilelock[0m[2m==3.32.5[0m
      [32m+[39m [1mfilelock[0m[2m==3.32.2[0m
-     [31m-[39m [1mfsspec[0m[2m==2025.3.0[0m
+     [31m-[39m [1mfonttools[0m[2m==4.64.0[0m
+     [32m+[39m [1mfonttools[0m[2m==4.63.0[0m
+     [31m-[39m [1mfsspec[0m[2m==2025.12.0[0m
      [32m+[39m [1mfsspec[0m[2m==2026.7.0[0m
-     [31m-[39m [1mhuggingface-hub[0m[2m==1.27.0[0m
+     [31m-[39m [1mhuggingface-hub[0m[2m==1.29.0[0m
      [32m+[39m [1mhuggingface-hub[0m[2m==1.28.0[0m
-     [31m-[39m [1midna[0m[2m==3.18[0m
-     [32m+[39m [1midna[0m[2m==3.19[0m
+     [31m-[39m [1mkiwisolver[0m[2m==1.5.1[0m
+     [32m+[39m [1mkiwisolver[0m[2m==1.5.0[0m
      [31m-[39m [1mmatplotlib[0m[2m==3.10.0[0m
      [32m+[39m [1mmatplotlib[0m[2m==3.11.1[0m
-     [31m-[39m [1mnumpy[0m[2m==2.0.2[0m
+     [31m-[39m [1mnumpy[0m[2m==2.1.3[0m
      [32m+[39m [1mnumpy[0m[2m==2.5.2[0m
      [32m+[39m [1mnvidia-cublas[0m[2m==13.1.1.3[0m
      [32m+[39m [1mnvidia-cuda-cupti[0m[2m==13.0.85[0m
@@ -93,7 +99,7 @@ if IN_COLAB:
      [32m+[39m [1mnvidia-nvtx[0m[2m==13.0.85[0m
      [31m-[39m [1mpillow[0m[2m==11.3.0[0m
      [32m+[39m [1mpillow[0m[2m==12.3.0[0m
-     [31m-[39m [1msetuptools[0m[2m==75.2.0[0m
+     [31m-[39m [1msetuptools[0m[2m==80.10.2[0m
      [32m+[39m [1msetuptools[0m[2m==84.0.0[0m
      [31m-[39m [1mtorch[0m[2m==2.11.0+cu128[0m
      [32m+[39m [1mtorch[0m[2m==2.13.0[0m
@@ -120,7 +126,11 @@ from src.data.text import (
     make_evaluation_windows,
     split_train_val_text,
 )
-from src.data.tokenizer import BPETokenizer, learn_bpe
+from src.data.tokenizer import (
+    BPEIDTokenizer,
+    learn_bpe,
+    load_bpe_id_tokenizer_from_hub,
+)
 from src.generation.decoding import beam_search, top_k_filter, top_p_filter
 from src.layers.feedforward import SwiGLUFeedForwardNetwork
 from src.layers.normalization import RMSNorm
@@ -145,9 +155,10 @@ device = torch.device(
 print(f"torch: {torch.__version__} / device: {device}")
 
 ROOT = Path(".")
-# 006 が取得済みの英語 Wikipedia コーパス(同一のマニフェスト en_006_pretraining.json)を
-# 共有する。同一言語・同一記事集合であるため、008 専用に再取得する必要はない。
-CACHE_DIR = ROOT / ".cache" / "006_corpus"
+# 英語 Wikipedia コーパス(006 が取得済みのマニフェスト en_006_pretraining.json)を取得する。
+# キャッシュディレクトリ名は言語とデータ源(Wikipedia 英語版)で決まり、どのトピックが
+# 最初に使ったかには依存しない(「開発環境・ツール」節のキャッシュディレクトリ命名規則を参照)。
+CACHE_DIR = ROOT / ".cache" / "wikipedia_en"
 ```
 
     torch: 2.13.0+cu130 / device: cuda
@@ -284,6 +295,11 @@ print(
 )
 ```
 
+    [en] 100/356 記事処理済み(取得成功 100 件、スキップ 0 件)、経過時間 12.2 分、推定残り時間 31.2 分
+    [en] 200/356 記事処理済み(取得成功 200 件、スキップ 0 件)、経過時間 23.1 分、推定残り時間 18.0 分
+    [en] 300/356 記事処理済み(取得成功 300 件、スキップ 0 件)、経過時間 33.8 分、推定残り時間 6.3 分
+    [en] 356/356 記事処理済み(取得成功 356 件、スキップ 0 件)、経過時間 39.9 分、推定残り時間 0.0 分
+    en: 356/356 記事を取得した
     取得したコーパス全体: 24,214,546 文字 / 使用する範囲: 24,214,546 文字
     train_text: 23,003,819 文字, val_text: 1,210,727 文字 (1,214,117 UTF-8 バイト)
 
@@ -291,29 +307,9 @@ print(
 ### 5.3 トークナイザを整数 ID 方式に適合させるラッパー
 
 006 5.3 節と同じ理由で、`BPETokenizer.encode()` が返す部分語シンボル列(`list[str]`)を
-整数 ID に変換するラッパーが必要である。
+整数 ID に変換するラッパーが必要である。`BPEIDTokenizer`は 006・008・009 で共通に使うため
+`src/data/tokenizer.py`にモジュール化してあり、ここでは import して使う。
 
-
-
-```python
-class BPEIDTokenizer:
-    """BPETokenizer をラップし、encode() が整数 ID の列を返すようにする(006 5.3 節と同一の設計)。"""
-
-    def __init__(self, bpe_tokenizer: BPETokenizer):
-        self.bpe_tokenizer = bpe_tokenizer
-        symbols = sorted(bpe_tokenizer.vocab)
-        self.symbol_to_id = {s: i for i, s in enumerate(symbols)}
-        self.id_to_symbol = dict(enumerate(symbols))
-        self.vocab_size = len(symbols)
-
-    def encode(self, text: str) -> list[int]:
-        return [self.symbol_to_id[s] for s in self.bpe_tokenizer.encode(text)]
-
-    def decode(self, ids) -> str:
-        if isinstance(ids, torch.Tensor):
-            ids = ids.tolist()
-        return self.bpe_tokenizer.decode([self.id_to_symbol[i] for i in ids])
-```
 
 ### 5.4 BPE 学習時間のスケーリング計測
 
@@ -365,12 +361,12 @@ print(
 )
 ```
 
-    BPE 学習: 10,000 bytes -> 0.613 s
-    BPE 学習: 20,000 bytes -> 1.303 s
-    BPE 学習: 40,000 bytes -> 2.718 s
+    BPE 学習: 10,000 bytes -> 0.297 s
+    BPE 学習: 20,000 bytes -> 0.606 s
+    BPE 学習: 40,000 bytes -> 2.216 s
     
-    べき指数 b=1.074(線形なら b~=1)
-    本番データ量(8,000,000 bytes)への外挿: 807.58 s(= 13.46 分、条件数 x シード数 = 1 回のみ実行)
+    べき指数 b=1.450(線形なら b~=1)
+    本番データ量(8,000,000 bytes)への外挿: 4362.86 s(= 72.71 分、条件数 x シード数 = 1 回のみ実行)
 
 
 ### 5.5 符号化時間のスケーリング計測
@@ -427,29 +423,45 @@ print(
 del _calibration_tokenizer
 ```
 
-    符号化: 20,000 chars -> 0.0260 s
-    符号化: 50,000 chars -> 0.0467 s
-    符号化: 100,000 chars -> 0.0696 s
+    符号化: 20,000 chars -> 0.0477 s
+    符号化: 50,000 chars -> 0.0823 s
+    符号化: 100,000 chars -> 0.1316 s
     
-    べき指数 b=0.612(線形なら b~=1)
-    本番データ量(24,214,546 文字、学習用+検証用の符号化 x2 回)への外挿: 4.04 s
+    べき指数 b=0.629(線形なら b~=1)
+    本番データ量(24,214,546 文字、学習用+検証用の符号化 x2 回)への外挿: 8.23 s
 
 
-### 5.6 本番語彙での BPE 学習・ラウンドトリップ検証
+### 5.6 本番語彙でのトークナイザ取得・ラウンドトリップ検証
 
-`VOCAB_SIZE=8192` で BPE を学習し、整数 ID ラッパーで包む。ラウンドトリップ
-(`decode(encode(text)) == text`)が英語コーパスで成立することを確認する(4 節、
-005・006 と同様の検証)。
+共有トークナイザリポジトリ`kojikojiprg/ai-theories-tokenizer-en`(バイトレベル BPE、
+語彙サイズ 8192)から`BPEIDTokenizer`を取得する(`load_bpe_id_tokenizer_from_hub`、
+`src/data/tokenizer.py`)。このリポジトリのトークナイザは、008 が以前に本番コーパスから
+学習した結果をそのまま切り出したものであり内容は完全に同一である(取得元を切り替えても
+トークン化が変わらないことは、ローカルで実際に BPE を学習して得たトークン ID 列と
+比較し、`train_text`・`val_text`全体で完全一致することを事前に確認済み)。Hub からの
+取得に失敗した場合のみ、同一設定(`VOCAB_SIZE=8192`、`byte_level=True`、
+`max_chunk_bytes=MAX_CHUNK_BYTES`)で BPE を再学習するフォールバックを行う。
+ラウンドトリップ(`decode(encode(text)) == text`)が英語コーパスで成立することを
+確認する(4 節、005・006 と同様の検証)。
 
 
 
 ```python
+HF_TOKENIZER_REPO_ID = "kojikojiprg/ai-theories-tokenizer-en"
+
 t0 = time.time()
-bpe_tokenizer = learn_bpe(
-    train_text[:TOKENIZER_TRAIN_BYTES], VOCAB_SIZE, byte_level=True, max_chunk_bytes=MAX_CHUNK_BYTES
+tokenizer, _loaded_from_hub = load_bpe_id_tokenizer_from_hub(
+    HF_TOKENIZER_REPO_ID,
+    fallback_train_text=train_text[:TOKENIZER_TRAIN_BYTES],
+    fallback_vocab_size=VOCAB_SIZE,
+    fallback_max_chunk_bytes=MAX_CHUNK_BYTES,
 )
-tokenizer = BPEIDTokenizer(bpe_tokenizer)
-print(f"BPE 学習(実測、語彙サイズ={tokenizer.vocab_size}): {time.time() - t0:.2f} s")
+bpe_tokenizer = tokenizer.bpe_tokenizer
+print(
+    f"トークナイザ取得(loaded_from_hub={_loaded_from_hub}, 語彙サイズ={tokenizer.vocab_size}): "
+    f"{time.time() - t0:.2f} s"
+)
+assert tokenizer.vocab_size == VOCAB_SIZE, "トークナイザの語彙サイズが VOCAB_SIZE と一致しない"
 
 _roundtrip_sample = val_text[: min(len(val_text), 50_000)]
 _roundtrip_ok = bpe_tokenizer.decode(bpe_tokenizer.encode(_roundtrip_sample)) == _roundtrip_sample
@@ -457,7 +469,11 @@ assert _roundtrip_ok, "トークナイザのラウンドトリップが一致し
 print(f"OK: ラウンドトリップ一致(検証テキスト先頭 {len(_roundtrip_sample):,} 文字)")
 ```
 
-    BPE 学習(実測、語彙サイズ=8192): 154.68 s
+
+    tokenizer.json:   0%|          | 0.00/661k [00:00<?, ?B/s]
+
+
+    トークナイザ取得(loaded_from_hub=True, 語彙サイズ=8192): 2.19 s
     OK: ラウンドトリップ一致(検証テキスト先頭 50,000 文字)
 
 
@@ -603,10 +619,10 @@ print(
 )
 ```
 
-    lr=1.50e-04(x0.50): diverged=False, final_bpb=2.2082103525643877, elapsed=343.23s
-    lr=3.00e-04(x1.00): diverged=False, final_bpb=1.976747404947222, elapsed=358.19s
-    lr=6.00e-04(x2.00): diverged=False, final_bpb=1.7678492952691964, elapsed=358.29s
-    lr=1.20e-03(x4.00): diverged=False, final_bpb=1.6621888441031092, elapsed=358.34s
+    lr=1.50e-04(x0.50): diverged=False, final_bpb=2.2082103525643877, elapsed=335.92s
+    lr=3.00e-04(x1.00): diverged=False, final_bpb=1.976747404947222, elapsed=340.40s
+    lr=6.00e-04(x2.00): diverged=False, final_bpb=1.7678492952691964, elapsed=341.66s
+    lr=1.20e-03(x4.00): diverged=False, final_bpb=1.6621888441031092, elapsed=340.92s
     
     採用した学習率: 1.200e-03(006 基準の x4.00)
     gradient clipping 閾値: 0.6341(勾配ノルムの 90% 分位点)
@@ -656,14 +672,14 @@ else:
     print(f"OK: 見積もり実行時間は予算に対して {_budget_ratio:.1f} 倍の余裕がある。")
 ```
 
-    num_steps=272: 実行時間=48.51s
-    num_steps=545: 実行時間=92.75s
-    num_steps=1090: 実行時間=181.44s
+    num_steps=272: 実行時間=46.26s
+    num_steps=545: 実行時間=88.56s
+    num_steps=1090: 実行時間=172.90s
     
     べき指数 b=0.950(線形なら b~=1)
-    1 ステップあたりの時間(最大計測点からの実測比): 166.5 ms
-    本番ステップ数(2,181)への外挿(学習 1 回分): 6.1 分(予算 120 分)
-    OK: 見積もり実行時間は予算に対して 19.8 倍の余裕がある。
+    1 ステップあたりの時間(最大計測点からの実測比): 158.6 ms
+    本番ステップ数(2,181)への外挿(学習 1 回分): 5.8 分(予算 120 分)
+    OK: 見積もり実行時間は予算に対して 20.8 倍の余裕がある。
 
 
 ### 5.10 モデル学習の実行
@@ -721,7 +737,7 @@ torch.save(model.state_dict(), MODEL_STATE_PATH)
 print(f"学習履歴を {RESULTS_CACHE_PATH} に、state_dict を {MODEL_STATE_PATH} に保存した")
 ```
 
-    学習完了: 376.9 s, 最終検証 bits-per-byte = 1.6707
+    学習完了: 359.1 s, 最終検証 bits-per-byte = 1.6707
     学習履歴を .cache/008_model_cache.json に、state_dict を .cache/008_model_state.pt に保存した
 
 
@@ -764,7 +780,7 @@ if SMOKE_TEST:
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_35_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_34_0.png)
     
 
 
@@ -864,7 +880,15 @@ HF_REPO_ID = "kojikojiprg/ai-theories-small-gpt-en"  # アップロード先(pub
 
 
 def upload_model_to_hub(model: GPTLanguageModel, tokenizer: BPEIDTokenizer, repo_id: str) -> None:
-    """学習済みモデル・トークナイザ・モデルカードを Hugging Face Hub にアップロードする。
+    """学習済みモデル・設定・モデルカードを Hugging Face Hub にアップロードする。
+
+    トークナイザ(`tokenizer.json`)は同梱しない。共有トークナイザリポジトリ
+    `kojikojiprg/ai-theories-tokenizer-en`が既に存在するため、CLAUDE.md「共有
+    アーティファクトの管理方針」の「同梱の禁止」に従い、モデルリポジトリには含めない。
+
+    アップロード前にリポジトリを削除してから作り直す。`upload_file`・`upload_folder`は
+    ファイル単位の追加・上書きであり、同梱をやめても明示的に削除しない限り過去に
+    アップロードした`tokenizer.json`が残り続けるため(CLAUDE.md 同節)。
 
     Google Colab の Secrets に登録した HF_TOKEN を使う(トークンの値はここには書かない)。
     呼び出し前に、アップロードするアーティファクトの正しさをネットワーク呼び出しなしで
@@ -877,6 +901,9 @@ def upload_model_to_hub(model: GPTLanguageModel, tokenizer: BPEIDTokenizer, repo
 
     token = userdata.get("HF_TOKEN")
     api = HfApi(token=token)
+
+    print(f"削除してから作り直す: {repo_id}")
+    api.delete_repo(repo_id=repo_id, repo_type="model", missing_ok=True)
     api.create_repo(repo_id=repo_id, repo_type="model", exist_ok=True, private=False)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -901,18 +928,6 @@ def upload_model_to_hub(model: GPTLanguageModel, tokenizer: BPEIDTokenizer, repo
         }
         (tmpdir / "config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
 
-        tokenizer_data = {
-            "merges": tokenizer.bpe_tokenizer.merges,
-            "vocab": sorted(tokenizer.bpe_tokenizer.vocab),
-            "byte_level": tokenizer.bpe_tokenizer.byte_level,
-            "chunk_split_mode": tokenizer.bpe_tokenizer.chunk_split_mode,
-            "max_chunk_bytes": tokenizer.bpe_tokenizer.max_chunk_bytes,
-            "symbol_to_id": tokenizer.symbol_to_id,
-        }
-        (tmpdir / "tokenizer.json").write_text(
-            json.dumps(tokenizer_data, indent=2), encoding="utf-8"
-        )
-
         model_card = f"""---
 language: en
 license: mit
@@ -935,12 +950,14 @@ Transformer decoder-only の GPT スタイル言語モデルを PyTorch でス�
 
 - [006. 小型 GPT の事前学習](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/006_pretraining_small_gpt-theory)
 - [007. 学習の安定化](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization-theory)
-- [008. デコーディング戦略](https://github.com/kojikojiprg/ai-theories/blob/main/theories/02_pretraining/008_decoding_strategies.ipynb)
+- [008. デコーディング戦略](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/008_decoding_strategies-theory)
 
 ## 構成
 
-`config.json` を参照。トークナイザはバイトレベル BPE(語彙サイズ {tokenizer.vocab_size}、
-`tokenizer.json`)。
+`config.json` を参照。トークナイザはバイトレベル BPE(語彙サイズ {tokenizer.vocab_size})
+だが、**このリポジトリには同梱していない。** トークナイザは
+[kojikojiprg/ai-theories-tokenizer-en](https://huggingface.co/kojikojiprg/ai-theories-tokenizer-en)
+を使用すること。
 """
         (tmpdir / "README.md").write_text(model_card, encoding="utf-8")
 
@@ -957,6 +974,7 @@ else:
     )
 ```
 
+    削除してから作り直す: kojikojiprg/ai-theories-small-gpt-en
     アップロード完了: https://huggingface.co/kojikojiprg/ai-theories-small-gpt-en
 
 
