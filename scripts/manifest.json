@@ -27,15 +27,13 @@
     "slugs": [
       "003_positional_encoding_rope-theory",
       "003_positional_encoding_rope-practice-1",
-      "003_positional_encoding_rope-practice-2",
-      "003_positional_encoding_rope-practice-3"
+      "003_positional_encoding_rope-practice-2"
     ],
     "split": true,
     "titles": [
       "位置エンコーディング(Positional Encoding)/ RoPE(理論編)",
-      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/3)",
-      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 2/3)",
-      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 3/3)"
+      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/2)",
+      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 2/2)"
     ]
   },
   "004": {
