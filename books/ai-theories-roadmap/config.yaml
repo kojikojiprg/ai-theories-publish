@@ -37,3 +37,8 @@ chapters:
   - "009_scaling_laws-practice-1"
   - "009_scaling_laws-practice-2"
   - "009_scaling_laws-practice-3"
+  - "010_kv_cache_and_inference_compute-theory"
+  - "010_kv_cache_and_inference_compute-practice-1"
+  - "010_kv_cache_and_inference_compute-practice-2"
+  - "010_kv_cache_and_inference_compute-practice-3"
+  - "010_kv_cache_and_inference_compute-practice-4"
