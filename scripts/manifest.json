@@ -159,5 +159,20 @@
       "混合精度学習(Mixed Precision Training)(実装・実験編 3/4)",
       "混合精度学習(Mixed Precision Training)(実装・実験編 4/4)"
     ]
+  },
+  "012": {
+    "slugs": [
+      "012_low_rank_adaptation-theory",
+      "012_low_rank_adaptation-practice-1",
+      "012_low_rank_adaptation-practice-2",
+      "012_low_rank_adaptation-practice-3"
+    ],
+    "split": true,
+    "titles": [
+      "LoRA(Low-Rank Adaptation)(理論編)",
+      "LoRA(Low-Rank Adaptation)(実装・実験編 1/3)",
+      "LoRA(Low-Rank Adaptation)(実装・実験編 2/3)",
+      "LoRA(Low-Rank Adaptation)(実装・実験編 3/3)"
+    ]
   }
 }

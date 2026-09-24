@@ -47,3 +47,7 @@ chapters:
   - "011_mixed_precision_training-practice-2"
   - "011_mixed_precision_training-practice-3"
   - "011_mixed_precision_training-practice-4"
+  - "012_low_rank_adaptation-theory"
+  - "012_low_rank_adaptation-practice-1"
+  - "012_low_rank_adaptation-practice-2"
+  - "012_low_rank_adaptation-practice-3"
