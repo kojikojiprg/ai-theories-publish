@@ -42,3 +42,8 @@ chapters:
   - "010_kv_cache_and_inference_compute-practice-2"
   - "010_kv_cache_and_inference_compute-practice-3"
   - "010_kv_cache_and_inference_compute-practice-4"
+  - "011_mixed_precision_training-theory"
+  - "011_mixed_precision_training-practice-1"
+  - "011_mixed_precision_training-practice-2"
+  - "011_mixed_precision_training-practice-3"
+  - "011_mixed_precision_training-practice-4"
