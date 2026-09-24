@@ -68,7 +68,7 @@ $n_A$・$n_B$ 個のサンプル(実験 A ではプロンプト x 手法の組�
 
 $$
 \Delta = \bar{x}_B - \bar{x}_A \qquad \mathrm{SE}(\Delta) = \sqrt{\frac{s_A^2}{n_A} + \frac{s_B^2}{n_B}}
-\qquad \text{閾値} = 2 \times \mathrm{SE}(\Delta)
+\qquad \text{threshold} = 2 \times \mathrm{SE}(\Delta)
 $$
 
 判定は **支持**($\Delta$ が期待方向に閾値超え)/ **反証**($\Delta$ が逆方向に閾値超え)/
@@ -423,7 +423,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_58_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_59_0.png)
     
 
 
@@ -506,7 +506,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_61_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_62_0.png)
     
 
 
@@ -591,7 +591,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_64_0.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/008_decoding_strategies/output_65_0.png)
     
 
 
@@ -610,11 +610,15 @@ plt.show()
 | x2.0           |     6.00e-04 | False |             1.7678 |
 | **x4.0(採用)** | **1.20e-03** | False |         **1.6622** |
 
+**注記(後日の調査による)**: 較正の評価の間隔は`max(1, num_steps // 2) = 1090`であり、上の表の「最終 bits-per-byte」は最終ステップ(2,181 ステップ)ではなく 2,180 ステップ時点の評価値である。全条件で同じ時点の値なので、学習率の選定には影響しない。
+
 gradient clipping 閾値は、採用した学習率での較正実行における勾配ノルムの 90% 分位点として **0.6341** に決定した。
 
-本番学習(2,181 ステップ)の実測時間は **359.1 秒** であり、5.9 節末尾のスケーリング外挿(5.8 分 ≈ 348 秒)とほぼ一致した。学習曲線(下図)では、訓練損失が約 9(ほぼ一様分布相当)から単調に低下し 2,181 ステップ時点で 3.5〜4 nats 付近まで下がっており、バッチ由来のノイズはあるものの発散の兆候はない。検証 bits-per-byte も最初の評価(200 ステップ、2.48)から最終ステップ(2,181 ステップ、1.6707)まで単調に減少し、前提条件 P0 の閾値 `PRECONDITION_BPB_THRESHOLD=2.5` を最初の評価時点から一貫して下回っている。
+本番学習(2,181 ステップ)の実測時間は **359.1 秒** であり、5.9 節末尾のスケーリング外挿(5.8 分 ≈ 348 秒)とほぼ一致した。学習曲線(下図)では、訓練損失が約 9(ほぼ一様分布相当)から単調に低下し 2,181 ステップ時点で 3.5〜4 nats 付近まで下がっており、バッチ由来のノイズはあるものの発散の兆候はない。検証 bits-per-byte も最初の評価(200 ステップ、2.48)から最終評価(2,000 ステップ時点、1.6707)まで単調に減少し、前提条件 P0 の閾値 `PRECONDITION_BPB_THRESHOLD=2.5` を最初の評価時点から一貫して下回っている。保存した 2,181 ステップ時点の重みでは 1.6681 である。
 
-**最終検証 bits-per-byte = 1.6707 は閾値 2.5 を大きく下回り、前提条件 P0(学習の進行)は成立する。**
+**訂正(後日の調査による)**: 当初、この段落は 1.6707 を「最終ステップ(2,181 ステップ)」の値と記していた。1.6707 は 200 ステップごとの評価の最後である 2,000 ステップ時点の値であり、2,181 ステップ時点の値ではない(5.10 節の注記を参照)。7 節の生成実験は 2,181 ステップ時点の重みを使っており、この訂正の影響を受けない。
+
+**最終評価(2,000 ステップ時点)の検証 bits-per-byte = 1.6707 は閾値 2.5 を大きく下回り、前提条件 P0(学習の進行)は成立する。**
 
 ### 8.2 実験 A: 退化現象(Degeneration)
 
