@@ -193,5 +193,22 @@
       "量子化の基礎(Quantization Basics)(実装・実験編 4/5)",
       "量子化の基礎(Quantization Basics)(実装・実験編 5/5)"
     ]
+  },
+  "014": {
+    "slugs": [
+      "014_flash_attention-theory",
+      "014_flash_attention-practice-1",
+      "014_flash_attention-practice-2",
+      "014_flash_attention-practice-3",
+      "014_flash_attention-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "Flash Attention(理論編)",
+      "Flash Attention(実装・実験編 1/4)",
+      "Flash Attention(実装・実験編 2/4)",
+      "Flash Attention(実装・実験編 3/4)",
+      "Flash Attention(実装・実験編 4/4)"
+    ]
   }
 }

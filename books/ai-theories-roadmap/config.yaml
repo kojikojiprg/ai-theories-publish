@@ -57,3 +57,8 @@ chapters:
   - "013_quantization_basics-practice-3"
   - "013_quantization_basics-practice-4"
   - "013_quantization_basics-practice-5"
+  - "014_flash_attention-theory"
+  - "014_flash_attention-practice-1"
+  - "014_flash_attention-practice-2"
+  - "014_flash_attention-practice-3"
+  - "014_flash_attention-practice-4"
