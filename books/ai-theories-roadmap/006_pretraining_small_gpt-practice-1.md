@@ -105,7 +105,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from torch import Tensor
 
 from src.data.text import (
     CharacterLevelTokenizer,
@@ -114,7 +113,12 @@ from src.data.text import (
     make_evaluation_windows,
     split_train_val_text,
 )
-from src.data.tokenizer import BPETokenizer, UnigramTokenizer, learn_bpe, train_unigram_model
+from src.data.tokenizer import (
+    BPEIDTokenizer,
+    UnigramTokenizer,
+    learn_bpe,
+    train_unigram_model,
+)
 from src.layers.normalization import RMSNorm
 from src.layers.feedforward import SwiGLUFeedForwardNetwork
 from src.layers.positional_encoding import RotaryPositionEmbedding
@@ -137,7 +141,16 @@ device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if 
 print(f"torch: {torch.__version__} / device: {device}")
 
 ROOT = Path(".")
+# CACHE_DIR は 006 固有の作業ディレクトリ(Unigram モデル・実験結果キャッシュ)であり、
+# 008 もこのディレクトリの英語版 Wikipedia 記事キャッシュを参照するため名前は変更しない。
 CACHE_DIR = ROOT / ".cache" / "006_corpus"
+# Wikipedia コーパスのキャッシュディレクトリは、言語とデータ源で命名し、トピック番号を
+# 含めない(どのトピックが最初に使ったかではなく、何のデータかで決まる)。009 など他の
+# トピックが英語版 Wikipedia を使う場合もこのディレクトリを共有する。
+WIKIPEDIA_CACHE_DIRS = {
+    "ja": ROOT / ".cache" / "wikipedia_ja",
+    "en": ROOT / ".cache" / "wikipedia_en",
+}
 
 ```
 
@@ -341,7 +354,7 @@ del calibration_model, calibration_optimizer  # 較正用の model は以降使�
 def load_corpus_prefix(language: str, max_bytes: int) -> str:
     """言語版 Wikipedia コーパスを取得し、UTF-8 で ``max_bytes`` バイト以内に
     切り詰める(マルチバイト文字の途中で切れないよう末尾を調整する)。"""
-    text = load_wikipedia_corpus(language, CACHE_DIR)
+    text = load_wikipedia_corpus(language, WIKIPEDIA_CACHE_DIRS[language])
     raw = text.encode("utf-8")[:max_bytes]
     while True:
         try:
@@ -381,33 +394,11 @@ for lang, corpus in [("ja", corpus_ja), ("en", corpus_en)]:
 
 ### 5.3 トークナイザを整数 ID 方式に適合させるラッパー
 
-4 節で述べた通り、`BPETokenizer.encode()` は部分語シンボルの文字列を返す。`encode_corpus`・`make_evaluation_windows`・`GPTLanguageModel` が要求する「整数 ID を返す `encode()` / ID から文字列に戻す `decode()`」のインターフェースに適合させるため、学習済み語彙をソートして通し番号を振る薄いラッパーを定義する。
+4 節で述べた通り、`BPETokenizer.encode()` は部分語シンボルの文字列を返す。`encode_corpus`・`make_evaluation_windows`・`GPTLanguageModel` が要求する「整数 ID を返す `encode()` / ID から文字列に戻す `decode()`」のインターフェースに適合させるため、学習済み語彙をソートして通し番号を振る薄いラッパーが必要になる。この`BPEIDTokenizer`は 006・008・009 で共通に使うため`src/data/tokenizer.py`にモジュール化してあり、ここでは import して使う。
 
 
 ```python
-class BPEIDTokenizer:
-    """BPETokenizer(部分語シンボル文字列を返す)を整数 ID 方式に適合させるラッパー。
-
-    学習済み語彙(``vocab``、シンボル文字列の集合)をソートした順序で ID を
-    割り当てる(学習コーパス・vocab_size が同じであれば毎回同一の対応になる)。
-    """
-
-    def __init__(self, bpe_tokenizer: BPETokenizer) -> None:
-        self.bpe_tokenizer = bpe_tokenizer
-        symbols = sorted(bpe_tokenizer.vocab)
-        self.symbol_to_id = {symbol: i for i, symbol in enumerate(symbols)}
-        self.id_to_symbol = symbols
-        self.vocab_size = len(symbols)
-
-    def encode(self, text: str) -> list[int]:
-        return [self.symbol_to_id[symbol] for symbol in self.bpe_tokenizer.encode(text)]
-
-    def decode(self, ids) -> str:
-        if isinstance(ids, Tensor):
-            ids = ids.tolist()
-        return self.bpe_tokenizer.decode([self.id_to_symbol[i] for i in ids])
-
-
+# BPEIDTokenizer は src/data/tokenizer.py から import 済み(5.3 節の import セル)。
 # UnigramTokenizer は内部の sentencepiece.SentencePieceProcessor(processor 属性)が
 # encode(text) -> list[int] / decode(ids) -> str を既に提供しているため、ラップせずそのまま使う。
 def get_vocab_size(tokenizer) -> int:
@@ -419,12 +410,7 @@ def get_vocab_size(tokenizer) -> int:
         return v
     return tokenizer.get_piece_size()
 
-
-print("BPEIDTokenizer 定義済み")
 ```
-
-    BPEIDTokenizer 定義済み
-
 
 ### 5.4 トークナイザ条件の学習
 
@@ -459,7 +445,9 @@ def build_tokenizers(lang: str) -> dict[str, object]:
             chunk_split_mode="whitespace",
             max_chunk_bytes=MAX_CHUNK_BYTES,
         )
-        tokenizers[f"bpe_v{vocab_size}"] = BPEIDTokenizer(bpe)
+        bpe_symbols = sorted(bpe.vocab)
+        bpe_symbol_to_id = {symbol: i for i, symbol in enumerate(bpe_symbols)}
+        tokenizers[f"bpe_v{vocab_size}"] = BPEIDTokenizer(bpe, bpe_symbol_to_id)
 
     model_prefix = CACHE_DIR / "spm" / f"unigram_{lang}"
     unigram = train_unigram_model(
