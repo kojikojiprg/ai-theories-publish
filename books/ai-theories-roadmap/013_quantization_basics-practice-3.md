@@ -143,7 +143,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_34_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_35_1.png)
     
 
 
@@ -218,7 +218,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_36_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_37_1.png)
     
 
 
@@ -471,7 +471,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_40_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_41_1.png)
     
 
 
@@ -591,7 +591,7 @@ plt.show()
 
 
     
-![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_42_1.png)
+![png](https://raw.githubusercontent.com/kojikojiprg/ai-theories-publish/main/images/013_quantization_basics/output_43_1.png)
     
 
 
