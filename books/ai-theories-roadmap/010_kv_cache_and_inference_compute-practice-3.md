@@ -394,6 +394,22 @@ print(f"P1 成立: {D_P1_HOLDS}")
     P1 成立: True
 
 
+#### 7.5 節の注記(後日の調査による): 前提条件 P1 の参照値の出典
+
+**この注記は、本番実行の後に判明した事実の記録である。前提条件 P1 の宣言(参照値 1.6622、相対誤差 1% 以内)と
+その判定は変更しない。**
+
+- P1 の参照値 1.6622 は「008 8.1 節の本番実行結果」として転記したが、008 の本番モデルの値ではなかった。008 の
+  8.1 節の較正の表にある、学習率 x4.0 の較正実行(学習率 1.2e-3、seed 0、gradient clipping なし)の最終
+  bits-per-byte である。008 の本番モデルは、較正で決めた gradient clipping 閾値を使って seed 42 で別途学習した
+  ものであり、較正実行とは別のモデルである。出典の記述が誤っていた。
+- 008 が本番モデルについて印字した 1.6707 も、アップロードした重みの値ではない(学習途中の 2,000 ステップ時点の
+  評価値である。008 の 5.10 節の注記を参照)。アップロードした重み(2,181 ステップ時点)の、同じ検証集合での
+  値は 1.6681(1.668067、013 のセル出力)であり、これが P1 の参照値として本来使うべき値である。
+- 上のセルの実測値 1.6681 は、正しい参照値 1.6681 と印字した桁で一致する。誤った参照値 1.6622 との比較(相対
+  誤差 0.35%)でも、正しい参照値との比較でも、相対誤差 1% 以内であることは変わらない。したがって P1 の成否
+  (成立)は変わらない。
+
 
 ```python
 # --- 実験 D: 条件・学習ループの準備 ---
@@ -910,7 +926,7 @@ tags:
 `ai-theories`(https://github.com/kojikojiprg/ai-theories)プロジェクトの成果物。
 [kojikojiprg/ai-theories-small-gpt-en](https://huggingface.co/kojikojiprg/ai-theories-small-gpt-en)
 の `main` ブランチ(通常の多頭注意機構、ヘッド数 {_num_heads})を起点に、
-[010. KV キャッシュと推論の計算量](https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/010_kv_cache_and_inference_compute.ipynb)
+[010. KV キャッシュと推論の計算量](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory)
 の実験 D で Key / Value ヘッド数を {_num_key_value_heads} に削減し(Grouped-Query
 Attention)、平均プール初期化(Ainslie et al., "GQA: Training Generalized Multi-Query
 Transformer Models from Multi-Head Checkpoints", EMNLP 2023 の uptraining)の後に
@@ -933,7 +949,7 @@ Transformer Models from Multi-Head Checkpoints", EMNLP 2023 の uptraining)の�
 
 ## 関連ノートブック
 
-- [010. KV キャッシュと推論の計算量](https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/010_kv_cache_and_inference_compute.ipynb)
+- [010. KV キャッシュと推論の計算量](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory)
 '''
 
 
