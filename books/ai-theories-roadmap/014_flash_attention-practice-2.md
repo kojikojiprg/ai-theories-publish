@@ -1,8 +1,8 @@
 ---
-title: "Flash Attention(実装・実験編 2/4)"
+title: "Flash Attention(実装・実験編 2/3)"
 ---
 
-この記事は後編(実装・実験編 2/4)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-1)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-3)。
+この記事は後編(実装・実験編 2/3)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-1)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-3)。
 
 ### 6.1 実験宣言セル: 共通の設定・検証すること・判定基準・前提条件
 

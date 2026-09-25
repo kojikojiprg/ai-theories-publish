@@ -1,8 +1,8 @@
 ---
-title: "Flash Attention(実装・実験編 1/4)"
+title: "Flash Attention(実装・実験編 1/3)"
 ---
 
-この記事は後編(実装・実験編 1/4)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-2)。
+この記事は後編(実装・実験編 1/3)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-practice-2)。
 
 ## 4. 実装方針 / Implementation Policy
 
@@ -40,7 +40,7 @@ memory-efficient・flash を指定しても例外にならなかった)ため、
 (実験 A・B の参照値に FP64 を使う)使わない。
 
 **アップロード方針**: 学習もモデルもないため、Hugging Face Hub へのアップロードはない。生成物はセル出力
-(判定の一次情報を含む)のみである。
+のみである。
 
 ## 5. 実装 / Implementation
 
