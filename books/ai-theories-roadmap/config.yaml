@@ -61,3 +61,8 @@ chapters:
   - "014_flash_attention-practice-1"
   - "014_flash_attention-practice-2"
   - "014_flash_attention-practice-3"
+  - "015_long_context_extension-theory"
+  - "015_long_context_extension-practice-1"
+  - "015_long_context_extension-practice-2"
+  - "015_long_context_extension-practice-3"
+  - "015_long_context_extension-practice-4"
