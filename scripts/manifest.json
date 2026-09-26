@@ -225,5 +225,22 @@
       "長文脈拡張 / Long Context Extension(実装・実験編 3/4)",
       "長文脈拡張 / Long Context Extension(実装・実験編 4/4)"
     ]
+  },
+  "016": {
+    "slugs": [
+      "016_supervised_fine_tuning-theory",
+      "016_supervised_fine_tuning-practice-1",
+      "016_supervised_fine_tuning-practice-2",
+      "016_supervised_fine_tuning-practice-3",
+      "016_supervised_fine_tuning-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(理論編)",
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 1/4)",
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 2/4)",
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 3/4)",
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 4/4)"
+    ]
   }
 }

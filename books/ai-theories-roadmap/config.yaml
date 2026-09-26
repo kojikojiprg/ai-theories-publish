@@ -66,3 +66,8 @@ chapters:
   - "015_long_context_extension-practice-2"
   - "015_long_context_extension-practice-3"
   - "015_long_context_extension-practice-4"
+  - "016_supervised_fine_tuning-theory"
+  - "016_supervised_fine_tuning-practice-1"
+  - "016_supervised_fine_tuning-practice-2"
+  - "016_supervised_fine_tuning-practice-3"
+  - "016_supervised_fine_tuning-practice-4"
