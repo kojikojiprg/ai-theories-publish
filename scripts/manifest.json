@@ -242,5 +242,22 @@
       "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 3/4)",
       "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 4/4)"
     ]
+  },
+  "017": {
+    "slugs": [
+      "017_reward_model_and_rlhf-theory",
+      "017_reward_model_and_rlhf-practice-1",
+      "017_reward_model_and_rlhf-practice-2",
+      "017_reward_model_and_rlhf-practice-3",
+      "017_reward_model_and_rlhf-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "報酬モデルと RLHF / Reward Models and RLHF(理論編)",
+      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 1/4)",
+      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 2/4)",
+      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 3/4)",
+      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 4/4)"
+    ]
   }
 }
