@@ -259,5 +259,22 @@
       "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 3/4)",
       "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 4/4)"
     ]
+  },
+  "018": {
+    "slugs": [
+      "018_direct_preference_optimization-theory",
+      "018_direct_preference_optimization-practice-1",
+      "018_direct_preference_optimization-practice-2",
+      "018_direct_preference_optimization-practice-3",
+      "018_direct_preference_optimization-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(理論編)",
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 1/4)",
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 2/4)",
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 3/4)",
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 4/4)"
+    ]
   }
 }

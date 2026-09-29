@@ -76,3 +76,8 @@ chapters:
   - "017_reward_model_and_rlhf-practice-2"
   - "017_reward_model_and_rlhf-practice-3"
   - "017_reward_model_and_rlhf-practice-4"
+  - "018_direct_preference_optimization-theory"
+  - "018_direct_preference_optimization-practice-1"
+  - "018_direct_preference_optimization-practice-2"
+  - "018_direct_preference_optimization-practice-3"
+  - "018_direct_preference_optimization-practice-4"
