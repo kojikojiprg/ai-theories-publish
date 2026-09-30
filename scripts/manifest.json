@@ -276,5 +276,22 @@
       "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 3/4)",
       "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 4/4)"
     ]
+  },
+  "019": {
+    "slugs": [
+      "019_vision_transformer-theory",
+      "019_vision_transformer-practice-1",
+      "019_vision_transformer-practice-2",
+      "019_vision_transformer-practice-3",
+      "019_vision_transformer-practice-4"
+    ],
+    "split": true,
+    "titles": [
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(理論編)",
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 1/4)",
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 2/4)",
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 3/4)",
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 4/4)"
+    ]
   }
 }
