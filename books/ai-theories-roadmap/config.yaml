@@ -92,3 +92,7 @@ chapters:
   - "020_clip_contrastive_learning-practice-3"
   - "020_clip_contrastive_learning-practice-4"
   - "020_clip_contrastive_learning-practice-5"
+  - "021_llava_visual_instruction_tuning-theory"
+  - "021_llava_visual_instruction_tuning-practice-1"
+  - "021_llava_visual_instruction_tuning-practice-2"
+  - "021_llava_visual_instruction_tuning-practice-3"
