@@ -327,5 +327,24 @@
       "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(実装・実験編 2/3)",
       "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(実装・実験編 3/3)"
     ]
+  },
+  "022": {
+    "slugs": [
+      "022_mixture_of_experts-theory",
+      "022_mixture_of_experts-practice-1",
+      "022_mixture_of_experts-practice-2",
+      "022_mixture_of_experts-practice-3",
+      "022_mixture_of_experts-practice-4",
+      "022_mixture_of_experts-practice-5"
+    ],
+    "split": true,
+    "titles": [
+      "Mixture of Experts(MoE) / Mixture of Experts(理論編)",
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 1/5)",
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 2/5)",
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 3/5)",
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 4/5)",
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 5/5)"
+    ]
   }
 }
