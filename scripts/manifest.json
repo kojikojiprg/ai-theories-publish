@@ -346,5 +346,26 @@
       "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 4/5)",
       "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 5/5)"
     ]
+  },
+  "023": {
+    "slugs": [
+      "023_state_space_model_mamba-theory",
+      "023_state_space_model_mamba-practice-1",
+      "023_state_space_model_mamba-practice-2",
+      "023_state_space_model_mamba-practice-3",
+      "023_state_space_model_mamba-practice-4",
+      "023_state_space_model_mamba-practice-5",
+      "023_state_space_model_mamba-practice-6"
+    ],
+    "split": true,
+    "titles": [
+      "State Space Model / Mamba / State Space Model and Mamba(理論編)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 1/6)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 2/6)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 3/6)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 4/6)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 5/6)",
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 6/6)"
+    ]
   }
 }
