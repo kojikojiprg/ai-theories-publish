@@ -367,5 +367,28 @@
       "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 5/6)",
       "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 6/6)"
     ]
+  },
+  "024": {
+    "slugs": [
+      "024_text_embedding_and_retriever-theory",
+      "024_text_embedding_and_retriever-practice-1",
+      "024_text_embedding_and_retriever-practice-2",
+      "024_text_embedding_and_retriever-practice-3",
+      "024_text_embedding_and_retriever-practice-4",
+      "024_text_embedding_and_retriever-practice-5",
+      "024_text_embedding_and_retriever-practice-6",
+      "024_text_embedding_and_retriever-practice-7"
+    ],
+    "split": true,
+    "titles": [
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(理論編)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 1/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 2/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 3/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 4/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 5/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 6/7)",
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 7/7)"
+    ]
   }
 }
