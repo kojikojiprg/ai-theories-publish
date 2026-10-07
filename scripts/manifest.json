@@ -390,5 +390,30 @@
       "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 6/7)",
       "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 7/7)"
     ]
+  },
+  "025": {
+    "slugs": [
+      "025_ann_search_and_reranking-theory",
+      "025_ann_search_and_reranking-practice-1",
+      "025_ann_search_and_reranking-practice-2",
+      "025_ann_search_and_reranking-practice-3",
+      "025_ann_search_and_reranking-practice-4",
+      "025_ann_search_and_reranking-practice-5",
+      "025_ann_search_and_reranking-practice-6",
+      "025_ann_search_and_reranking-practice-7",
+      "025_ann_search_and_reranking-practice-8"
+    ],
+    "split": true,
+    "titles": [
+      "ANN 検索とリランキング / ANN Search and Reranking(理論編)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 1/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 2/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 3/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 4/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 5/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 6/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 7/8)",
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 8/8)"
+    ]
   }
 }
