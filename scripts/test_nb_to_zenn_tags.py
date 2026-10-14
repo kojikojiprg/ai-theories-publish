@@ -51,7 +51,12 @@ def convert(cells: list) -> tuple[str, list[str]]:
     nb = new_notebook(cells=[markdown("# 999. 試験")] + cells)
     with tempfile.TemporaryDirectory() as tmp:
         nb_to_zenn.IMAGES_DIR = Path(tmp)
-        body = nb_to_zenn.convert_to_markdown(nb, "test_slug_for_tags", "o/r")
+        body = nb_to_zenn.convert_to_markdown(
+            nb,
+            "test_slug_for_tags",
+            "o/r",
+            Path("theories/01_test/999_test_notebook.ipynb"),
+        )
         images = sorted(p.name for p in (Path(tmp) / "test_slug_for_tags").iterdir())
     return body, images
 
@@ -104,53 +109,59 @@ class TagTest(unittest.TestCase):
         body, _ = convert([markdown("本文のみ", "zenn-details")])
         self.assertIn(":::details 詳細\n", body)
 
-    def test_appendix_runs_to_end(self):
-        body, _ = convert(
-            [markdown("## 本編"), markdown("## 付録 A", "zenn-appendix"), code("print(4)", image=True)]
-        )
-        self.assertIn(":::details 付録\n", body)
-        self.assertIn("## 付録 A", body)
-        self.assertTrue(body.rstrip().endswith(":::"))
-        self.assertLess(body.index("## 本編"), body.index(":::details 付録"))
-
-    def test_nested_details_in_appendix(self):
-        body, _ = convert(
+    def test_appendix_is_replaced_by_link_paragraph(self):
+        body, images = convert(
             [
                 markdown("## 本編"),
+                code("print(1)", output="1\n"),
                 markdown("## 付録", "zenn-appendix"),
-                markdown("### 内側の詳細\n\n中身", "zenn-details"),
-                code("print(5)", "zenn-details", output="5\n"),
-                markdown("## 付録の続き"),
+                markdown("付録の本文"),
+                code("appendix_code()", output="appendix_output\n", image=True),
+                markdown("### 内側の詳細", "zenn-details"),
             ]
         )
-        lines = body.splitlines()
-        self.assertIn("::::details 付録", lines)
-        self.assertIn(":::details 内側の詳細", lines)
-        self.assertIn(":::details コード", lines)
-        self.assertEqual(lines.count(":::"), 2)
-        self.assertEqual(lines.count("::::"), 1)
-
-    def test_hide_inside_appendix_and_hidden_appendix_start(self):
-        body, images = convert(
-            [markdown("## 付録", "zenn-appendix"), code("x", "zenn-hide", image=True), markdown("残り")]
+        link = "https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_test/999_test_notebook.ipynb"
+        self.assertIn(
+            "付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。\n\n" + link,
+            body,
         )
-        self.assertIn(":::details 付録", body)
+        self.assertNotIn("付録の本文", body)
+        self.assertNotIn("appendix_code", body)
+        self.assertNotIn(":::", body)
+        self.assertEqual(images, [])
+        self.assertIn("print(1)", body)
+
+    def test_hidden_cell_before_appendix_stays_hidden(self):
+        body, images = convert(
+            [code("x", "zenn-hide", image=True), markdown("## 付録", "zenn-appendix")]
+        )
+        self.assertEqual(images, [])
+        self.assertIn("GitHub のノートブックを参照", body)
+
+    def test_images_only_keeps_images_not_text(self):
+        body, images = convert(
+            [code("plot_it()", "zenn-images-only", output="printed_text\n", image=True)]
+        )
+        self.assertNotIn("plot_it", body)
+        self.assertNotIn("printed_text", body)
+        self.assertNotIn("Figure", body)
+        self.assertIn("![png]", body)
+        self.assertEqual(len(images), 1)
+
+    def test_images_only_drops_cell_without_images(self):
+        body, images = convert(
+            [code("print_only()", "zenn-images-only", output="printed_text\n"), markdown("残る")]
+        )
+        self.assertNotIn("print_only", body)
+        self.assertNotIn("printed_text", body)
+        self.assertIn("残る", body)
         self.assertEqual(images, [])
 
-    def test_split_does_not_cut_inside_fold(self):
-        body, _ = convert(
-            [
-                markdown("## 一"),
-                markdown("## 付録", "zenn-appendix"),
-                markdown("## 付録の見出し"),
-                markdown("### 付録の小見出し"),
-            ]
-        )
-        chunks = nb_to_zenn.split_at_headings(body, nb_to_zenn.TOP_HEADING_PATTERN)
-        for chunk in chunks:
-            self.assertEqual(chunk.count(":::details"), chunk.count(":::\n") if ":::details" in chunk else 0)
-        self.assertEqual(sum(":::details 付録" in c for c in chunks), 1)
-        self.assertEqual(len([c for c in chunks if "## 付録の見出し" in c and ":::details" in c]), 1)
+    def test_images_only_in_details(self):
+        body, images = convert([code("plot_it()", "zenn-images-only", "zenn-details", image=True)])
+        self.assertIn(":::details コード", body)
+        self.assertNotIn("plot_it", body)
+        self.assertEqual(len(images), 1)
 
     def assert_rejected(self, cells):
         with self.assertRaises(SystemExit) as raised:
@@ -169,6 +180,12 @@ class TagTest(unittest.TestCase):
     def test_rejects_hide_input_on_markdown_and_unknown_zenn_tag(self):
         self.assert_rejected([markdown("本文", "zenn-hide-input")])
         self.assert_rejected([markdown("本文", "zenn-unknown")])
+
+    def test_rejects_images_only_on_markdown_and_raw(self):
+        self.assert_rejected([markdown("本文", "zenn-images-only")])
+        raw = nbformat.v4.new_raw_cell("raw")
+        raw.metadata["tags"] = ["zenn-images-only"]
+        self.assert_rejected([raw])
 
 
 if __name__ == "__main__":

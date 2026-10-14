@@ -55,16 +55,21 @@ TAG_HIDE = "zenn-hide"
 TAG_HIDE_INPUT = "zenn-hide-input"
 TAG_DETAILS = "zenn-details"
 TAG_APPENDIX = "zenn-appendix"
+TAG_IMAGES_ONLY = "zenn-images-only"
 # タグごとに付けてよいセルの種類(ai-theories の CLAUDE.md「Zenn での表示を制御するセルのタグ」に従う)。
 ZENN_TAG_TARGETS = {
     TAG_HIDE: ("code", "markdown", "raw"),
     TAG_HIDE_INPUT: ("code",),
+    TAG_IMAGES_ONLY: ("code",),
     TAG_DETAILS: ("code", "markdown", "raw"),
     TAG_APPENDIX: ("markdown",),
 }
 
 # 折りたたみ(`:::details`)の見出しの既定値。
-APPENDIX_SUMMARY = "付録"
+# 付録は記事に載せず、代わりにこの文とノートブックへのリンクを置く。
+APPENDIX_REPLACEMENT_TEXT = (
+    "付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。"
+)
 CODE_CELL_DETAILS_SUMMARY = "コード"
 MARKDOWN_CELL_DETAILS_SUMMARY = "詳細"
 
@@ -295,8 +300,37 @@ def validate_zenn_tags(nb: nbformat.NotebookNode) -> None:
         sys.exit(1)
 
 
-def apply_zenn_tags(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNode, dict[int, str]]:
-    """タグに従って、`zenn-hide` のセルを除き、折りたたみの開始・終了の印のセルを挿入する。
+def keep_images_only(cell: nbformat.NotebookNode) -> nbformat.NotebookNode | None:
+    """`zenn-images-only` のコードセルについて、ソースと画像以外の出力を除いたセルを返す。
+    画像の出力がなければ None(セルごと除く)を返す。
+    """
+    outputs = []
+    for output in cell.get("outputs", []):
+        if output.get("output_type") not in ("display_data", "execute_result"):
+            continue
+        images = {k: v for k, v in output.get("data", {}).items() if k.startswith("image/")}
+        if not images:
+            continue
+        kept = nbformat.from_dict(output)
+        kept["data"] = images
+        kept["metadata"] = {}
+        outputs.append(kept)
+    if not outputs:
+        return None
+    kept_cell = nbformat.from_dict(cell)
+    kept_cell["outputs"] = outputs
+    tags = list(kept_cell.get("metadata", {}).get("tags", []))
+    kept_cell["metadata"]["tags"] = tags + [TAG_HIDE_INPUT]
+    return kept_cell
+
+
+def apply_zenn_tags(
+    nb: nbformat.NotebookNode, notebook_path: Path | None = None
+) -> tuple[nbformat.NotebookNode, dict[int, str]]:
+    """タグに従ってセルを加工する。
+    `zenn-hide` のセルは除く。`zenn-images-only` のセルは画像の出力だけを残す。
+    `zenn-details` のセルには折りたたみの開始・終了の印のセルを挿入する。
+    `zenn-appendix` のセルから末尾までは除き、代わりにノートブックへのリンクの段落を置く。
     折りたたみの見出しの文言は、印の番号をキーとした辞書で返す。
     タグ付きのセルがなければ、ノートブックをそのまま返す。
     """
@@ -310,15 +344,20 @@ def apply_zenn_tags(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNode, d
     def marker(kind: str, number: int) -> nbformat.NotebookNode:
         return nbformat.v4.new_markdown_cell(f"@@ZENN_FOLD_{kind}:{number}@@")
 
-    appendix_number: int | None = None
     for cell in nb.cells:
         tags = cell_tags(cell)
+        if TAG_APPENDIX in tags:
+            text = APPENDIX_REPLACEMENT_TEXT
+            if notebook_path is not None:
+                text += "\n\n" + build_notebook_url(notebook_path)
+            cells.append(nbformat.v4.new_markdown_cell(text))
+            break
         if TAG_HIDE in tags:
             continue
-        if TAG_APPENDIX in tags and appendix_number is None:
-            appendix_number = len(summaries)
-            summaries[appendix_number] = APPENDIX_SUMMARY
-            cells.append(marker("OPEN", appendix_number))
+        if TAG_IMAGES_ONLY in tags:
+            cell = keep_images_only(cell)
+            if cell is None:
+                continue
         if TAG_DETAILS in tags:
             summary, cell = details_summary_and_cell(cell)
             number = len(summaries)
@@ -326,8 +365,6 @@ def apply_zenn_tags(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNode, d
             cells.extend([marker("OPEN", number), cell, marker("CLOSE", number)])
         else:
             cells.append(cell)
-    if appendix_number is not None:
-        cells.append(marker("CLOSE", appendix_number))
 
     nb = nbformat.from_dict(nb)
     nb.cells = cells
@@ -396,8 +433,10 @@ def find_fold_spans(text: str) -> list[tuple[int, int]]:
     return spans
 
 
-def convert_to_markdown(nb: nbformat.NotebookNode, slug: str, publish_repo: str) -> str:
-    nb, summaries = apply_zenn_tags(nb)
+def convert_to_markdown(
+    nb: nbformat.NotebookNode, slug: str, publish_repo: str, notebook_path: Path | None = None
+) -> str:
+    nb, summaries = apply_zenn_tags(nb, notebook_path)
 
     config = Config()
     config.TagRemovePreprocessor.enabled = True
@@ -423,13 +462,17 @@ def build_frontmatter(title: str) -> str:
     return f'---\ntitle: "{title}"\n---\n\n'
 
 
-def build_source_link(notebook_path: Path) -> str:
+def build_notebook_url(notebook_path: Path) -> str:
     category = notebook_path.parent.name
     filename = notebook_path.name
-    url = (
+    return (
         "https://github.com/kojikojiprg/ai-theories/blob/main/theories/"
         f"{category}/{filename}"
     )
+
+
+def build_source_link(notebook_path: Path) -> str:
+    url = build_notebook_url(notebook_path)
     return f"\n\n## 元ノートブック(実装の全文はこちら)\n\n{url}\n"
 
 
@@ -570,7 +613,7 @@ def main() -> None:
 
     nb = nbformat.read(notebook_path, as_version=4)
     title = extract_title(nb)
-    body = convert_to_markdown(nb, slug, publish_repo)
+    body = convert_to_markdown(nb, slug, publish_repo, notebook_path)
     body = rewrite_notebook_links(body, manifest)
     body = remove_not_yet_created_markers(body)
     source_link = build_source_link(notebook_path)
