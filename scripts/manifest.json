@@ -167,8 +167,8 @@
     ],
     "split": true,
     "titles": [
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(理論編)",
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編)"
+      "DPO(Direct Preference Optimization)(理論編)",
+      "DPO(Direct Preference Optimization)(実装・実験編)"
     ]
   },
   "019": {
@@ -197,7 +197,7 @@
     ],
     "split": false,
     "titles": [
-      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning"
+      "LLaVA 型 Vision-Language 連結と視覚指示チューニング"
     ]
   },
   "022": {
@@ -250,7 +250,7 @@
     ],
     "split": false,
     "titles": [
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level"
+      "Inverse Cloze Task と passage 単位の 2 段階検索"
     ]
   }
 }

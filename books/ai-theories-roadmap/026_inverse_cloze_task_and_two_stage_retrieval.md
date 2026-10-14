@@ -1,5 +1,5 @@
 ---
-title: "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level"
+title: "Inverse Cloze Task と passage 単位の 2 段階検索"
 ---
 
 # 026. Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level

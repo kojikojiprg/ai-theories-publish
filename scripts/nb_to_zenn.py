@@ -41,6 +41,8 @@ NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
 # 記事(article)の80,000文字上限とは異なる、より厳しい制限であることに注意。
 # Zennの章のslug(ファイル名から拡張子を除いたもの)の文字数の上限。
 CHAPTER_SLUG_MAX_LENGTH = 50
+# Zennの章のタイトルの文字数の上限(「Titleには最大70文字まで使用できます」)。
+CHAPTER_TITLE_MAX_LENGTH = 70
 CHAR_HARD_LIMIT = 50_000
 # 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文・元ノートブックへの
 # リンクなど分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
@@ -593,11 +595,30 @@ def build_part_slug(base_slug: str, kind: str, index: int, total: int) -> str:
     return f"{base_slug}-{kind}-{index + 1}"
 
 
+def fit_title(base_title: str, suffix: str = "") -> str:
+    """章のタイトル(`base_title` + `suffix`)をZennの上限(70文字)に収める。
+    超える場合は、「日本語 / English」形式の英語の部分を除いて日本語の部分だけにする。
+    それでも超える場合はエラーにして止める。
+    """
+    title = base_title + suffix
+    if len(title) <= CHAPTER_TITLE_MAX_LENGTH:
+        return title
+    title = base_title.split(" / ", 1)[0] + suffix
+    if len(title) > CHAPTER_TITLE_MAX_LENGTH:
+        print(
+            f"エラー: 章のタイトル「{title}」が {len(title)} 文字で、Zennの上限"
+            f"({CHAPTER_TITLE_MAX_LENGTH}文字)を超えています。ノートブックの見出しを短くしてください。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return title
+
+
 def build_part_title(base_title: str, kind: str, index: int, total: int) -> str:
     kind_label = "理論編" if kind == "theory" else "実装・実験編"
     if total == 1:
-        return f"{base_title}({kind_label})"
-    return f"{base_title}({kind_label} {index + 1}/{total})"
+        return fit_title(base_title, f"({kind_label})")
+    return fit_title(base_title, f"({kind_label} {index + 1}/{total})")
 
 
 def build_part_intro(part: dict, prev_part: dict | None, next_part: dict | None) -> str:
@@ -668,7 +689,7 @@ def convert_notebook(number: str, publish_repo: str, expect_same_structure: bool
     slug = extract_slug(notebook_path)
 
     nb = nbformat.read(notebook_path, as_version=4)
-    title = extract_title(nb)
+    title = fit_title(extract_title(nb))
     body = convert_to_markdown(nb, slug, publish_repo, notebook_path)
     body, link_counts = rewrite_notebook_links(body, manifest)
     print_link_counts(number, link_counts)

@@ -1,5 +1,5 @@
 ---
-title: "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編)"
+title: "DPO(Direct Preference Optimization)(実装・実験編)"
 ---
 
 この記事は後編(実装・実験編)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory)。

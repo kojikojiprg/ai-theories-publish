@@ -255,5 +255,21 @@ class LinkTest(unittest.TestCase):
             nb_to_zenn.check_structure_unchanged("001", self.manifest, ["001_first_topic-theory"])
 
 
+class TitleTest(unittest.TestCase):
+    def test_short_title_is_unchanged(self):
+        self.assertEqual(nb_to_zenn.fit_title("短い / Short"), "短い / Short")
+        self.assertEqual(nb_to_zenn.build_part_title("短い / Short", "theory", 0, 1), "短い / Short(理論編)")
+
+    def test_long_title_drops_english_part(self):
+        base = "DPO(Direct Preference Optimization) / Direct Preference Optimization"
+        title = nb_to_zenn.build_part_title(base, "theory", 0, 1)
+        self.assertEqual(title, "DPO(Direct Preference Optimization)(理論編)")
+        self.assertLessEqual(len(title), 70)
+
+    def test_unsplittable_long_title_is_an_error(self):
+        with self.assertRaises(SystemExit):
+            nb_to_zenn.fit_title("あ" * 71)
+
+
 if __name__ == "__main__":
     unittest.main()

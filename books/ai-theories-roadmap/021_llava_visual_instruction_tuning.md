@@ -1,5 +1,5 @@
 ---
-title: "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning"
+title: "LLaVA 型 Vision-Language 連結と視覚指示チューニング"
 ---
 
 # 021. LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning
