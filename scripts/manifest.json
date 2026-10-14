@@ -415,5 +415,30 @@
       "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 7/8)",
       "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 8/8)"
     ]
+  },
+  "026": {
+    "slugs": [
+      "026_inverse_cloze_task_and_two_stage_retrieval-theory",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-1",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-2",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-3",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-4",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-5",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-6",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-7",
+      "026_inverse_cloze_task_and_two_stage_retrieval-practice-8"
+    ],
+    "split": true,
+    "titles": [
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(理論編)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 1/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 2/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 3/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 4/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 5/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 6/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 7/8)",
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 8/8)"
+    ]
   }
 }
