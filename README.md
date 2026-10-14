@@ -96,6 +96,8 @@ Zennの**本(book)の章**の本文には、実際のデプロイエラー(「�
 ai-theoriesのノートブックは、Markdownセル内で他のノートブックを `[001](./001_attention_mechanism.ipynb)` のような相対パスのリンクで参照することがあります。`scripts/nb_to_zenn.py` はこれを検出し、`scripts/manifest.json`(ノートブック番号 → 生成済み章slugの対応表。章生成のたびに自動更新される生成物)を参照して、以下のようにリンク先を書き換えます。リンクテキスト(`[001]`の部分)は変更しません。
 
 - リンク先のノートブック番号が `manifest.json` に登録済み(すでに章化済み)の場合: 本の章のURL(`https://zenn.dev/<Zennユーザー名>/books/ai-theories-roadmap/viewer/<slug>`)に置き換える。前編・後編に分割された章の場合は、前編(理論編)のリンクに固定する。
+- `nb_to_zenn.py all` を指定すると、全ノートブックを2回に分けて変換します。1回目で章の構成と章名(`manifest.json`)を確定し、2回目で、後の番号のノートブックへのリンクもZennの章のURLに解決します。2回目に章の構成が変わった場合(リンクの置き換えで閾値を超えたなど)はエラーで止まります。
+- ノートブック内の見出しへのアンカー付きのリンク(`...ipynb#...`)は、Zennの章のURLでアンカーを表せないため、アンカーを付けたGitHubのURLに置き換える。
 - リンク先のノートブックはai-theories内に存在するが、まだ `manifest.json` に登録されていない(未変換)場合: GitHubの絶対URL(`https://github.com/kojikojiprg/ai-theories/blob/main/theories/<カテゴリ>/<ファイル名>`)に置き換える(相対パスのままではZenn上でリンク切れになるため)。
 - リンク先のノートブックがai-theories内に見つからない場合(未作成のトピックなど): リンクは変更せず、実行ログに警告を出力する。
 

@@ -256,7 +256,7 @@ Attention 層自身が過去の Key / Value を保持する最小実装
 
 - `src/generation/cache.py`(新規): `KeyValueCache`。層ごとの Key / Value の
   保持・追記・メモリ量の報告を行う。014(Flash Attention)・015(長文脈拡張)・
-  [016](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/016_supervised_fine_tuning.ipynb) 以降の生成による評価から再利用される前提。
+  [016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning) 以降の生成による評価から再利用される前提。
 - `src/layers/attention.py`: `MultiHeadAttention`に`num_key_value_heads`引数
   (既定値`None`で多頭注意機構と完全に同一の挙動)と KV キャッシュの入出力
   (`kv_cache`・`layer_idx`引数)を追加。

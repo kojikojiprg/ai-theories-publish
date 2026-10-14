@@ -20,7 +20,7 @@ CLIP(Contrastive Language-Image Pre-training)は、画像とその説明文の�
 
 手順は付録 A。本番実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、T4 上のスケーリングの計測(6.3 節)から、1 ステップの実行の方式(FP16 / FP32 / FP32 と CUDA graph)を見積もりのみで選び、12 通りの **実行計画**(6.1 節。学習で見る事例数 $E \in \{2^{19}, 2^{18}\}$ と **削る段階** 0〜3 と学習率の較正の方式の組)のそれぞれについて残りの実行時間を見積もり、予算に収まる計画のうち優先順位の最も高いものを自動で選ぶ(6.4 節)。選択は見積もりのみに基づき、どの実験の結果も参照しない。**見積もりが予算を超える場合は、学習の前に停止する。** 最初の本番の実行(コミット`81adad2`)は、この規則により学習の前に停止した。その経緯と対応は付録 C.2 に記録した(学習と評価を行っておらず、結果の情報は得ていない)。
 
-実験 C の NegCLIP・シード 0 のモデル(両方の encoder と射影)は、[021](https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/021_llava_visual_instruction_tuning.ipynb) の入力になりうるので Hugging Face Hub の`kojikojiprg/ai-theories-clip-synthetic-scenes`にアップロードする(6.13 節。`UPLOAD_ARTIFACTS = True`にしたときだけ。既定は`False`)。
+実験 C の NegCLIP・シード 0 のモデル(両方の encoder と射影)は、[021](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/021_llava_visual_instruction_tuning) の入力になりうるので Hugging Face Hub の`kojikojiprg/ai-theories-clip-synthetic-scenes`にアップロードする(6.13 節。`UPLOAD_ARTIFACTS = True`にしたときだけ。既定は`False`)。
 
 ### 1.2 本番実行の結果の要約
 
@@ -763,7 +763,7 @@ $\Delta_{\mathrm{gap}}$(3.8 節)を、学習の前(初期化の時点)と後で�
   `model_state.pt`の SHA-256 が一致した。
 - 読み戻した重みそのもので評価し直した値: 未見の組み合わせの zero-shot の検索の正解率 $M$ 0.7805、既知の組み合わせの検証集合の検索の
   正解率 0.8691(学習直後の評価と差 0)。
-- このモデルは、合成のシーンの画像 encoder とテキスト encoder の組として、[021](https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/021_llava_visual_instruction_tuning.ipynb)(LLaVA 型の Vision-Language の連結)の入力になりうる。
+- このモデルは、合成のシーンの画像 encoder とテキスト encoder の組として、[021](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/021_llava_visual_instruction_tuning)(LLaVA 型の Vision-Language の連結)の入力になりうる。
 
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 

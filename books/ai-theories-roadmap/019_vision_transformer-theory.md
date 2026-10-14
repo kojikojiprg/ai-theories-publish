@@ -32,7 +32,7 @@ ViT の方が CNN(ResNet-56 [7])より大きいか、を検証する。
 基づき、どの実験の結果も参照しない。最も軽い計画でも予算を超える場合は、学習の前に例外で停止する。**選ばれた計画・$T$・段階は
 6.4 節の出力に印字される。** 本番の Colab での実行はこの 1 回だけで、事前の計測のための実行やセッションの分割はしない。
 
-本トピックで学習したモデルは Hugging Face Hub にアップロードしない。[020](https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/020_clip_contrastive_learning.ipynb)(CLIP)は画像とテキストの encoder を共同で学習するので、
+本トピックで学習したモデルは Hugging Face Hub にアップロードしない。[020](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/020_clip_contrastive_learning)(CLIP)は画像とテキストの encoder を共同で学習するので、
 019 からはコード(`VisionTransformer`)のみを再利用する。
 
 ## 2. 参考論文 / References

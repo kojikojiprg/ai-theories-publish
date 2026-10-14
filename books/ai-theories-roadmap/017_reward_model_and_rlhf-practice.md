@@ -12,7 +12,7 @@ title: "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編)"
   `levenshtein_distance()`は numpy で 1 行ずつ更新する動的計画法)、Bradley-Terry モデルの確率
   (`compute_bradley_terry_probability()`)、$\kappa$ の決定(`calibrate_label_scale()`)、ラベルの抽選
   (`sample_preference_labels()`)、報酬モデルに入れる系列のバッチ化(`collate_scored_sequences()`)。016 の課題の定義
-  (`src/data/instruction.py`)の上に置き、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) から再利用できるようにする。
+  (`src/data/instruction.py`)の上に置き、[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) から再利用できるようにする。
 - `src/models/reward_model.py`(新規): 最終正規化層の後の隠れ状態の取り出し(`compute_final_hidden_states()`。
   `GPTLanguageModel.forward()`の計算のうち語彙への射影の直前までを同じ手順で行う。既存の`forward()`は変更しない)、
   報酬モデル(`RewardModel`)、系列のスコアリング(`score_sequences()`)。
@@ -31,9 +31,9 @@ title: "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編)"
 **ノートブック内に直接書く(017 固有)**: 016 の学習データの再生成と SFT の呼び出し、LoRA のマージ、プロンプトの分割、
 応答プールと選好の組の生成、実験 A〜C の判定、PPO のロールアウトと学習ループ、スケーリングの計測、アップロード。
 
-**アップロード方針**: SFT モデル(LoRA をマージした重み)は、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO が参照方策として使う(後続トピックの入力に
+**アップロード方針**: SFT モデル(LoRA をマージした重み)は、[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の DPO が参照方策として使う(後続トピックの入力に
 なる)ので、`kojikojiprg/ai-theories-small-gpt-en`の新ブランチ`sft-synthetic`にアップロードする。構造は`main`と同一なので
-ブランチで管理する。報酬モデルはアップロードしない(スカラーのヘッドで構造が変わるうえ、学習のコストが小さく、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) で
+ブランチで管理する。報酬モデルはアップロードしない(スカラーのヘッドで構造が変わるうえ、学習のコストが小さく、[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) で
 必要なら`src/`から再学習できる)。PPO の方策も、判定を置かない動作確認のためのものなのでアップロードしない。
 
 **生成物の置き場所**:
@@ -448,12 +448,12 @@ $\sigma_a$ は評価用の入力を単位とするクラスタブートストラ
 ### 6.14 SFT モデルのアップロード(Hugging Face Hub)
 
 参照方策 $\pi_{\mathrm{ref}}$(LoRA をマージした SFT モデル)を、`kojikojiprg/ai-theories-small-gpt-en`の新ブランチ
-`sft-synthetic`にアップロードする。[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO が参照方策として使う。
+`sft-synthetic`にアップロードする。[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の DPO が参照方策として使う。
 
 - **`UPLOAD_ARTIFACTS = True`のときだけ** アップロードする(既定は`False`。`SMOKE_TEST`とは独立)。スモークテストの重みは
   アップロードしない(`SMOKE_TEST = True`ではアップロードしない)。
 - **前提条件 P0(6.5 節)が成立していない場合は、`UPLOAD_ARTIFACTS = True`・`SMOKE_TEST = False`でもアップロードしない。**
-  P0 不成立の重みは、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の参照方策として公開しない。スキップしたことと理由を印字する。判定の順序は`UPLOAD_ARTIFACTS`→
+  P0 不成立の重みは、[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の参照方策として公開しない。スキップしたことと理由を印字する。判定の順序は`UPLOAD_ARTIFACTS`→
   `SMOKE_TEST`→ P0 →`HF_TOKEN`の取得である。
 - Google Colab の Secrets から`HF_TOKEN`が取得できない場合は、例外で停止せず、アップロードをスキップしてその旨を印字する。
 - 手順: ブランチ`sft-synthetic`を作成 → `model_state.pt`・`config.json`(`main`の`config.json`をそのまま使う。構造は同一)・
@@ -484,7 +484,7 @@ $\sigma_a$ は評価用の入力を単位とするクラスタブートストラ
 
 - 016 の条件 1 のレシピでの SFT(2,048 ステップ、60.7 秒)の後、LoRA をマージした重みの、016 の評価集合での完全一致率は **0.8180**、形式の遵守率は 1.0000 だった(016 の 5 シード平均 0.804、許容 ±0.0867)。応答部分の負の対数尤度は 0.6005 nats / トークンだった。この 2 つの値は、016 の条件 1 のシード 0 の本番の値(0.8180・0.6005)と一致しており、同じデータ・同じシード・決定的な実行で 016 の学習を再現できている。
 - LoRA のマージの前後で、logits の差の最大値は $3.67 \times 10^{-5}$、貪欲法の生成の一致率は 1.0000 だった。
-- 英語版 Wikipedia の検証 bits-per-byte は、SFT の前の 1.668 から 3.152 に上がった(悪化した)。合成課題だけで SFT したモデルは、一般の文章の言語モデルとしての性能を大きく失っている。[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) でこのモデルを参照方策として使うときは、合成課題に特化したモデルであることに注意する。
+- 英語版 Wikipedia の検証 bits-per-byte は、SFT の前の 1.668 から 3.152 に上がった(悪化した)。合成課題だけで SFT したモデルは、一般の文章の言語モデルとしての性能を大きく失っている。[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) でこのモデルを参照方策として使うときは、合成課題に特化したモデルであることに注意する。
 
 ### 7.3 応答プールと選好データ
 
@@ -568,11 +568,11 @@ $R(n_{\max})$ の $\log_2 N$ に対する傾きは $c = +0.00562$、$\sigma_c = 
 - **実験 C でシード 2 の傾きが負になったこと**: シード 2 の標準の水準の報酬モデルは、P1 の真の順序との一致率が 0.6235 で、5 シードの中で最も低かった(他は 0.6568〜0.6802)。順位相関(0.339)とラベルとの一致率(0.5895)も最も低い。標準の水準の報酬モデルがたまたま弱かったために、$N = 65536$ での $R(n_{\max})$ が下がり、そのシードの傾きが負になった可能性がある。
 - **実験 C の支持の中身**: 7.6 節のとおり、小さい水準ではラベルをほぼ記憶していた。$N = 1024$・4096 の報酬モデルの真の順序との一致率(0.57・0.59)が低いことは、組の数の少なさと、同じ組を 64・16 エポック反復した過適合の両方で説明できる。どちらが主因かは本トピックの設計では分離できない(宣言済みの交絡の再確認)。分離するには、エポック数を揃えて(計算量が組の数に比例する設計で)水準を振る実験が要る。
 
-### 7.9 まとめと [018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) への接続
+### 7.9 まとめと [018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) への接続
 
 - 016 の SFT をやり直した参照方策(完全一致率 0.818)の応答から、既知の真の報酬と Bradley-Terry モデルで選好データを作り、報酬モデルを学習した。報酬モデルの予測は真の報酬を大きく取りこぼしていた(予測の忠実度 0.31、順位相関 0.34〜0.50)が、報酬の差は、ラベルを生成した対数オッズの尺度に較正されていた(実験 A、較正の傾き 1.05)。
 - best-of-n で最適化の圧力を強めると、真の報酬は $n = 4$〜8 付近で最大となり、その後は代理報酬が上がり続けるのに下がった(実験 B)。選好の組を増やすと、同じ強い圧力のもとでの真の報酬が上がり、過最適化が始まる $n$ が大きくなった(実験 C。組の数と反復回数の交絡を含む)。PPO でも、KL 係数が小さい条件では代理報酬が上がる一方で真の報酬が下がった。
-- **[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) への接続**: [018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO(Direct Preference Optimization)は、`sft-synthetic`ブランチの参照方策、同じ真の報酬 $r^*$、同じ選好データの生成($\kappa$ と Bradley-Terry モデルによるラベルの抽選)をそのまま使える。3.4 節で導出した KL 正則化つきの目的関数の最適解を、報酬モデルを経由せずに学習する方法として、「真の報酬 対 KL ダイバージェンス」の平面で、本トピックの best-of-n(横軸は KL の上界)・PPO と比べることができる。
+- **[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) への接続**: [018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の DPO(Direct Preference Optimization)は、`sft-synthetic`ブランチの参照方策、同じ真の報酬 $r^*$、同じ選好データの生成($\kappa$ と Bradley-Terry モデルによるラベルの抽選)をそのまま使える。3.4 節で導出した KL 正則化つきの目的関数の最適解を、報酬モデルを経由せずに学習する方法として、「真の報酬 対 KL ダイバージェンス」の平面で、本トピックの best-of-n(横軸は KL の上界)・PPO と比べることができる。
 
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 

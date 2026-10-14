@@ -22,7 +22,7 @@ Recall@10 が、通常の InfoNCE で学習した埋め込みより高いか。�
 
 ### 1.1 実行の手順
 
-手順は付録 A。本番実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、スケーリングの計測から実行計画(学習ステップ数 $T$・学習率の較正の方式・削る段階の組)の残りの実行時間を見積もり、予算に収まる計画のうち優先順位の最も高いものを、見積もりのみから自動で選ぶ(6.4 節)。**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** 学習したモデルのうち、後続のトピック([025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))の入力にする **Matryoshka Representation Learning で学習した条件(C5)のシード 0** だけを Hugging Face Hub(`kojikojiprg/ai-theories-text-embedding-en`)にアップロードする(6.14 節。`UPLOAD_ARTIFACTS`が`True`のときだけ。既定は`False`)。
+手順は付録 A。本番実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、スケーリングの計測から実行計画(学習ステップ数 $T$・学習率の較正の方式・削る段階の組)の残りの実行時間を見積もり、予算に収まる計画のうち優先順位の最も高いものを、見積もりのみから自動で選ぶ(6.4 節)。**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** 学習したモデルのうち、後続のトピック([025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory))の入力にする **Matryoshka Representation Learning で学習した条件(C5)のシード 0** だけを Hugging Face Hub(`kojikojiprg/ai-theories-text-embedding-en`)にアップロードする(6.14 節。`UPLOAD_ARTIFACTS`が`True`のときだけ。既定は`False`)。
 
 ### 1.2 本番実行の結果の要約
 
@@ -97,7 +97,7 @@ Google Colab の T4 で 1 セッションで完結した(5.1 節の出力: コ�
     https://arxiv.org/abs/2004.12832(late interaction。3.2 節、位置づけのみ)
 17. Nogueira, R., Cho, K.,
     "Passage Re-ranking with BERT", arXiv:1901.04085, 2019. https://arxiv.org/abs/1901.04085
-    (cross-encoder による再順位づけ。3.2 節。実装は [025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))
+    (cross-encoder による再順位づけ。3.2 節。実装は [025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory))
 
 ## 3. 理論 / Theory
 
@@ -116,7 +116,7 @@ s(q, p) = f_\theta(q)^\top f_\theta(p), \qquad \lVert f_\theta(\cdot) \rVert_2 =
 $$
 
 ($\lVert f_\theta(\cdot) \rVert_2 = 1$ は L2 正規化で、そのとき内積はコサイン類似度に一致する。)passage の埋め込みは事前に計算して索引にしておけるので、
-query が来たときには query を 1 回符号化して全 passage との内積をとるだけでよい。本トピックは全 passage との内積を厳密に計算する(近似最近傍探索は [025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))。
+query が来たときには query を 1 回符号化して全 passage との内積をとるだけでよい。本トピックは全 passage との内積を厳密に計算する(近似最近傍探索は [025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory))。
 
 **言語モデルの隠れ状態をそのまま文埋め込みにしない理由**: 008 の小型 GPT の隠れ状態は、次のトークンの予測のために学習されたもので、
 文章どうしの類似度を測る目的では学習されていない。次の 2 つの問題が文献で指摘されている。
@@ -162,7 +162,7 @@ flowchart LR
 | 精度 | 相互作用がないので低くなりうる | 相互作用があり高い |
 
 dual encoder は上位の候補を絞り込むのに、cross-encoder(Nogueira & Cho [17])は絞り込んだ候補の再順位づけ(reranking)に向く。cross-encoder の
-実装と、絞り込みと再順位づけの組み合わせは [025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb) で扱う。**late interaction**(ColBERT、Khattab & Zaharia [16])は、passage をトークンごとの
+実装と、絞り込みと再順位づけの組み合わせは [025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory) で扱う。**late interaction**(ColBERT、Khattab & Zaharia [16])は、passage をトークンごとの
 ベクトルの集合として事前に索引にし、query のトークンごとに最も近い passage のトークンとの内積(MaxSim)を足し合わせる中間の方式で、
 位置づけのみとする(本トピックでは実装しない)。
 
@@ -290,7 +290,7 @@ AdamW の更新は損失の尺度に依らない。違いが出るのは gradien
 本トピックはこの形(各 $m$ について再正規化した埋め込みの InfoNCE)を使う。入れ子の次元は等比の $\mathcal{M} = \{16, 32, 64, 128, 256\}$ とする。
 
 **索引のメモリとの関係**: $P$ 個の passage を FP32 の $m$ 次元の埋め込みで持つ索引のメモリは $4 P m$ バイトで、$m$ に比例する。$m = 256 \to 16$ で 16 分の 1 になる。
-この利得を実際の索引で扱うのは [025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb) である。
+この利得を実際の索引で扱うのは [025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory) である。
 
 ### 3.8 BM25 と、語彙の一致に頼る検索
 

@@ -35,7 +35,7 @@ title: "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedd
 5.4 節に記す(結果が bit 単位で一致することを確かめる)。
 
 **アップロード方針**: Hugging Face Hub へのアップロードはしない。学習したモデルは条件比較のためのもので、後続のトピックの入力に
-ならない([020](https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/020_clip_contrastive_learning.ipynb) は画像とテキストの encoder を共同で学習するので、019 から再利用するのはコードのみ)。
+ならない([020](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/020_clip_contrastive_learning) は画像とテキストの encoder を共同で学習するので、019 から再利用するのはコードのみ)。
 
 **生成物の置き場所**:
 

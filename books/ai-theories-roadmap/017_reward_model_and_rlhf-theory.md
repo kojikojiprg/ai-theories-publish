@@ -27,7 +27,7 @@ Fine-Tuning、教師あり微調整)済みのモデルから応答の組を作�
 (6.3 節)から 1 セッション全体の実行時間を **削る段階**(6.1 節)ごとに見積もり、予算に収まる最小の段階を自動で選ぶ。
 選択は見積もりのみに基づき、どの実験の結果も参照しない。最後の段階でも予算を超える場合は、学習の前に例外で停止する。
 
-SFT モデル(参照方策 $\pi_{\mathrm{ref}}$ の重み)は、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO(Direct Preference Optimization)が参照方策として使うため、
+SFT モデル(参照方策 $\pi_{\mathrm{ref}}$ の重み)は、[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の DPO(Direct Preference Optimization)が参照方策として使うため、
 Hugging Face Hub にアップロードする(6.14 節)。アップロードは`UPLOAD_ARTIFACTS = True`にしたときだけ行う(既定は`False`)。
 
 ## 2. 参考論文 / References
@@ -239,14 +239,14 @@ $$
 
 である。$\beta$ が小さいほど報酬の高い応答に確率が集中し、$\beta \to \infty$ で $\pi_{\mathrm{ref}}$ に戻る。
 
-**[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) への橋渡し**: この式を $r_\phi$ について解くと
+**[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) への橋渡し**: この式を $r_\phi$ について解くと
 
 $$
 r_\phi(x, y) = \beta \log \frac{\pi^*(y \mid x)}{\pi_{\mathrm{ref}}(y \mid x)} + \beta \log Z(x)
 $$
 
 となる。$\beta \log Z(x)$ はプロンプトだけの関数なので、3.2 節の「定数の差を除いて識別できない」部分にあたり、
-Bradley-Terry モデルの損失では打ち消される。[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO は、これを 3.2 節の損失に代入して、報酬モデルを経由せずに方策を
+Bradley-Terry モデルの損失では打ち消される。[018](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-theory) の DPO は、これを 3.2 節の損失に代入して、報酬モデルを経由せずに方策を
 直接学習する。この式では $Z(x)$ を計算できない(全応答の和)ので、PPO(3.5 節)は $\pi^*$ を直接求めず、サンプリングと
 勾配法で $J(\pi)$ を近似的に最大化する。
 

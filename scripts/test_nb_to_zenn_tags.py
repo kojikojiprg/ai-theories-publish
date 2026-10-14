@@ -188,5 +188,72 @@ class TagTest(unittest.TestCase):
         self.assert_rejected([raw])
 
 
+class LinkTest(unittest.TestCase):
+    """ノートブック間リンクの書き換え(前方への参照・後方への参照・アンカー付きの参照)。"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        theories = Path(self.tmp.name)
+        for category, name in [("01_a", "001_first_topic"), ("02_b", "002_second_topic")]:
+            (theories / category).mkdir()
+            (theories / category / f"{name}.ipynb").write_text("{}", encoding="utf-8")
+        self.original = nb_to_zenn.AI_THEORIES_THEORIES_DIR
+        nb_to_zenn.AI_THEORIES_THEORIES_DIR = theories
+        self.manifest = {
+            "001": {"slugs": ["001_first_topic"], "split": False, "titles": ["a"]},
+            "002": {
+                "slugs": ["002_second_topic-theory", "002_second_topic-practice"],
+                "split": True,
+                "titles": ["b", "c"],
+            },
+        }
+
+    def tearDown(self):
+        nb_to_zenn.AI_THEORIES_THEORIES_DIR = self.original
+        self.tmp.cleanup()
+
+    def rewrite(self, body, manifest=None):
+        return nb_to_zenn.rewrite_notebook_links(body, self.manifest if manifest is None else manifest)
+
+    def test_backward_reference_resolves_to_chapter_url(self):
+        body, counts = self.rewrite("[001](./001_first_topic.ipynb)")
+        self.assertEqual(body, f"[001]({nb_to_zenn.build_zenn_book_chapter_url('001_first_topic')})")
+        self.assertEqual(counts, {"zenn": 1, "github": 0, "unchanged": 0})
+
+    def test_forward_reference_resolves_to_chapter_url_when_manifest_is_complete(self):
+        body, counts = self.rewrite("[002](../02_b/002_second_topic.ipynb)")
+        self.assertEqual(
+            body, f"[002]({nb_to_zenn.build_zenn_book_chapter_url('002_second_topic-theory')})"
+        )
+        self.assertEqual(counts["zenn"], 1)
+
+    def test_forward_reference_falls_back_to_github_when_not_in_manifest(self):
+        manifest = {k: v for k, v in self.manifest.items() if k != "002"}
+        body, counts = self.rewrite("[002](../02_b/002_second_topic.ipynb)", manifest)
+        self.assertEqual(
+            body,
+            "[002](https://github.com/kojikojiprg/ai-theories/blob/main/theories/02_b/002_second_topic.ipynb)",
+        )
+        self.assertEqual(counts, {"zenn": 0, "github": 1, "unchanged": 0})
+
+    def test_anchor_reference_stays_on_github_with_anchor(self):
+        body, counts = self.rewrite("[節](./001_first_topic.ipynb#3-理論)")
+        self.assertEqual(
+            body,
+            "[節](https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_a/001_first_topic.ipynb#3-理論)",
+        )
+        self.assertEqual(counts, {"zenn": 0, "github": 1, "unchanged": 0})
+
+    def test_missing_notebook_is_unchanged(self):
+        body, counts = self.rewrite("[9](./009_missing_topic.ipynb)")
+        self.assertEqual(body, "[9](./009_missing_topic.ipynb)")
+        self.assertEqual(counts["unchanged"], 1)
+
+    def test_structure_change_is_an_error(self):
+        nb_to_zenn.check_structure_unchanged("001", self.manifest, ["001_first_topic"])
+        with self.assertRaises(SystemExit):
+            nb_to_zenn.check_structure_unchanged("001", self.manifest, ["001_first_topic-theory"])
+
+
 if __name__ == "__main__":
     unittest.main()

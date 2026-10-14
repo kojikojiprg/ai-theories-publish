@@ -245,7 +245,7 @@ Biderman et al.(TMLR 2024)[6] は、プログラミングと数学のドメイ�
 - `compute_lora_parameter_count(d_in, d_out, rank)`: 閉形式の学習可能パラメータ数
   $r(d_{\mathrm{in}} + d_{\mathrm{out}})$。
 
-[016](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/016_supervised_fine_tuning.ipynb)(SFT)でも使うため、使い方を docstring に明記している。既存の`src/`モジュールは
+[016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning)(SFT)でも使うため、使い方を docstring に明記している。既存の`src/`モジュールは
 変更しない(`src/layers/__init__.py`から上記 3 つを公開する行を追加したのみで、既存の
 関数・クラスの挙動は変わらない)。`MultiHeadAttention`の Query・Key・Value の射影は
 独立した`nn.Linear`(`w_q`・`w_k`・`w_v`)なので、`w_q`・`w_v`をそのまま置換できる。
@@ -733,7 +733,7 @@ $(3.3928 - 2.5635) / (3.3928 - 2.2516) \approx 0.73$ にとどまる($r = 1$ で
 
 これは事前に宣言した量ではなく、本トピックでは検証していない仮説である。LoRA の適用対象を広げた
 比較(例えば順伝播ネットワークや出力層にも掛ける)によって確かめうる。LoRA を使う後続のトピック
-([016](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/016_supervised_fine_tuning.ipynb) など)で扱える。
+([016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning) など)で扱える。
 
 3.8 節では、小規模かつドメイン差が大きい設定では LoRA が全パラメータ微調整に届かない可能性がある
 (Biderman et al. 2024 [6])と事前に注記した。今回の反証はこの注記と矛盾しない。ただし、

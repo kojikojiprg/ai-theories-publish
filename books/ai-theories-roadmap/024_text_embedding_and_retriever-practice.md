@@ -9,7 +9,7 @@ title: "テキスト埋め込みと retriever / Text Embedding and Retriever(実
 **`src/`に切り出す(スクラッチ実装、本トピックで新規作成)**:
 
 - `src/models/text_embedding.py`: 小型 GPT を包む埋め込みモデル`TextEmbeddingModel`(プーリング(平均・終端位置)、注意マスクの切り替え(因果・双方向)、L2 正規化、次元の切り詰めと再正規化)。既存の`GPTLanguageModel`は変更しない。
-- `src/data/retrieval.py`: 記事を単位とする学習用・検証用・評価用の分割、評価用の索引と query の構成、学習の組の切り出し(重ならない 2 つの区間、1 つのバッチに同じ記事を入れない)。[025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb) から同じ評価用の passage の集合を再構成できる。
+- `src/data/retrieval.py`: 記事を単位とする学習用・検証用・評価用の分割、評価用の索引と query の構成、学習の組の切り出し(重ならない 2 つの区間、1 つのバッチに同じ記事を入れない)。[025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory) から同じ評価用の passage の集合を再構成できる。
 - `src/training/contrastive_text.py`: in-batch negatives の InfoNCE、Matryoshka Representation Learning の損失、学習ループ、同じ組での損失の測定(更新なしの損失)。学習の部品(007 の`AdamW`・warmup + cosine・gradient clipping、011 の`DynamicLossScaler`、019 の勾配の処理)は再利用する。
 - `src/retrieval/bm25.py`: BM25 のスクラッチ実装(転置索引、トークン ID の列を入力とする)。
 - `src/retrieval/evaluation.py`: 全件の内積による厳密な探索での Recall@k・MRR・nDCG@10、ランダムな順位の期待値、異方性・alignment・uniformity。近似最近傍探索は使わない。
@@ -265,7 +265,7 @@ $$
 
 ### 6.14 Hugging Face Hub へのアップロード(C5 のシード 0)
 
-後続のトピック([025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))の入力にするため、条件 C5(Matryoshka Representation Learning)のシード 0 の学習後の重みを`kojikojiprg/ai-theories-text-embedding-en`にアップロードする。アップロードするモデルは結果を見て選ばない(条件とシードを事前に固定している)。アップロードのセルは`UPLOAD_ARTIFACTS`で守り(既定は`False`)、`HF_TOKEN`が取得できない場合はスキップし、アップロード後に`list_repo_files()`で意図したファイルの存在を確かめる。モデルカードの指標は、書き出した重みを読み込み直して評価した値とし、トークナイザは同梱せず、モデルカードで`kojikojiprg/ai-theories-tokenizer-en`を参照する(設計の詳細は付録 D)。
+後続のトピック([025](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-theory))の入力にするため、条件 C5(Matryoshka Representation Learning)のシード 0 の学習後の重みを`kojikojiprg/ai-theories-text-embedding-en`にアップロードする。アップロードするモデルは結果を見て選ばない(条件とシードを事前に固定している)。アップロードのセルは`UPLOAD_ARTIFACTS`で守り(既定は`False`)、`HF_TOKEN`が取得できない場合はスキップし、アップロード後に`list_repo_files()`で意図したファイルの存在を確かめる。モデルカードの指標は、書き出した重みを読み込み直して評価した値とし、トークナイザは同梱せず、モデルカードで`kojikojiprg/ai-theories-tokenizer-en`を参照する(設計の詳細は付録 D)。
 
 ## 7. 結果・考察 / Results and Discussion
 

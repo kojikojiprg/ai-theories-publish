@@ -31,7 +31,8 @@ IMPLEMENTATION_PLAN_HEADING_PATTERN = re.compile(
 )
 TOP_HEADING_PATTERN = re.compile(r"^##\s+\S.*$", re.MULTILINE)
 SUB_HEADING_PATTERN = re.compile(r"^###\s+\S.*$", re.MULTILINE)
-NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)]+\.ipynb)\)")
+# リンク先のパスと、(あれば)見出しへのアンカー(`#...`)を分けて捉える。
+NOTEBOOK_LINK_PATTERN = re.compile(r"\[([^\]]+)\]\(([^)#\s]+\.ipynb)(#[^)\s]*)?\)")
 NOTEBOOK_LINK_NUMBER_PATTERN = re.compile(r"^(\d{3})_")
 NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
 
@@ -90,7 +91,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "notebook_number",
-        help="変換対象ノートブックの3桁連番(例: 003)",
+        help=(
+            "変換対象ノートブックの3桁連番(例: 003)。`all` を指定すると、全ノートブックを"
+            "2回に分けて変換する(1回目で章の構成と章名を確定し、2回目で、後の番号の"
+            "ノートブックへのリンクもZennの章のURLに解決する)。"
+        ),
     )
     parser.add_argument(
         "--repo",
@@ -167,7 +172,24 @@ def find_notebook_by_number(number: str) -> Path | None:
     return matches[0]
 
 
-def resolve_notebook_link(relpath: str, manifest: dict) -> str | None:
+def build_notebook_github_url(target_notebook: Path) -> str:
+    category = target_notebook.parent.name
+    filename = target_notebook.name
+    return (
+        "https://github.com/kojikojiprg/ai-theories/blob/main/theories/"
+        f"{category}/{filename}"
+    )
+
+
+def resolve_notebook_link(relpath: str, manifest: dict, anchor: str = "") -> tuple[str, str] | None:
+    """ノートブックへの相対リンクの書き換え先と、その種別("zenn" または "github")を返す。
+    書き換えない場合は None を返す。
+
+    - 書き換え先の章が `manifest` にあり、アンカーがない場合: Zennの章のURL("zenn")。
+    - アンカー(ノートブック内の見出しへのリンク)がある場合: Zennの章のURLではアンカーを
+      表せないため、GitHubのURLにアンカーを付けたもの("github")。
+    - 章が `manifest` にない場合: GitHubのURL("github")。
+    """
     basename = Path(relpath).name
     number_match = NOTEBOOK_LINK_NUMBER_PATTERN.match(basename)
     if not number_match:
@@ -184,32 +206,33 @@ def resolve_notebook_link(relpath: str, manifest: dict) -> str | None:
         return None
 
     entry = manifest.get(number)
-    if entry is not None:
+    if entry is not None and not anchor:
         slugs = entry["slugs"]
         if entry["split"]:
             theory_slugs = [s for s in slugs if s.endswith("-theory")]
             chosen_slug = theory_slugs[0] if theory_slugs else slugs[0]
         else:
             chosen_slug = slugs[0]
-        return build_zenn_book_chapter_url(chosen_slug)
+        return build_zenn_book_chapter_url(chosen_slug), "zenn"
 
-    category = target_notebook.parent.name
-    filename = target_notebook.name
-    return (
-        "https://github.com/kojikojiprg/ai-theories/blob/main/theories/"
-        f"{category}/{filename}"
-    )
+    return build_notebook_github_url(target_notebook) + anchor, "github"
 
 
-def rewrite_notebook_links(body: str, manifest: dict) -> str:
+def rewrite_notebook_links(body: str, manifest: dict) -> tuple[str, dict[str, int]]:
+    """本文中のノートブックへのリンクを書き換え、(書き換え後の本文, 種別ごとの件数)を返す。"""
+    counts = {"zenn": 0, "github": 0, "unchanged": 0}
+
     def replace(match: re.Match) -> str:
-        link_text, relpath = match.group(1), match.group(2)
-        new_url = resolve_notebook_link(relpath, manifest)
-        if new_url is None:
+        link_text, relpath, anchor = match.group(1), match.group(2), match.group(3) or ""
+        resolved = resolve_notebook_link(relpath, manifest, anchor)
+        if resolved is None:
+            counts["unchanged"] += 1
             return match.group(0)
+        new_url, kind = resolved
+        counts[kind] += 1
         return f"[{link_text}]({new_url})"
 
-    return NOTEBOOK_LINK_PATTERN.sub(replace, body)
+    return NOTEBOOK_LINK_PATTERN.sub(replace, body), counts
 
 
 def remove_not_yet_created_markers(body: str) -> str:
@@ -465,12 +488,7 @@ def build_frontmatter(title: str) -> str:
 
 
 def build_notebook_url(notebook_path: Path) -> str:
-    category = notebook_path.parent.name
-    filename = notebook_path.name
-    return (
-        "https://github.com/kojikojiprg/ai-theories/blob/main/theories/"
-        f"{category}/{filename}"
-    )
+    return build_notebook_github_url(notebook_path)
 
 
 def build_source_link(notebook_path: Path) -> str:
@@ -618,25 +636,49 @@ def check_char_limit(part_label: str, content_body: str) -> None:
         sys.exit(1)
 
 
-def main() -> None:
-    args = parse_args()
-    publish_repo = resolve_publish_repo(args.repo)
+def check_structure_unchanged(number: str, manifest: dict, new_slugs: list[str]) -> None:
+    """2回目の変換で、1回目に確定した章の構成(章名)が変わっていないことを確かめる。
+    リンクの置き換えで文字数が変わり、分割の結果が変わると、他のノートブックのリンク先も
+    変わってしまうため、変わった場合はエラーにして止める。
+    """
+    expected = manifest.get(number, {}).get("slugs")
+    if expected != new_slugs:
+        print(
+            f"エラー: ノートブック {number} の章の構成が、リンクの置き換えで変わりました"
+            f"(1回目: {expected}、2回目: {new_slugs})。リンクの置き換えで文字数の閾値"
+            f"({CHAR_THRESHOLD}文字)を超えた、または下回った可能性があります。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def print_link_counts(number: str, counts: dict[str, int]) -> None:
+    print(
+        f"ノートブック間リンク({number}): Zennの章のURL {counts['zenn']}件、"
+        f"GitHubのURL {counts['github']}件、変更なし {counts['unchanged']}件。"
+    )
+
+
+def convert_notebook(number: str, publish_repo: str, expect_same_structure: bool = False) -> None:
     manifest = load_manifest()
 
     BOOK_DIR.mkdir(parents=True, exist_ok=True)
 
-    notebook_path = find_notebook(args.notebook_number)
+    notebook_path = find_notebook(number)
     slug = extract_slug(notebook_path)
 
     nb = nbformat.read(notebook_path, as_version=4)
     title = extract_title(nb)
     body = convert_to_markdown(nb, slug, publish_repo, notebook_path)
-    body = rewrite_notebook_links(body, manifest)
+    body, link_counts = rewrite_notebook_links(body, manifest)
+    print_link_counts(number, link_counts)
     body = remove_not_yet_created_markers(body)
     source_link = build_source_link(notebook_path)
 
     if len(body + source_link) <= CHAR_THRESHOLD:
-        manifest[args.notebook_number] = {
+        if expect_same_structure:
+            check_structure_unchanged(number, manifest, [slug])
+        manifest[number] = {
             "slugs": [slug],
             "split": False,
             "titles": [title],
@@ -672,6 +714,9 @@ def main() -> None:
         part["slug"] = build_part_slug(chapter_base, part["kind"], part["index"], part["total"])
         part["title"] = build_part_title(title, part["kind"], part["index"], part["total"])
 
+    if expect_same_structure:
+        check_structure_unchanged(number, manifest, [part["slug"] for part in parts])
+
     for i, part in enumerate(parts):
         prev_part = parts[i - 1] if i > 0 else None
         next_part = parts[i + 1] if i + 1 < len(parts) else None
@@ -693,13 +738,33 @@ def main() -> None:
         "公開前に、実装セクションの要約などの調整を手動で行ってください。"
     )
 
-    manifest[args.notebook_number] = {
+    manifest[number] = {
         "slugs": [part["slug"] for part in parts],
         "split": True,
         "titles": [part["title"] for part in parts],
     }
     save_manifest(manifest)
     print(f"{MANIFEST_PATH.relative_to(REPO_ROOT)} を更新しました。")
+
+
+def main() -> None:
+    args = parse_args()
+    publish_repo = resolve_publish_repo(args.repo)
+
+    if args.notebook_number != "all":
+        convert_notebook(args.notebook_number, publish_repo)
+        return
+
+    numbers = sorted(
+        {m.group(1) for p in AI_THEORIES_THEORIES_DIR.rglob("*.ipynb")
+         if (m := NOTEBOOK_LINK_NUMBER_PATTERN.match(p.name))}
+    )
+    print(f"== 1回目: 章の構成と章名を確定する({len(numbers)}本) ==")
+    for number in numbers:
+        convert_notebook(number, publish_repo)
+    print("== 2回目: 後の番号のノートブックへのリンクを解決する ==")
+    for number in numbers:
+        convert_notebook(number, publish_repo, expect_same_structure=True)
 
 
 if __name__ == "__main__":
