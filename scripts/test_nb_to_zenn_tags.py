@@ -256,17 +256,17 @@ class LinkTest(unittest.TestCase):
 
 
 class TitleTest(unittest.TestCase):
-    def test_short_title_is_unchanged(self):
-        self.assertEqual(nb_to_zenn.fit_title("短い / Short"), "短い / Short")
-        self.assertEqual(nb_to_zenn.build_part_title("短い / Short", "theory", 0, 1), "短い / Short(理論編)")
+    def test_title_is_japanese_part_only(self):
+        self.assertEqual(nb_to_zenn.fit_title("短い / Short"), "短い")
+        self.assertEqual(nb_to_zenn.build_part_title("短い / Short", "theory", 0, 1), "短い(理論編)")
+        self.assertEqual(
+            nb_to_zenn.build_part_title("短い / Short", "practice", 1, 3), "短い(実装・実験編 2/3)"
+        )
 
-    def test_long_title_drops_english_part(self):
-        base = "DPO(Direct Preference Optimization) / Direct Preference Optimization"
-        title = nb_to_zenn.build_part_title(base, "theory", 0, 1)
-        self.assertEqual(title, "DPO(Direct Preference Optimization)(理論編)")
-        self.assertLessEqual(len(title), 70)
+    def test_title_without_separator_is_unchanged(self):
+        self.assertEqual(nb_to_zenn.fit_title("区切りなし"), "区切りなし")
 
-    def test_unsplittable_long_title_is_an_error(self):
+    def test_too_long_title_is_an_error(self):
         with self.assertRaises(SystemExit):
             nb_to_zenn.fit_title("あ" * 71)
 

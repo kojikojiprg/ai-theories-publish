@@ -1,5 +1,5 @@
 ---
-title: "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編)"
+title: "ViT と画像パッチ埋め込み(実装・実験編)"
 ---
 
 この記事は後編(実装・実験編)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/019_vision_transformer-theory)。

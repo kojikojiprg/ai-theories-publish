@@ -1,5 +1,5 @@
 ---
-title: "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編)"
+title: "Mixture of Experts(MoE)(実装・実験編)"
 ---
 
 この記事は後編(実装・実験編)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/022_mixture_of_experts-theory)。

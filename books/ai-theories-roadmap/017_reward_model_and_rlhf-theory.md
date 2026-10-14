@@ -1,5 +1,5 @@
 ---
-title: "報酬モデルと RLHF / Reward Models and RLHF(理論編)"
+title: "報酬モデルと RLHF(理論編)"
 ---
 
 この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/017_reward_model_and_rlhf-practice)。

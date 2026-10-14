@@ -1,5 +1,5 @@
 ---
-title: "ANN 検索とリランキング / ANN Search and Reranking(理論編)"
+title: "ANN 検索とリランキング(理論編)"
 ---
 
 この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/025_ann_search_and_reranking-practice)。

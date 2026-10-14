@@ -1,5 +1,5 @@
 ---
-title: "CLIP と対照学習 / CLIP and Contrastive Learning"
+title: "CLIP と対照学習"
 ---
 
 # 020. CLIP と対照学習 / CLIP and Contrastive Learning

@@ -1,5 +1,5 @@
 ---
-title: "テキスト埋め込みと retriever / Text Embedding and Retriever(理論編)"
+title: "テキスト埋め込みと retriever(理論編)"
 ---
 
 この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/024_text_embedding_and_retriever-practice)。

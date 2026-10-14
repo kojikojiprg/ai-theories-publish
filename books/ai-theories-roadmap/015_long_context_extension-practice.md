@@ -1,5 +1,5 @@
 ---
-title: "長文脈拡張 / Long Context Extension(実装・実験編)"
+title: "長文脈拡張(実装・実験編)"
 ---
 
 この記事は後編(実装・実験編)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-theory)。

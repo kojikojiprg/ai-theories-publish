@@ -596,13 +596,9 @@ def build_part_slug(base_slug: str, kind: str, index: int, total: int) -> str:
 
 
 def fit_title(base_title: str, suffix: str = "") -> str:
-    """章のタイトル(`base_title` + `suffix`)をZennの上限(70文字)に収める。
-    超える場合は、「日本語 / English」形式の英語の部分を除いて日本語の部分だけにする。
-    それでも超える場合はエラーにして止める。
+    """章のタイトル(`base_title` + `suffix`)を、「日本語 / English」形式の日本語の部分だけにする。
+    Zennの上限(70文字)を超える場合はエラーにして止める。
     """
-    title = base_title + suffix
-    if len(title) <= CHAPTER_TITLE_MAX_LENGTH:
-        return title
     title = base_title.split(" / ", 1)[0] + suffix
     if len(title) > CHAPTER_TITLE_MAX_LENGTH:
         print(

@@ -1,5 +1,5 @@
 ---
-title: "State Space Model / Mamba / State Space Model and Mamba(実装・実験編)"
+title: "State Space Model(実装・実験編)"
 ---
 
 この記事は後編(実装・実験編)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/023_state_space_model_mamba-theory)。

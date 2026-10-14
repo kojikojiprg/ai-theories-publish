@@ -1,5 +1,5 @@
 ---
-title: "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)"
+title: "SFT(指示チューニング)"
 ---
 
 # 016. SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)

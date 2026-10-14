@@ -136,8 +136,8 @@
     ],
     "split": true,
     "titles": [
-      "長文脈拡張 / Long Context Extension(理論編)",
-      "長文脈拡張 / Long Context Extension(実装・実験編)"
+      "長文脈拡張(理論編)",
+      "長文脈拡張(実装・実験編)"
     ]
   },
   "016": {
@@ -146,7 +146,7 @@
     ],
     "split": false,
     "titles": [
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)"
+      "SFT(指示チューニング)"
     ]
   },
   "017": {
@@ -156,8 +156,8 @@
     ],
     "split": true,
     "titles": [
-      "報酬モデルと RLHF / Reward Models and RLHF(理論編)",
-      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編)"
+      "報酬モデルと RLHF(理論編)",
+      "報酬モデルと RLHF(実装・実験編)"
     ]
   },
   "018": {
@@ -178,8 +178,8 @@
     ],
     "split": true,
     "titles": [
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(理論編)",
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編)"
+      "ViT と画像パッチ埋め込み(理論編)",
+      "ViT と画像パッチ埋め込み(実装・実験編)"
     ]
   },
   "020": {
@@ -188,7 +188,7 @@
     ],
     "split": false,
     "titles": [
-      "CLIP と対照学習 / CLIP and Contrastive Learning"
+      "CLIP と対照学習"
     ]
   },
   "021": {
@@ -207,8 +207,8 @@
     ],
     "split": true,
     "titles": [
-      "Mixture of Experts(MoE) / Mixture of Experts(理論編)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編)"
+      "Mixture of Experts(MoE)(理論編)",
+      "Mixture of Experts(MoE)(実装・実験編)"
     ]
   },
   "023": {
@@ -218,8 +218,8 @@
     ],
     "split": true,
     "titles": [
-      "State Space Model / Mamba / State Space Model and Mamba(理論編)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編)"
+      "State Space Model(理論編)",
+      "State Space Model(実装・実験編)"
     ]
   },
   "024": {
@@ -229,8 +229,8 @@
     ],
     "split": true,
     "titles": [
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(理論編)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編)"
+      "テキスト埋め込みと retriever(理論編)",
+      "テキスト埋め込みと retriever(実装・実験編)"
     ]
   },
   "025": {
@@ -240,8 +240,8 @@
     ],
     "split": true,
     "titles": [
-      "ANN 検索とリランキング / ANN Search and Reranking(理論編)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編)"
+      "ANN 検索とリランキング(理論編)",
+      "ANN 検索とリランキング(実装・実験編)"
     ]
   },
   "026": {
