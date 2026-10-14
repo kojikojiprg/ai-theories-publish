@@ -2,7 +2,7 @@
 title: "量子化の基礎(Quantization Basics)(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/013_quantization_basics-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/013_quantization_basics-practice)。
 
 # 013. 量子化の基礎(Quantization Basics)
 
@@ -42,7 +42,7 @@ NF4 と INT4 の誤差の比較を 008 の事前学習済み小型 GPT の重み
    MLSys 2024. https://arxiv.org/abs/2306.00978 (位置づけのみ、3.10 節)
 8. Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W.,
    "LoRA: Low-Rank Adaptation of Large Language Models", ICLR 2022. https://arxiv.org/abs/2106.09685
-   ([012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation-theory) と同じ、3.8 節・実験 D)
+   ([012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation) と同じ、3.8 節・実験 D)
 9. Bengio, Y., Léonard, N., Courville, A., "Estimating or Propagating Gradients Through Stochastic
    Neurons for Conditional Computation", arXiv 2013. https://arxiv.org/abs/1308.3432
    (straight-through estimator、3.10 節)
@@ -61,7 +61,7 @@ NF4 と INT4 の誤差の比較を 008 の事前学習済み小型 GPT の重み
 量子化の誤差の性質は同じ定式化で測れる。
 
 量子化の効果はメモリ量だけではない。3.9 節で述べるように、自己回帰生成の decode は
-メモリ帯域律速であり([010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory) の実験 B)、
+メモリ帯域律速であり([010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute) の実験 B)、
 読み出す重みのバイト数を減らすことが速度に直結する。
 
 ### 3.2 一様量子化(Uniform Quantization)の定式化
@@ -295,7 +295,7 @@ $$
 ### 3.8 QLoRA: 量子化した基盤モデルの上での LoRA
 
 QLoRA [5] は、基盤モデルの重みを NF4(ブロック 64 + 二重量子化)で **凍結して格納** し、LoRA [8] の
-低ランク行列だけを学習する。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation-theory) の記法で、対象の線形層は
+低ランク行列だけを学習する。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation) の記法で、対象の線形層は
 
 $$
 h = \hat{W}_0 x + \frac{\alpha}{r} B A x, \qquad \hat{W}_0 = \mathrm{dequant}(c_1, c_2, W_{\mathrm{NF4}})
@@ -344,7 +344,7 @@ CPU のメモリへ自動的に退避する(NVIDIA の unified memory のペー�
 
 ### 3.9 重みのみ量子化(Weight-Only Quantization)が decode を速くする理由
 
-[010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory) の 3.3 節のとおり、線形層($d_{\mathrm{in}} \times d_{\mathrm{out}}$ の
+[010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute) の 3.3 節のとおり、線形層($d_{\mathrm{in}} \times d_{\mathrm{out}}$ の
 重み、入力 $n$ 行)の演算強度(arithmetic intensity)は
 
 $$

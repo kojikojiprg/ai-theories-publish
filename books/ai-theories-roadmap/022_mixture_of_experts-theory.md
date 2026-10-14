@@ -2,7 +2,7 @@
 title: "Mixture of Experts(MoE) / Mixture of Experts(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/022_mixture_of_experts-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/022_mixture_of_experts-practice)。
 
 # 022. Mixture of Experts(MoE) / Mixture of Experts
 
@@ -19,18 +19,7 @@ MoE(Mixture of Experts)は、Transformer Block の Feed-Forward Network(順伝�
 
 ### 1.1 実行の手順
 
-本番実行は Google Colab T4 の **1 つのセッションで完結** させる。5.1 節のセットアップセルで`SMOKE_TEST = False`にして、
-「すべてのセルを実行」する。
-
-実行時間の予算は 1 セッションあたり **T4 で 120 分** とする。学習を始める前に(6.4 節)、T4 上でのスケーリングの計測(6.3 節)から、
-30 通りの **実行計画**(6.1 節。学習ステップ数 $T$・学習率の較正の方式・**削る段階** 0〜4 の組)のそれぞれについて残りの実行時間を
-見積もり、予算に収まる計画のうち優先順位の最も高いものを自動で選ぶ。選択は見積もりのみに基づき、どの実験の結果も参照しない。
-**選ばれた計画は 6.4 節の出力に印字される。** 事前の計測のための実行やセッションの分割はしない。
-
-**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** その場合は結果の情報を何も得ていないので、実行条件
-(判定基準・水準・前提条件以外)を直して再実行する。
-
-学習したモデルは、すべて条件間の比較のためのものであり、Hugging Face Hub にはアップロードしない。
+手順は付録 A。本番実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、T4 上のスケーリングの計測(6.3 節)から、30 通りの **実行計画**(6.1 節。学習ステップ数 $T$・学習率の較正の方式・**削る段階** 0〜4 の組)のそれぞれについて残りの実行時間を見積もり、予算に収まる計画のうち優先順位の最も高いものを自動で選ぶ(6.4 節)。選択は見積もりのみに基づき、どの実験の結果も参照しない。**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** 学習したモデルは、すべて条件間の比較のためのものであり、Hugging Face Hub にはアップロードしない。
 
 ### 1.2 本番実行の結果の要約
 
@@ -94,13 +83,6 @@ MoE(Mixture of Experts)は、Transformer Block の Feed-Forward Network(順伝�
 10. Komatsuzaki, A., Puigcerver, J., Lee-Thorp, J., Riquelme Ruiz, C., Mustafa, B., Ainslie, J., Tay, Y., Dehghani, M., Houlsby, N.,
     "Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints", ICLR 2023. https://arxiv.org/abs/2212.05055
     (3.8 節、位置づけのみ)
-
-本文で用いる既存トピックの部品: SwiGLU の順伝播ネットワークは [004](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation-theory)、
-小型 GPT と bits-per-byte は [006](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/006_pretraining_small_gpt-theory)、AdamW・warmup + cosine・gradient clipping は
-[007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization-theory)、本トピックが踏襲する事前学習のレシピは
-[008](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/008_decoding_strategies-theory)、FP16 の autocast と動的損失スケーリングは
-[011](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-theory)、記事を単位とするクラスタブートストラップは
-[015](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-theory) で扱った。
 
 ## 3. 理論 / Theory
 
@@ -353,7 +335,7 @@ $$
   振り分けと集約の索引の演算と、空いた枠の計算が上乗せになる。**T4 上の実測の時間は、実行計画の見積もりにのみ使い、どの実験の
   判定にも使わない。**
 
-### 3.9 データの流れとアルゴリズム(擬似コード)
+### 3.9 データの流れとアルゴリズム
 
 ```mermaid
 flowchart TD
@@ -371,20 +353,7 @@ flowchart TD
     C2 --> Y["出力 y(残差接続で足される)"]
 ```
 
-```
-入力: トークンの表現 x_1, ..., x_T(1 つのバッチを平坦化したもの)、エキスパート数 N、選ぶ数 k、capacity factor c
-1. h_t = W_r x_t、p_t = softmax(h_t)                         # FP32 で計算する
-2. 各 t について、確率の大きい順に k 個のエキスパート i_{t,1..k} とゲート g_{t,r} = p_t[i_{t,r}] を選ぶ
-3. 容量 C = ceil(c k T / N)
-4. 割り当て (t, r) を「r = 1 の全トークン、r = 2 の全トークン、...」の順に並べ、エキスパートごとに先着 C 個までを枠に入れる
-   枠に入らなかった割り当ては破棄する
-5. 枠のテンソル (N, C, d_model) を作り、全エキスパートの SwiGLU を一括の行列積で計算する
-6. y_t = sum_r g_{t,r} * (割り当て (t, r) の枠の出力。破棄されていれば 0)
-7. 補助損失: f_i = (エキスパート i への割り当ての数) / (k T)   # 破棄の前の割り当てで数える。定数として扱う
-            P_i = mean_t p_t[i]
-            負荷分散損失 = N * sum_i f_i P_i、router z-loss = mean_t (logsumexp(h_t))^2
-学習: 損失 = 交差エントロピー + sum_層 (alpha * 負荷分散損失 + c_z * router z-loss)
-```
+順伝播(ルーティング・振り分け・集約)と補助損失、学習の損失の手順を擬似コードで書いたものは付録 F.1。
 
 
 

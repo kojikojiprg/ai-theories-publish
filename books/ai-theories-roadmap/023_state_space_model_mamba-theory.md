@@ -2,7 +2,7 @@
 title: "State Space Model / Mamba / State Space Model and Mamba(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/023_state_space_model_mamba-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/023_state_space_model_mamba-practice)。
 
 # 023. State Space Model / Mamba / State Space Model and Mamba
 
@@ -14,13 +14,7 @@ title: "State Space Model / Mamba / State Space Model and Mamba(理論編)"
 
 ### 1.1 実行の手順
 
-本番の実行は Google Colab T4 の **1 つのセッションで完結** させる。5.1 節のセットアップセルで`SMOKE_TEST = False`にして、5.1〜6.12 節のセルを上から順に実行する。
-
-実行時間の予算は 1 セッションあたり **T4 で 120 分** とする。学習を始める前に(6.4 節)、T4 上でのスケーリングの計測(6.3 節)から、7 通りの **実行計画**(6.1 節。実験 D の学習ステップ数・実験 D の省略・実験 C のシード数・実験 A のシード数・実験 A と C の学習ステップ数を、この順に 1 つずつ削る)のそれぞれについて残りの実行時間を見積もり、予算に収まる計画のうち番号の最も小さいものを自動で選ぶ。選択は見積もりのみに基づき、どの実験の結果も参照しない。**選ばれた計画は 6.4 節の出力に印字される。** 事前の計測のための実行やセッションの分割はしない。
-
-**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** その場合は結果の情報を何も得ていないので、実行条件(判定基準・水準・前提条件以外)を直して再実行する。
-
-学習したモデルは、すべて条件間の比較または動作確認のためのものであり、Hugging Face Hub にはアップロードしない。
+手順は付録 A。本番の実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、T4 上のスケーリングの計測(6.3 節)から、7 通りの **実行計画**(6.1 節。実験 D の学習ステップ数・実験 D の省略・実験 C のシード数・実験 A のシード数・実験 A と C の学習ステップ数を、この順に 1 つずつ削る)のそれぞれについて残りの実行時間を見積もり、予算に収まる計画のうち番号の最も小さいものを自動で選ぶ(6.4 節)。選択は見積もりのみに基づき、どの実験の結果も参照しない。**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** 学習したモデルは、すべて条件間の比較または動作確認のためのものであり、Hugging Face Hub にはアップロードしない。
 
 6.3〜6.12 節が本番の実行、6.13 節が条件を直した再実行(実験 B・C)である。6.13 節は本番とは別のセッションで実行した。5.1 節の実行環境の印字は、6.13 節のセッションのものである。
 
@@ -60,8 +54,6 @@ title: "State Space Model / Mamba / State Space Model and Mamba(理論編)"
    (対角の状態行列の初期化 S4D-Real と、$B = 1$・$C$ を標準正規分布とする初期化。3.6 節、非選択の構成の初期化)
 
 公式の参照実装(`state-spaces/mamba`のリポジトリ、`selective_scan_ref`・`Mamba`クラス)は、離散化の簡略形 $\bar{B} x = \Delta B x$、$\Delta$ の初期化(対数一様分布から引いて softplus の逆関数をバイアスに書く)、低ランクの射影の次元(`dt_rank`、既定は $\lceil d_{\mathrm{model}} / 16 \rceil$)の確認に用いた。
-
-本文で用いる既存トピックの部品: 注意機構と因果マスクは [001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_attention_mechanism-theory)、RoPE は [003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory)、RMSNorm と SwiGLU は [004](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation-theory)、小型 GPT と bits-per-byte は [006](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/006_pretraining_small_gpt-theory)、AdamW・warmup + cosine・gradient clipping は [007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization-theory)、本トピックの実験 D が踏襲する事前学習のレシピと比較の相手は [008](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/008_decoding_strategies-theory)、KV キャッシュは [010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory)、FP16 の autocast と動的損失スケーリングは [011](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-theory)、時間計測の手順(ウォームアップ・交互実行・ドリフトの不在と平均の標準誤差の前提条件)は [010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory) と [014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory)、単体テストの許容誤差の導出は [022](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/022_mixture_of_experts-theory) で扱った。
 
 ## 3. 理論 / Theory
 

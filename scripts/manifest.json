@@ -1,444 +1,256 @@
 {
   "001": {
     "slugs": [
-      "001_attention_mechanism-theory",
-      "001_attention_mechanism-practice"
+      "001_attention_mechanism"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "注意機構(Attention Mechanism)(理論編)",
-      "注意機構(Attention Mechanism)(実装・実験編)"
+      "注意機構(Attention Mechanism)"
     ]
   },
   "002": {
     "slugs": [
-      "002_transformer_block-theory",
-      "002_transformer_block-practice-1",
-      "002_transformer_block-practice-2"
+      "002_transformer_block"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "Transformer Block(理論編)",
-      "Transformer Block(実装・実験編 1/2)",
-      "Transformer Block(実装・実験編 2/2)"
+      "Transformer Block"
     ]
   },
   "003": {
     "slugs": [
-      "003_positional_encoding_rope-theory",
-      "003_positional_encoding_rope-practice-1",
-      "003_positional_encoding_rope-practice-2"
+      "003_positional_encoding_rope"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "位置エンコーディング(Positional Encoding)/ RoPE(理論編)",
-      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 1/2)",
-      "位置エンコーディング(Positional Encoding)/ RoPE(実装・実験編 2/2)"
+      "位置エンコーディング(Positional Encoding)/ RoPE"
     ]
   },
   "004": {
     "slugs": [
-      "004_normalization_and_activation-theory",
-      "004_normalization_and_activation-practice-1",
-      "004_normalization_and_activation-practice-2",
-      "004_normalization_and_activation-practice-3"
+      "004_normalization_and_activation"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "正規化と活性化の系譜(理論編)",
-      "正規化と活性化の系譜(実装・実験編 1/3)",
-      "正規化と活性化の系譜(実装・実験編 2/3)",
-      "正規化と活性化の系譜(実装・実験編 3/3)"
+      "正規化と活性化の系譜"
     ]
   },
   "005": {
     "slugs": [
-      "005_tokenizer-theory",
-      "005_tokenizer-practice-1",
-      "005_tokenizer-practice-2",
-      "005_tokenizer-practice-3"
+      "005_tokenizer"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "トークナイザと部分語分割(理論編)",
-      "トークナイザと部分語分割(実装・実験編 1/3)",
-      "トークナイザと部分語分割(実装・実験編 2/3)",
-      "トークナイザと部分語分割(実装・実験編 3/3)"
+      "トークナイザと部分語分割"
     ]
   },
   "006": {
     "slugs": [
-      "006_pretraining_small_gpt-theory",
-      "006_pretraining_small_gpt-practice-1",
-      "006_pretraining_small_gpt-practice-2",
-      "006_pretraining_small_gpt-practice-3",
-      "006_pretraining_small_gpt-practice-4"
+      "006_pretraining_small_gpt"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "小型 GPT の事前学習(Pretraining a Small GPT)(理論編)",
-      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 1/4)",
-      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 2/4)",
-      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 3/4)",
-      "小型 GPT の事前学習(Pretraining a Small GPT)(実装・実験編 4/4)"
+      "小型 GPT の事前学習(Pretraining a Small GPT)"
     ]
   },
   "007": {
     "slugs": [
-      "007_training_stabilization-theory",
-      "007_training_stabilization-practice-1",
-      "007_training_stabilization-practice-2",
-      "007_training_stabilization-practice-3"
+      "007_training_stabilization"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "学習の安定化(Training Stabilization)(理論編)",
-      "学習の安定化(Training Stabilization)(実装・実験編 1/3)",
-      "学習の安定化(Training Stabilization)(実装・実験編 2/3)",
-      "学習の安定化(Training Stabilization)(実装・実験編 3/3)"
+      "学習の安定化(Training Stabilization)"
     ]
   },
   "008": {
     "slugs": [
-      "008_decoding_strategies-theory",
-      "008_decoding_strategies-practice-1",
-      "008_decoding_strategies-practice-2"
+      "008_decoding_strategies"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "デコーディング戦略(Decoding Strategies)(理論編)",
-      "デコーディング戦略(Decoding Strategies)(実装・実験編 1/2)",
-      "デコーディング戦略(Decoding Strategies)(実装・実験編 2/2)"
+      "デコーディング戦略(Decoding Strategies)"
     ]
   },
   "009": {
     "slugs": [
-      "009_scaling_laws-theory",
-      "009_scaling_laws-practice-1",
-      "009_scaling_laws-practice-2",
-      "009_scaling_laws-practice-3"
+      "009_scaling_laws"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "スケーリング則(Scaling Laws)(理論編)",
-      "スケーリング則(Scaling Laws)(実装・実験編 1/3)",
-      "スケーリング則(Scaling Laws)(実装・実験編 2/3)",
-      "スケーリング則(Scaling Laws)(実装・実験編 3/3)"
+      "スケーリング則(Scaling Laws)"
     ]
   },
   "010": {
     "slugs": [
-      "010_kv_cache_and_inference_compute-theory",
-      "010_kv_cache_and_inference_compute-practice-1",
-      "010_kv_cache_and_inference_compute-practice-2",
-      "010_kv_cache_and_inference_compute-practice-3",
-      "010_kv_cache_and_inference_compute-practice-4"
+      "010_kv_cache_and_inference_compute"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)(理論編)",
-      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)(実装・実験編 1/4)",
-      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)(実装・実験編 2/4)",
-      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)(実装・実験編 3/4)",
-      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)(実装・実験編 4/4)"
+      "KV キャッシュと推論の計算量(KV Cache and Inference Compute)"
     ]
   },
   "011": {
     "slugs": [
       "011_mixed_precision_training-theory",
-      "011_mixed_precision_training-practice-1",
-      "011_mixed_precision_training-practice-2",
-      "011_mixed_precision_training-practice-3",
-      "011_mixed_precision_training-practice-4"
+      "011_mixed_precision_training-practice"
     ],
     "split": true,
     "titles": [
       "混合精度学習(Mixed Precision Training)(理論編)",
-      "混合精度学習(Mixed Precision Training)(実装・実験編 1/4)",
-      "混合精度学習(Mixed Precision Training)(実装・実験編 2/4)",
-      "混合精度学習(Mixed Precision Training)(実装・実験編 3/4)",
-      "混合精度学習(Mixed Precision Training)(実装・実験編 4/4)"
+      "混合精度学習(Mixed Precision Training)(実装・実験編)"
     ]
   },
   "012": {
     "slugs": [
-      "012_low_rank_adaptation-theory",
-      "012_low_rank_adaptation-practice-1",
-      "012_low_rank_adaptation-practice-2",
-      "012_low_rank_adaptation-practice-3"
+      "012_low_rank_adaptation"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "LoRA(Low-Rank Adaptation)(理論編)",
-      "LoRA(Low-Rank Adaptation)(実装・実験編 1/3)",
-      "LoRA(Low-Rank Adaptation)(実装・実験編 2/3)",
-      "LoRA(Low-Rank Adaptation)(実装・実験編 3/3)"
+      "LoRA(Low-Rank Adaptation)"
     ]
   },
   "013": {
     "slugs": [
       "013_quantization_basics-theory",
-      "013_quantization_basics-practice-1",
-      "013_quantization_basics-practice-2",
-      "013_quantization_basics-practice-3",
-      "013_quantization_basics-practice-4",
-      "013_quantization_basics-practice-5"
+      "013_quantization_basics-practice"
     ],
     "split": true,
     "titles": [
       "量子化の基礎(Quantization Basics)(理論編)",
-      "量子化の基礎(Quantization Basics)(実装・実験編 1/5)",
-      "量子化の基礎(Quantization Basics)(実装・実験編 2/5)",
-      "量子化の基礎(Quantization Basics)(実装・実験編 3/5)",
-      "量子化の基礎(Quantization Basics)(実装・実験編 4/5)",
-      "量子化の基礎(Quantization Basics)(実装・実験編 5/5)"
+      "量子化の基礎(Quantization Basics)(実装・実験編)"
     ]
   },
   "014": {
     "slugs": [
-      "014_flash_attention-theory",
-      "014_flash_attention-practice-1",
-      "014_flash_attention-practice-2",
-      "014_flash_attention-practice-3"
+      "014_flash_attention"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "Flash Attention(理論編)",
-      "Flash Attention(実装・実験編 1/3)",
-      "Flash Attention(実装・実験編 2/3)",
-      "Flash Attention(実装・実験編 3/3)"
+      "Flash Attention"
     ]
   },
   "015": {
     "slugs": [
       "015_long_context_extension-theory",
-      "015_long_context_extension-practice-1",
-      "015_long_context_extension-practice-2",
-      "015_long_context_extension-practice-3",
-      "015_long_context_extension-practice-4"
+      "015_long_context_extension-practice"
     ],
     "split": true,
     "titles": [
       "長文脈拡張 / Long Context Extension(理論編)",
-      "長文脈拡張 / Long Context Extension(実装・実験編 1/4)",
-      "長文脈拡張 / Long Context Extension(実装・実験編 2/4)",
-      "長文脈拡張 / Long Context Extension(実装・実験編 3/4)",
-      "長文脈拡張 / Long Context Extension(実装・実験編 4/4)"
+      "長文脈拡張 / Long Context Extension(実装・実験編)"
     ]
   },
   "016": {
     "slugs": [
-      "016_supervised_fine_tuning-theory",
-      "016_supervised_fine_tuning-practice-1",
-      "016_supervised_fine_tuning-practice-2",
-      "016_supervised_fine_tuning-practice-3",
-      "016_supervised_fine_tuning-practice-4"
+      "016_supervised_fine_tuning"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(理論編)",
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 1/4)",
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 2/4)",
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 3/4)",
-      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)(実装・実験編 4/4)"
+      "SFT(指示チューニング) / Supervised Fine-Tuning (Instruction Tuning)"
     ]
   },
   "017": {
     "slugs": [
       "017_reward_model_and_rlhf-theory",
-      "017_reward_model_and_rlhf-practice-1",
-      "017_reward_model_and_rlhf-practice-2",
-      "017_reward_model_and_rlhf-practice-3",
-      "017_reward_model_and_rlhf-practice-4"
+      "017_reward_model_and_rlhf-practice"
     ],
     "split": true,
     "titles": [
       "報酬モデルと RLHF / Reward Models and RLHF(理論編)",
-      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 1/4)",
-      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 2/4)",
-      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 3/4)",
-      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編 4/4)"
+      "報酬モデルと RLHF / Reward Models and RLHF(実装・実験編)"
     ]
   },
   "018": {
     "slugs": [
       "018_direct_preference_optimization-theory",
-      "018_direct_preference_optimization-practice-1",
-      "018_direct_preference_optimization-practice-2",
-      "018_direct_preference_optimization-practice-3",
-      "018_direct_preference_optimization-practice-4"
+      "018_direct_preference_optimization-practice"
     ],
     "split": true,
     "titles": [
       "DPO(Direct Preference Optimization) / Direct Preference Optimization(理論編)",
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 1/4)",
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 2/4)",
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 3/4)",
-      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編 4/4)"
+      "DPO(Direct Preference Optimization) / Direct Preference Optimization(実装・実験編)"
     ]
   },
   "019": {
     "slugs": [
       "019_vision_transformer-theory",
-      "019_vision_transformer-practice-1",
-      "019_vision_transformer-practice-2",
-      "019_vision_transformer-practice-3",
-      "019_vision_transformer-practice-4"
+      "019_vision_transformer-practice"
     ],
     "split": true,
     "titles": [
       "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(理論編)",
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 1/4)",
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 2/4)",
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 3/4)",
-      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編 4/4)"
+      "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(実装・実験編)"
     ]
   },
   "020": {
     "slugs": [
-      "020_clip_contrastive_learning-theory",
-      "020_clip_contrastive_learning-practice-1",
-      "020_clip_contrastive_learning-practice-2",
-      "020_clip_contrastive_learning-practice-3",
-      "020_clip_contrastive_learning-practice-4",
-      "020_clip_contrastive_learning-practice-5"
+      "020_clip_contrastive_learning"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "CLIP と対照学習 / CLIP and Contrastive Learning(理論編)",
-      "CLIP と対照学習 / CLIP and Contrastive Learning(実装・実験編 1/5)",
-      "CLIP と対照学習 / CLIP and Contrastive Learning(実装・実験編 2/5)",
-      "CLIP と対照学習 / CLIP and Contrastive Learning(実装・実験編 3/5)",
-      "CLIP と対照学習 / CLIP and Contrastive Learning(実装・実験編 4/5)",
-      "CLIP と対照学習 / CLIP and Contrastive Learning(実装・実験編 5/5)"
+      "CLIP と対照学習 / CLIP and Contrastive Learning"
     ]
   },
   "021": {
     "slugs": [
-      "021_llava_visual_instruction_tuning-theory",
-      "021_llava_visual_instruction_tuning-practice-1",
-      "021_llava_visual_instruction_tuning-practice-2",
-      "021_llava_visual_instruction_tuning-practice-3"
+      "021_llava_visual_instruction_tuning"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(理論編)",
-      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(実装・実験編 1/3)",
-      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(実装・実験編 2/3)",
-      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning(実装・実験編 3/3)"
+      "LLaVA 型 Vision-Language 連結と視覚指示チューニング / LLaVA-style Vision-Language Connection and Visual Instruction Tuning"
     ]
   },
   "022": {
     "slugs": [
       "022_mixture_of_experts-theory",
-      "022_mixture_of_experts-practice-1",
-      "022_mixture_of_experts-practice-2",
-      "022_mixture_of_experts-practice-3",
-      "022_mixture_of_experts-practice-4",
-      "022_mixture_of_experts-practice-5"
+      "022_mixture_of_experts-practice"
     ],
     "split": true,
     "titles": [
       "Mixture of Experts(MoE) / Mixture of Experts(理論編)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 1/5)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 2/5)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 3/5)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 4/5)",
-      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編 5/5)"
+      "Mixture of Experts(MoE) / Mixture of Experts(実装・実験編)"
     ]
   },
   "023": {
     "slugs": [
       "023_state_space_model_mamba-theory",
-      "023_state_space_model_mamba-practice-1",
-      "023_state_space_model_mamba-practice-2",
-      "023_state_space_model_mamba-practice-3",
-      "023_state_space_model_mamba-practice-4",
-      "023_state_space_model_mamba-practice-5",
-      "023_state_space_model_mamba-practice-6"
+      "023_state_space_model_mamba-practice"
     ],
     "split": true,
     "titles": [
       "State Space Model / Mamba / State Space Model and Mamba(理論編)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 1/6)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 2/6)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 3/6)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 4/6)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 5/6)",
-      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編 6/6)"
+      "State Space Model / Mamba / State Space Model and Mamba(実装・実験編)"
     ]
   },
   "024": {
     "slugs": [
       "024_text_embedding_and_retriever-theory",
-      "024_text_embedding_and_retriever-practice-1",
-      "024_text_embedding_and_retriever-practice-2",
-      "024_text_embedding_and_retriever-practice-3",
-      "024_text_embedding_and_retriever-practice-4",
-      "024_text_embedding_and_retriever-practice-5",
-      "024_text_embedding_and_retriever-practice-6",
-      "024_text_embedding_and_retriever-practice-7"
+      "024_text_embedding_and_retriever-practice"
     ],
     "split": true,
     "titles": [
       "テキスト埋め込みと retriever / Text Embedding and Retriever(理論編)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 1/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 2/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 3/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 4/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 5/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 6/7)",
-      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編 7/7)"
+      "テキスト埋め込みと retriever / Text Embedding and Retriever(実装・実験編)"
     ]
   },
   "025": {
     "slugs": [
       "025_ann_search_and_reranking-theory",
-      "025_ann_search_and_reranking-practice-1",
-      "025_ann_search_and_reranking-practice-2",
-      "025_ann_search_and_reranking-practice-3",
-      "025_ann_search_and_reranking-practice-4",
-      "025_ann_search_and_reranking-practice-5",
-      "025_ann_search_and_reranking-practice-6",
-      "025_ann_search_and_reranking-practice-7",
-      "025_ann_search_and_reranking-practice-8"
+      "025_ann_search_and_reranking-practice"
     ],
     "split": true,
     "titles": [
       "ANN 検索とリランキング / ANN Search and Reranking(理論編)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 1/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 2/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 3/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 4/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 5/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 6/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 7/8)",
-      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編 8/8)"
+      "ANN 検索とリランキング / ANN Search and Reranking(実装・実験編)"
     ]
   },
   "026": {
     "slugs": [
-      "026_inverse_cloze_task_and_two_stage-theory",
-      "026_inverse_cloze_task_and_two_stage-practice-1",
-      "026_inverse_cloze_task_and_two_stage-practice-2",
-      "026_inverse_cloze_task_and_two_stage-practice-3",
-      "026_inverse_cloze_task_and_two_stage-practice-4",
-      "026_inverse_cloze_task_and_two_stage-practice-5",
-      "026_inverse_cloze_task_and_two_stage-practice-6",
-      "026_inverse_cloze_task_and_two_stage-practice-7",
-      "026_inverse_cloze_task_and_two_stage-practice-8"
+      "026_inverse_cloze_task_and_two_stage_retrieval"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(理論編)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 1/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 2/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 3/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 4/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 5/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 6/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 7/8)",
-      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 8/8)"
+      "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level"
     ]
   }
 }

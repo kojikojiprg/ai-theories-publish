@@ -2,7 +2,7 @@
 title: "長文脈拡張 / Long Context Extension(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-practice)。
 
 # 015. 長文脈拡張 / Long Context Extension
 
@@ -13,7 +13,7 @@ RoPE(Rotary Position Embedding、回転位置エンコーディング)で学習�
 NTK-aware スケーリング、NTK-by-parts、YaRN、dynamic scaling、底の調整)を扱い、「学習長を超えると何が壊れるか、
 各手法はそれをどう直すか、伸ばした文脈は実際に使われるか」を、008 で事前学習した小型 GPT で検証する。
 
-[003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory) との違い: 003 は **学習の時点から** 位置エンコーディングの
+[003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope) との違い: 003 は **学習の時点から** 位置エンコーディングの
 方式を変えて、学習長を超える外挿の性能を方式間で比べた。本トピックは方式を RoPE に固定し、**学習済みのモデルの RoPE の
 周波数を推論時(または短い微調整)で変える** ことで文脈長を伸ばす。
 
@@ -21,7 +21,7 @@ NTK-aware スケーリング、NTK-by-parts、YaRN、dynamic scaling、底の調
 
 1. Su, J., Ahmed, M., Lu, Y., Pan, S., Bo, W., Liu, Y., "RoFormer: Enhanced Transformer with Rotary Position Embedding",
    Neurocomputing 568, 2024. https://arxiv.org/abs/2104.09864
-   ([003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory) と同じ。RoPE の定義、3.1 節)
+   ([003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope) と同じ。RoPE の定義、3.1 節)
 2. Chen, S., Wong, S., Chen, L., Tian, Y., "Extending Context Window of Large Language Models via Positional
    Interpolation", arXiv 2023. https://arxiv.org/abs/2306.15595
    (位置補間。Attention のスコアの補間の上界(定理 2.1)と外挿の上界の比較、3.3 節)
@@ -45,7 +45,7 @@ NTK-aware スケーリング、NTK-by-parts、YaRN、dynamic scaling、底の調
    YaRN(`rope_scaling`の`factor`が 4.0)、静的な YaRN が短い入力の性能に影響しうるという注意、3.8 節)
 8. Dao, T., Fu, D. Y., Ermon, S., Rudra, A., Ré, C., "FlashAttention: Fast and Memory-Efficient Exact Attention
    with IO-Awareness", NeurIPS 2022. https://arxiv.org/abs/2205.14135
-   ([014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory) と同じ。伸ばした文脈での Attention のメモリ、3.10 節)
+   ([014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention) と同じ。伸ばした文脈での Attention のメモリ、3.10 節)
 
 ## 3. 理論 / Theory
 
@@ -53,14 +53,14 @@ NTK-aware スケーリング、NTK-by-parts、YaRN、dynamic scaling、底の調
 
 記号は原論文 [1][4] に従う。
 
-- $d$: 1 ヘッドあたりの次元([001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_attention_mechanism-theory) の $d_k$)。YaRN の原論文 [4] の
+- $d$: 1 ヘッドあたりの次元([001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_attention_mechanism) の $d_k$)。YaRN の原論文 [4] の
   $|D|$ にあたる。RoPE は $d$ 次元を $d/2$ 個の 2 次元の部分空間に分けて回転させる。
 - $i = 0, 1, \dots, d/2 - 1$: 部分空間の番号。
 - $b$: 角周波数の底(base)。008 のモデルでは $b = 10000$。
 - $\theta_i = b^{-2i/d}$: 部分空間 $i$ の角周波数(1 位置進むごとの回転角)。$\lambda_i = 2\pi / \theta_i$: 部分空間 $i$ の
   波長(1 周するのに要する位置の数)。
 - $m, n$: Query と Key の位置(0 始まり)。
-- $L$: 学習時の文脈長(008 のモデルでは $L = 256$)。[014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory) では $L$ を logsumexp の記号に
+- $L$: 学習時の文脈長(008 のモデルでは $L = 256$)。[014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention) では $L$ を logsumexp の記号に
   使ったが、本ノートブックの $L$ は文脈長である。
 - $L'$: 伸ばした後の文脈長。$s = L' / L$: 拡張の倍率(scale factor)。
 - $l$: 現在処理している系列の長さ(dynamic scaling で使う)。
@@ -72,7 +72,7 @@ NTK-aware スケーリング、NTK-by-parts、YaRN、dynamic scaling、底の調
 ### 3.1 RoPE の周波数と波長
 
 RoPE [1] は、位置 $m$ の Query $q$ の部分空間 $i$ の 2 成分を角度 $m \theta_i$ だけ回転させ、Key も同様に位置 $n$ で
-回転させる([003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory))。部分空間 $i$ の 2 成分を複素数
+回転させる([003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope))。部分空間 $i$ の 2 成分を複素数
 $q^{(i)}, k^{(i)}$ とみなすと、内積は
 
 $$
@@ -234,7 +234,7 @@ $$
 を決める。$l \le L$ では $s = 1$ で、スケーリングなしと完全に同じ計算になる(5.6 節でアサーションにより確かめる)。
 $l$ が伸びるにつれて徐々に補間を強める。
 
-**KV キャッシュとの相互作用**: [010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute-theory) の KV キャッシュは、RoPE で回転させた
+**KV キャッシュとの相互作用**: [010](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/010_kv_cache_and_inference_compute) の KV キャッシュは、RoPE で回転させた
 **後の** Key を保存する。dynamic scaling では生成が進んで $l$ が伸びるたびに $s$ が変わり、全ての位置の回転角が
 変わるべきだが、キャッシュ済みの Key は古い $s$ で回転したまま残る。原論文 [4] は、RoPE を適用する **前の** Key を
 キャッシュし、使うたびに回転させるべきだと指摘している。本ノートブックの評価は KV キャッシュを使わず、毎回系列の
@@ -266,7 +266,7 @@ LongRoPE [6] は、部分空間ごとの補間の倍率を規則(ランプ関数
 ### 3.10 014 との関係: 伸ばした文脈のメモリ
 
 周波数を変えても計算量は変わらないが、文脈長を $s$ 倍にすると、標準の Attention のスコア行列と softmax の出力は
-$N \times N$($N$ は系列長)なので、[014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention-theory) の閉形式どおり順伝播のメモリは
+$N \times N$($N$ は系列長)なので、[014](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/014_flash_attention) の閉形式どおり順伝播のメモリは
 $2 \cdot B H N^2 \cdot 4$ バイト(FP32 の $S$ と $P$、$B$ はバッチサイズ、$H$ はヘッド数)で **$s^2$ 倍** になる。本ノートブックの
 最大の評価長 $8L = 2048$ では、1 系列・8 ヘッドあたり 1 層で 256 MiB である。本ノートブックの評価・微調整は
 001 の標準の Attention で行うので、このメモリの見積もりからバッチサイズを決める(5.4 節)。実務で長い文脈を扱う

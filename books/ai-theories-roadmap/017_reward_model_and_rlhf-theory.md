@@ -2,7 +2,7 @@
 title: "報酬モデルと RLHF / Reward Models and RLHF(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/017_reward_model_and_rlhf-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/017_reward_model_and_rlhf-practice)。
 
 # 017. 報酬モデルと RLHF / Reward Models and RLHF
 
@@ -11,7 +11,7 @@ title: "報酬モデルと RLHF / Reward Models and RLHF(理論編)"
 RLHF(Reinforcement Learning from Human Feedback、人間のフィードバックによる強化学習)は、SFT(Supervised
 Fine-Tuning、教師あり微調整)済みのモデルから応答の組を作り、どちらが良いかという **選好(preference)** のデータで
 報酬モデル(Reward Model)を学習し、その報酬を最大化するように方策(言語モデル)を最適化する手法である。本トピックでは、
-[016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning-theory) の合成課題で SFT したモデルを参照方策 $\pi_{\mathrm{ref}}$ とし、応答の良さを
+[016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning) の合成課題で SFT したモデルを参照方策 $\pi_{\mathrm{ref}}$ とし、応答の良さを
 測る **既知の真の報酬** $r^*$ から Bradley-Terry モデルで選好ラベルを確率的に作る。真の報酬が分かっているので、
 (A)学習した報酬モデルの報酬の差が、ラベルを生成した対数オッズの尺度に較正されているか、(B)best-of-n サンプリングで報酬モデルに対する
 最適化の圧力を強めたとき、真の報酬が上がってから下がる **過最適化(overoptimization)** が起きるか、(C)選好データを
@@ -27,7 +27,7 @@ Fine-Tuning、教師あり微調整)済みのモデルから応答の組を作�
 (6.3 節)から 1 セッション全体の実行時間を **削る段階**(6.1 節)ごとに見積もり、予算に収まる最小の段階を自動で選ぶ。
 選択は見積もりのみに基づき、どの実験の結果も参照しない。最後の段階でも予算を超える場合は、学習の前に例外で停止する。
 
-SFT モデル(参照方策 $\pi_{\mathrm{ref}}$ の重み)は、018 の DPO(Direct Preference Optimization)が参照方策として使うため、
+SFT モデル(参照方策 $\pi_{\mathrm{ref}}$ の重み)は、[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO(Direct Preference Optimization)が参照方策として使うため、
 Hugging Face Hub にアップロードする(6.14 節)。アップロードは`UPLOAD_ARTIFACTS = True`にしたときだけ行う(既定は`False`)。
 
 ## 2. 参考論文 / References
@@ -61,7 +61,7 @@ Hugging Face Hub にアップロードする(6.14 節)。アップロードは`U
    (best-of-n の KL ダイバージェンスの式 $\log n - (n-1)/n$ が一般には上界であること。3.6 節)
 10. Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W.,
     "LoRA: Low-Rank Adaptation of Large Language Models", ICLR 2022. https://arxiv.org/abs/2106.09685
-    (SFT と PPO の方策の学習に使う。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation-theory))
+    (SFT と PPO の方策の学習に使う。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation))
 
 ## 3. 理論 / Theory
 
@@ -239,14 +239,14 @@ $$
 
 である。$\beta$ が小さいほど報酬の高い応答に確率が集中し、$\beta \to \infty$ で $\pi_{\mathrm{ref}}$ に戻る。
 
-**018 への橋渡し**: この式を $r_\phi$ について解くと
+**[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) への橋渡し**: この式を $r_\phi$ について解くと
 
 $$
 r_\phi(x, y) = \beta \log \frac{\pi^*(y \mid x)}{\pi_{\mathrm{ref}}(y \mid x)} + \beta \log Z(x)
 $$
 
 となる。$\beta \log Z(x)$ はプロンプトだけの関数なので、3.2 節の「定数の差を除いて識別できない」部分にあたり、
-Bradley-Terry モデルの損失では打ち消される。018 の DPO は、これを 3.2 節の損失に代入して、報酬モデルを経由せずに方策を
+Bradley-Terry モデルの損失では打ち消される。[018](https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/018_direct_preference_optimization.ipynb) の DPO は、これを 3.2 節の損失に代入して、報酬モデルを経由せずに方策を
 直接学習する。この式では $Z(x)$ を計算できない(全応答の和)ので、PPO(3.5 節)は $\pi^*$ を直接求めず、サンプリングと
 勾配法で $J(\pi)$ を近似的に最大化する。
 
@@ -293,7 +293,7 @@ $$
 悲観的な側にだけ変える。
 
 **本トピックでの簡略化**: 方策は SFT モデル($\pi_{\mathrm{ref}}$ と同じ重み)の Query・Value 射影に LoRA(Low-Rank
-Adaptation、[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation-theory))を掛けたものとし、価値ヘッドは方策の本体を
+Adaptation、[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation))を掛けたものとし、価値ヘッドは方策の本体を
 共有する(最終正規化層の後の隠れ状態からの線形の層)。価値関数の損失の勾配も LoRA のパラメータに流れる。InstructGPT が
 加えた事前学習の損失の混合(PPO-ptx)は使わない。
 
@@ -336,27 +336,7 @@ $d(\alpha - \beta_{\mathrm{bon}} d)$ の形で上がってから下がり、報�
 
 ### 3.7 アルゴリズム
 
-```text
-procedure RLHF_017():
-    pi_ref <- merge(SFT(008 model, 016 recipe))                          # 3.1 step 1
-    kappa  <- log 3 / median(|r*(y1) - r*(y2)| : training pairs, nonzero) # 3.3
-    for seed s, data level N:
-        labels <- Bernoulli(sigma(kappa (r*(y1) - r*(y2))))  with seed s  # 3.3
-        r_phi  <- train pi_ref + scalar head on first N pairs with
-                  -log sigma(r(y_w) - r(y_l))                             # 3.2
-    for each eval prompt x:  pool_x <- M samples from pi_ref (temperature 1, no top-k / top-p)
-    for n in 1, 2, 4, ..., n_max:                                         # 3.6
-        E[r*](n) <- mean_x sum_i w_i(n, M) r*(pool_x sorted by r_phi)_(i)
-
-procedure PPO(pi_ref, r_phi, beta):                                       # 3.5
-    policy <- pi_ref + LoRA (W_q, W_v); value head on the shared body
-    repeat K iterations:
-        y ~ policy(. | x) for a batch of prompts (temperature 1)
-        r_t <- -beta (log pi_old - log pi_ref) + [t = T] r_phi(x, y)
-        A_t, R_t <- GAE(r_t, V(s_t); gamma, lambda); whiten A_t
-        for epoch in 1..E, minibatch:
-            minimize -L^CLIP(theta) + c_V * 0.5 (V - R)^2
-```
+RLHF の全体は、SFT 済みの参照方策 $\pi_{\mathrm{ref}}$ を作り、ラベルの尺度 $\kappa$ を決め、シード $s$・データ量 $N$ ごとに確率的なラベルで報酬モデルを学習し、評価用のプロンプトごとに参照方策から応答のプールを抽選して、$n$ ごとに best-of-n の真の報酬の期待値を求める手順である。PPO は、参照方策に LoRA を加えた方策と共有の本体の価値ヘッドを、トークン単位の KL ペナルティと報酬モデルの報酬から GAE とクリップ付き目的関数で更新する。擬似コードは付録 A.1。
 
 
 

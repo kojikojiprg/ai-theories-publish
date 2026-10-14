@@ -2,7 +2,7 @@
 title: "ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/019_vision_transformer-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/019_vision_transformer-practice)。
 
 # 019. ViT と画像パッチ埋め込み / Vision Transformer and Patch Embedding
 
@@ -32,7 +32,7 @@ ViT の方が CNN(ResNet-56 [7])より大きいか、を検証する。
 基づき、どの実験の結果も参照しない。最も軽い計画でも予算を超える場合は、学習の前に例外で停止する。**選ばれた計画・$T$・段階は
 6.4 節の出力に印字される。** 本番の Colab での実行はこの 1 回だけで、事前の計測のための実行やセッションの分割はしない。
 
-本トピックで学習したモデルは Hugging Face Hub にアップロードしない。020(CLIP)は画像とテキストの encoder を共同で学習するので、
+本トピックで学習したモデルは Hugging Face Hub にアップロードしない。[020](https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/020_clip_contrastive_learning.ipynb)(CLIP)は画像とテキストの encoder を共同で学習するので、
 019 からはコード(`VisionTransformer`)のみを再利用する。
 
 ## 2. 参考論文 / References
@@ -60,10 +60,10 @@ ViT の方が CNN(ResNet-56 [7])より大きいか、を検証する。
    https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf(CIFAR-10)
 
 本文で用いる既存トピックの部品: 多頭注意機構(Multi-Head Attention)と Encoder Block は
-[001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_attention_mechanism-theory)・[002](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/002_transformer_block-theory)、位置エンコーディング
-(Positional Encoding)は [003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope-theory)、GELU は
-[004](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation-theory)、AdamW・warmup + cosine・gradient clipping は
-[007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization-theory)、混合精度学習は
+[001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_attention_mechanism)・[002](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/002_transformer_block)、位置エンコーディング
+(Positional Encoding)は [003](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/003_positional_encoding_rope)、GELU は
+[004](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/004_normalization_and_activation)、AdamW・warmup + cosine・gradient clipping は
+[007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization)、混合精度学習は
 [011](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-theory)、位置補間(Position Interpolation)は
 [015](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-theory) で扱った。
 
@@ -315,21 +315,9 @@ ViT の方が大きいか** を検証する。帰納バイアスの弱いモデ�
   データが少ないとその局所性が十分に学習されないと報告している。本トピックでは、注意の重みから計算する平均の注意距離
   (原論文の図 7 右)を、判定なしの観察として示す(6.8 節)。
 
-### 3.7 アルゴリズム(擬似コード)
+### 3.7 アルゴリズム
 
-```
-入力: 画像のバッチ x (B, C, H, W)、パッチサイズ P、位置埋め込みの方式
-1. tokens = Conv2d(C, D, kernel=P, stride=P)(x)        # (B, D, H/P, W/P)
-2. tokens = flatten + transpose(tokens)                 # (B, N, D)、ラスタ順
-3. z = concat([x_class を B 個に複製, tokens], 系列方向)   # (B, N+1, D)
-4. 方式が "learned" なら z += E_pos(学習可能)、"sinusoidal_2d" なら z += [0; p_(r,c)](固定)、"none" なら何もしない
-5. for l = 1..L:
-       z = z + MultiHeadAttention(LayerNormalization(z))    # 正規化前置
-       z = z + FeedForwardNetwork(LayerNormalization(z))    # Linear -> GELU -> Linear
-6. y = LayerNormalization(z[:, 0])                      # [CLS] の位置
-7. logits = Linear(D, K)(y)                             # 分類ヘッド(零で初期化)
-学習: 交差エントロピー損失、AdamW、warmup + cosine、gradient clipping、FP16 の autocast と動的損失スケーリング(CUDA のみ)
-```
+ViT の順伝播は、畳み込みでパッチを切り出して平坦化し、[CLS] トークンを先頭に連結して位置埋め込み(学習可能・2 次元正弦波・なしのいずれか)を加え、正規化前置の Transformer ブロックを $L$ 層重ねたのち、[CLS] の位置の出力を最終の正規化にかけ、分類ヘッドで $K$ クラスの logits にする。学習は、交差エントロピー損失、AdamW、warmup + cosine、gradient clipping、FP16 の autocast と動的損失スケーリング(CUDA のみ)で行う。擬似コードは付録 A.1。
 
 
 

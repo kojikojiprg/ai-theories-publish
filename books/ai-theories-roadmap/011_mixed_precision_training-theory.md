@@ -2,10 +2,9 @@
 title: "混合精度学習(Mixed Precision Training)(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-practice)。
 
 # 011. 混合精度学習(Mixed Precision Training)
-
 
 ## 1. 概要 / Overview
 
@@ -18,7 +17,6 @@ FP32(単精度浮動小数点)で行っていた学習を FP16(半精度浮動�
 で構築した小型 GPT の事前学習に組み込んで効果を検証する。演算ごとの精度の割り当て
 (行列積は低精度、正規化層の統計量・損失の reduction は FP32)は`torch.autocast`
 に委ね、その割り当てが実際にどう行われるかを実測して確認する。
-
 
 ## 2. 参考論文 / References
 
@@ -35,7 +33,6 @@ FP32(単精度浮動小数点)で行っていた学習を FP16(半精度浮動�
    https://arxiv.org/abs/2209.05433(位置づけのみ、本トピックでは実験しない)
 5. IEEE Std 754-2019, "IEEE Standard for Floating-Point Arithmetic".
    (FP32 / FP16 / BF16 のビット構造の規格)
-
 
 ## 3. 理論 / Theory
 
@@ -305,7 +302,6 @@ flowchart TB
     K -->|"キャスト"| B
     H -->|"なし、growth_interval 到達"| L["S を growth"]
 ```
-
 
 
 

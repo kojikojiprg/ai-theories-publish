@@ -2,7 +2,7 @@
 title: "テキスト埋め込みと retriever / Text Embedding and Retriever(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/024_text_embedding_and_retriever-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/024_text_embedding_and_retriever-practice)。
 
 # 024. テキスト埋め込みと retriever / Text Embedding and Retriever
 
@@ -22,19 +22,7 @@ Recall@10 が、通常の InfoNCE で学習した埋め込みより高いか。�
 
 ### 1.1 実行の手順
 
-本番実行は Google Colab T4 の **1 つのセッションで完結** させる。5.1 節のセットアップセルで`SMOKE_TEST = False`にして、
-「すべてのセルを実行」する。
-
-実行時間の予算は 1 セッションあたり **T4 で 120 分** とする。学習を始める前に(6.4 節)、T4 上でのスケーリングの計測(6.3 節)から、
-**実行計画**(6.1 節。学習ステップ数 $T$・学習率の較正の方式・**削る段階** の組)のそれぞれについて残りの実行時間を見積もり、予算に収まる
-計画のうち優先順位の最も高いものを自動で選ぶ。選択は見積もりのみに基づき、どの実験の結果も参照しない。**選ばれた計画は 6.4 節の
-出力に印字される。** 事前の計測のための実行やセッションの分割はしない。
-
-**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。**
-
-学習したモデルのうち、後続のトピック([025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))の入力にする **Matryoshka Representation Learning で学習した条件(C5)のシード 0** だけを
-Hugging Face Hub(`kojikojiprg/ai-theories-text-embedding-en`)にアップロードする(6.14 節。`UPLOAD_ARTIFACTS`が`True`のときだけ。
-既定は`False`)。他のモデルは条件間の比較のためのものであり、保存もアップロードもしない。
+手順は付録 A。本番実行は Google Colab T4 の **1 つのセッションで完結** させる(予算は 120 分)。学習の前に、スケーリングの計測から実行計画(学習ステップ数 $T$・学習率の較正の方式・削る段階の組)の残りの実行時間を見積もり、予算に収まる計画のうち優先順位の最も高いものを、見積もりのみから自動で選ぶ(6.4 節)。**見積もりが最も下位の計画でも予算を超える場合は、学習の前に停止する。** 学習したモデルのうち、後続のトピック([025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))の入力にする **Matryoshka Representation Learning で学習した条件(C5)のシード 0** だけを Hugging Face Hub(`kojikojiprg/ai-theories-text-embedding-en`)にアップロードする(6.14 節。`UPLOAD_ARTIFACTS`が`True`のときだけ。既定は`False`)。
 
 ### 1.2 本番実行の結果の要約
 
@@ -49,13 +37,11 @@ Google Colab の T4 で 1 セッションで完結した(5.1 節の出力: コ�
 | C | C2(008 の重み)0.6700、C4(ランダム初期化)0.4628 | $\Delta_C = +0.2073$ | 0.0092 | 0.0183 | **支持** |
 | D | 先頭 16 次元: C5(Matryoshka Representation Learning)0.5692、C2(通常の InfoNCE)0.3784 | $\Delta_D = +0.1908$ | 0.0074 | 0.0147 | **支持** |
 
-- **実験 A(反証)**: 終端位置のプーリング(C1)は平均プール(C2)より低く、差は 5 シードすべてで負だった。位置ごとの診断量(C2 のモデルで測った量)は、後ろの位置ほど単独の Recall@10 が高い(0.0809 から 0.1729)。
-  判定が確かめたのは対比量の向きであり、機構の有無ではない。
+- **実験 A(反証)**: 終端位置のプーリング(C1)は平均プール(C2)より低く、差は 5 シードすべてで負だった。判定が確かめたのは対比量の向きであり、機構の有無ではない。
 - **実験 B(判定不能)**: 双方向の注意(C3)の対比量は正だが閾値に届かなかった。検証用の集合の推移では、序盤は C3 が高く、最後は C2 が高かった。
 - **実験 C(支持)**: ランダム初期化(C4)は学習の最後まで検証用の Recall@10 が伸びており、飽和していない状態での比較なので、事前学習の効果の大きさの上限として読む。
 - **実験 D(支持)**: 先頭 16 次元で C5 が高く、次元 $m$ が大きいほど差は縮み、全次元($m = 256$)では C5 が C2 より 0.0193 低い(判定に含めない診断量で、検証済みの結論ではない)。
 - **観察 E・F**: BM25 の Recall@10(0.7398)は全条件より高かった(最良の dense retriever は C3 の 0.6779)。対照学習の前後で Recall@10 は 0.4834 から 0.6692 に上がったが、ランダムな組のコサイン類似度の平均は 0.4659 から 0.4590 でほぼ変わらなかった(1 本の学習の観察)。
-- **アップロード**: C5 のシード 0 を`kojikojiprg/ai-theories-text-embedding-en`にアップロードし、`list_repo_files()`で意図したファイルの存在を確認した。読み込み直した重みの全次元の Recall@10 は 0.6477(7.9 節)。
 - 実験 A・B について、なぜそうなったかの考察は **事後的な解釈** として 7.10 節に分けて記した。検証済みの結論ではない。結論の一般化には制約がある(7.10 節: 9,470 記事、約 30% がリスト系、008 の 1 つのチェックポイント、約 0.074 エポックの学習)。
 
 ## 2. 参考論文 / References
@@ -112,13 +98,6 @@ Google Colab の T4 で 1 セッションで完結した(5.1 節の出力: コ�
 17. Nogueira, R., Cho, K.,
     "Passage Re-ranking with BERT", arXiv:1901.04085, 2019. https://arxiv.org/abs/1901.04085
     (cross-encoder による再順位づけ。3.2 節。実装は [025](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb))
-
-本文で用いる既存トピックの部品: 小型 GPT と bits-per-byte は [006](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/006_pretraining_small_gpt-theory)、AdamW・warmup + cosine・
-gradient clipping は [007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization-theory)、本トピックが起点にする学習済みの小型 GPT は
-[008](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/008_decoding_strategies-theory)、FP16 の autocast と動的損失スケーリングは
-[011](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/011_mixed_precision_training-theory)、記事を単位とするクラスタブートストラップは
-[015](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/015_long_context_extension-theory)、二重 encoder と InfoNCE 損失・InfoNCE が相互情報量の下界であること・温度は
-[020](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/020_clip_contrastive_learning-theory) で扱った。
 
 ## 3. 理論 / Theory
 
@@ -367,25 +346,9 @@ $$
 **ランダムな順位の期待値**: 候補が $M$ 個で正解が $g$ 個のとき、ランダムに並べて上位 $k$ 件に正解が 1 つもない確率は $\binom{M - g}{k} / \binom{M}{k}$ なので、
 Recall@k の期待値は $1 - \binom{M - g}{k} / \binom{M}{k}$ である(query について平均する)。前提条件(6.1 節)で使う。
 
-### 3.10 データの流れとアルゴリズム(擬似コード)
+### 3.10 データの流れとアルゴリズム
 
-```
-学習:
-  入力: 学習用の記事、query の長さ L_q、passage の長さ L_p、バッチサイズ N、温度 tau、学習ステップ数 T
-  前処理(学習の前に全ステップぶんを作る):
-    各ステップで N 個の記事を、重みに比例する確率で非復元抽出する         # 1 つのバッチに同じ記事の組は 2 つ入らない
-    各記事から、重ならない長さ L_q と長さ L_p の区間を切り出す(query 側と passage 側)
-  各ステップ:
-    z_q = pool(encoder(query))、z_p = pool(encoder(passage))              # 同じ重みの encoder。pool は平均または終端位置
-    通常の InfoNCE:   u = normalize(z_q)、v = normalize(z_p)、 L = InfoNCE(u, v, tau)
-    Matryoshka Representation Learning:  L = sum_m c_m InfoNCE(normalize(z_q[:m]), normalize(z_p[:m]), tau)
-    勾配 -> gradient clipping -> AdamW の更新(学習率は warmup + cosine)
-
-評価:
-  索引: 評価用の記事を重ならない長さ L_p の passage に分け、埋め込みにする(記事ごとに passage 数の上限あり)
-  query: 索引の passage の一部(長さ L_q)。その query を含む passage は、その query の候補から除く
-  全件の内積で順位をつけ、Recall@10 (主指標)・MRR・nDCG@10 を求める
-```
+学習は、学習用の記事から重ならない 2 つの区間(query 側と passage 側)を切り出して組にし、同じ重みの encoder で埋め込み、in-batch negatives の InfoNCE(3.4 節)または Matryoshka Representation Learning の損失(3.7 節)を最小化する。評価は、評価用の記事の passage の索引と、その一部を query として全件の内積で順位をつけ、Recall@10(主指標)・MRR・nDCG@10(3.9 節)を求める。擬似コードは付録 F.1。
 
 
 

@@ -2,7 +2,7 @@
 title: "DPO(Direct Preference Optimization) / Direct Preference Optimization(理論編)"
 ---
 
-この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-practice-1)。
+この記事は前編(理論編)です。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/018_direct_preference_optimization-practice)。
 
 # 018. DPO(Direct Preference Optimization) / Direct Preference Optimization
 
@@ -68,7 +68,7 @@ Hugging Face Hub にはアップロードしない。
     https://arxiv.org/abs/2203.02155(InstructGPT の RLHF の 3 段階。3.1 節)
 14. Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., Chen, W.,
     "LoRA: Low-Rank Adaptation of Large Language Models", ICLR 2022. https://arxiv.org/abs/2106.09685
-    (方策の学習に使う。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation-theory))
+    (方策の学習に使う。[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation))
 
 ## 3. 理論 / Theory
 
@@ -191,7 +191,7 @@ $$
 
 である($y_t$ は応答の $t$ 番目のトークン、$y_{<t}$ はそれより前のトークン、$\lvert y \rvert$ は応答のトークン数)。和は
 **応答部分のトークンだけ** にわたり、プロンプトのトークンは含めない。プロンプトは $x$ として条件に入るだけで、その尤度は
-$y_w$ と $y_l$ で共通なので差をとると消える。これは [016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning-theory) の損失マスク(指示部分の
+$y_w$ と $y_l$ で共通なので差をとると消える。これは [016](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/016_supervised_fine_tuning) の損失マスク(指示部分の
 トークンを損失に含めない)と同じ区別である。
 
 ```mermaid
@@ -372,22 +372,7 @@ Tajwar et al.(ICML 2024 [10])は、学習中の方策からサンプリングし
 
 ### 3.9 アルゴリズム
 
-```text
-procedure DPO_018(pi_ref, loss in {DPO, IPO}, beta):
-    pairs  <- (x, y1, y2) with y1, y2 ~ pi_ref(. | x), drop y1 == y2 and r*(y1) == r*(y2)
-    kappa  <- log 3 / median(|r*(y1) - r*(y2)|)                           # 017, 3.3
-    labels <- K draws from Bernoulli(sigma(kappa (r*(y1) - r*(y2))))       # stochastic
-              or K copies of [r*(y1) > r*(y2)]                              # deterministic
-    ref_w, ref_l <- log pi_ref(y_w | x), log pi_ref(y_l | x)   (precomputed once, cached)
-    policy <- pi_ref + LoRA (W_q, W_v), B = 0  (so policy == pi_ref at step 0)
-    for step in 1..T:
-        (x, y_w, y_l) <- minibatch of instances
-        h <- (log pi(y_w|x) - ref_w) - (log pi(y_l|x) - ref_l)            # sums over response tokens
-        loss <- mean(-log sigma(beta h))            if DPO                  # 3.2
-                mean((h - 1/(2 beta))^2)            if IPO (tau = beta)     # 3.5
-        update LoRA parameters with AdamW
-    evaluate: y ~ policy(. | x_eval) -> E[r*(y)], KL estimate mean(log pi(y) - log pi_ref(y))
-```
+選好の組は、学習の前に参照方策 $\pi_{\mathrm{ref}}$ から 1 度だけ抽選した応答の組から作る($y_1 = y_2$ の組と、真の報酬が同点の組は除く)。ラベルは、ラベルの尺度 $\kappa$ を使い、確率的なラベルは $K$ 回のベルヌーイ抽選、決定的なラベルは $K$ 個の複製とする。参照方策の応答部分の対数確率は 1 度だけ計算してキャッシュする。方策は参照方策に LoRA($W_q$・$W_v$、$B = 0$ なので学習の前は方策 = 参照方策)を加えたもので、各ステップで対数比のマージン $h$ から DPO または IPO の損失を計算し、LoRA のパラメータを AdamW で更新する。評価は、学習した方策から抽選した応答の真の報酬の期待値と、KL ダイバージェンスの推定値で行う。擬似コードは付録 A.1。
 
 
 
