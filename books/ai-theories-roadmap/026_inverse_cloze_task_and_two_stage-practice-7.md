@@ -2,7 +2,7 @@
 title: "Inverse Cloze Task と passage 単位の 2 段階検索 / Inverse Cloze Task and Two-Stage Retrieval at Passage Level(実装・実験編 7/8)"
 ---
 
-この記事は後編(実装・実験編 7/8)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage_retrieval-practice-6)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage_retrieval-practice-8)。
+この記事は後編(実装・実験編 7/8)です。前の内容は [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage-practice-6)。続きは [こちら](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage-practice-8)。
 
 ### 6.9 実験 B: 記事単位の評価での、関連性の定義の効果
 
@@ -467,7 +467,7 @@ Matryoshka Representation Learning(入れ子の次元 {matryoshka_dimensions})�
 
 ## 由来
 
-- [026. Inverse Cloze Task と passage 単位の 2 段階検索](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/026_inverse_cloze_task_and_two_stage_retrieval.ipynb)の
+- [026. Inverse Cloze Task と passage 単位の 2 段階検索](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage_retrieval-theory)の
   条件 R2 のシード 0 の学習後の重み。結果を見て選んだものではなく、事前に固定した条件とシードである。
 - 学習: {num_steps} ステップ、バッチ {batch_size} 組、温度 {temperature}、学習率 {learning_rate:.3g}、AdamW(重み減衰 {weight_decay})、warmup + cosine、gradient clipping {clip}。
   1 バッチは {articles_per_batch} 記事 x 2 組で、同じ記事の組を意図的に同じバッチに入れる(同じ記事の組の passage も負例として数える)。
@@ -537,7 +537,7 @@ tags:
 
 ## 由来
 
-- [026. Inverse Cloze Task と passage 単位の 2 段階検索](https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/026_inverse_cloze_task_and_two_stage_retrieval.ipynb)の
+- [026. Inverse Cloze Task と passage 単位の 2 段階検索](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/026_inverse_cloze_task_and_two_stage_retrieval-theory)の
   cross-encoder のシード 0 の学習後の重み。結果を見て選んだものではなく、事前に固定したシードである。
 - 学習: {num_steps} ステップ、1 ステップ {batch_queries} query x(正例 1 + 負例 {num_negatives})、学習率 {learning_rate:.3g}、AdamW(重み減衰 {weight_decay})、warmup + cosine、gradient clipping {clip}。
   損失は 1 個の正例と {num_negatives} 個の負例の softmax 交差エントロピー。query は passage から抜いた文(先頭 {query_length} トークンまで)、正例はその文を除いた passage、負例は第 1 段の上位 {rerank_candidates} 件から正例を除いて選んだ passage。

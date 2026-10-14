@@ -38,6 +38,8 @@ NOT_YET_CREATED_PATTERN = re.compile(r"( ?)\(未作成(?:\s*/\s*TBD)?\)( ?)")
 # Zennの本(book)の章(chapter)本文の文字数上限。実際のデプロイエラー
 # (「本文のmarkdownには最大50000文字まで使用できます」)により判明した値。
 # 記事(article)の80,000文字上限とは異なる、より厳しい制限であることに注意。
+# Zennの章のslug(ファイル名から拡張子を除いたもの)の文字数の上限。
+CHAPTER_SLUG_MAX_LENGTH = 50
 CHAR_HARD_LIMIT = 50_000
 # 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文・元ノートブックへの
 # リンクなど分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
@@ -552,6 +554,21 @@ def build_zenn_book_chapter_url(slug: str) -> str:
     return f"https://zenn.dev/{ZENN_USERNAME}/books/{BOOK_SLUG}/viewer/{slug}"
 
 
+def shorten_slug_for_chapters(slug: str, longest_suffix: int) -> str:
+    """章のslugは Zenn の上限(50文字)以内でなければならない。章のslugは `<slug><接尾辞>` なので、
+    ノートブックのファイル名が長く、接尾辞(`-practice-1` など)を付けると超える場合は、
+    `_` 区切りの語の境界で切り詰めた短いslugを使う。収まる場合はそのまま返す。
+    画像のフォルダ(`images/<slug>/`)は元のslugのままで、この短縮の影響を受けない。
+    """
+    limit = CHAPTER_SLUG_MAX_LENGTH - longest_suffix
+    if len(slug) <= limit:
+        return slug
+    shortened = slug[:limit]
+    if "_" in shortened and slug[limit] != "_":
+        shortened = shortened.rsplit("_", 1)[0]
+    return shortened
+
+
 def build_part_slug(base_slug: str, kind: str, index: int, total: int) -> str:
     if total == 1:
         return f"{base_slug}-{kind}"
@@ -647,8 +664,12 @@ def main() -> None:
     for i, chunk in enumerate(practice_chunks):
         parts.append({"kind": "practice", "index": i, "total": len(practice_chunks), "body": chunk})
 
+    longest_suffix = max(
+        len(build_part_slug("", part["kind"], part["index"], part["total"])) for part in parts
+    )
+    chapter_base = shorten_slug_for_chapters(slug, longest_suffix)
     for part in parts:
-        part["slug"] = build_part_slug(slug, part["kind"], part["index"], part["total"])
+        part["slug"] = build_part_slug(chapter_base, part["kind"], part["index"], part["total"])
         part["title"] = build_part_title(title, part["kind"], part["index"], part["total"])
 
     for i, part in enumerate(parts):

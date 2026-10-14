@@ -418,15 +418,15 @@
   },
   "026": {
     "slugs": [
-      "026_inverse_cloze_task_and_two_stage_retrieval-theory",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-1",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-2",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-3",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-4",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-5",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-6",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-7",
-      "026_inverse_cloze_task_and_two_stage_retrieval-practice-8"
+      "026_inverse_cloze_task_and_two_stage-theory",
+      "026_inverse_cloze_task_and_two_stage-practice-1",
+      "026_inverse_cloze_task_and_two_stage-practice-2",
+      "026_inverse_cloze_task_and_two_stage-practice-3",
+      "026_inverse_cloze_task_and_two_stage-practice-4",
+      "026_inverse_cloze_task_and_two_stage-practice-5",
+      "026_inverse_cloze_task_and_two_stage-practice-6",
+      "026_inverse_cloze_task_and_two_stage-practice-7",
+      "026_inverse_cloze_task_and_two_stage-practice-8"
     ],
     "split": true,
     "titles": [
