@@ -55,7 +55,13 @@ TAG_HIDE = "zenn-hide"
 TAG_HIDE_INPUT = "zenn-hide-input"
 TAG_DETAILS = "zenn-details"
 TAG_APPENDIX = "zenn-appendix"
-ZENN_TAGS = {TAG_HIDE, TAG_HIDE_INPUT, TAG_DETAILS, TAG_APPENDIX}
+# タグごとに付けてよいセルの種類(ai-theories の CLAUDE.md「Zenn での表示を制御するセルのタグ」に従う)。
+ZENN_TAG_TARGETS = {
+    TAG_HIDE: ("code", "markdown", "raw"),
+    TAG_HIDE_INPUT: ("code",),
+    TAG_DETAILS: ("code", "markdown", "raw"),
+    TAG_APPENDIX: ("markdown",),
+}
 
 # 折りたたみ(`:::details`)の見出しの既定値。
 APPENDIX_SUMMARY = "付録"
@@ -242,8 +248,10 @@ def details_summary_and_cell(cell: nbformat.NotebookNode) -> tuple[str, nbformat
     折りたたみの内側に章の分割境界となる`##`見出しが残ることを避けるため)。
     見出しのないMarkdownセルは「詳細」、コードセルは「コード」とする。
     """
-    if cell.cell_type != "markdown":
+    if cell.cell_type == "code":
         return CODE_CELL_DETAILS_SUMMARY, cell
+    if cell.cell_type != "markdown":
+        return MARKDOWN_CELL_DETAILS_SUMMARY, cell
     match = FIRST_HEADING_PATTERN.search(cell.source)
     if not match:
         return MARKDOWN_CELL_DETAILS_SUMMARY, cell
@@ -251,13 +259,50 @@ def details_summary_and_cell(cell: nbformat.NotebookNode) -> tuple[str, nbformat
     return match.group(1), nbformat.v4.new_markdown_cell(remaining, metadata=cell.metadata)
 
 
+def validate_zenn_tags(nb: nbformat.NotebookNode) -> None:
+    """タグの使い方が CLAUDE.md の定めに合わなければ、エラーを印字して終了する。
+    定め: 未知の `zenn-` のタグと、種類の合わないセルへのタグは認めない。
+    `zenn-appendix` は 1 つのノートブックに 1 つまでで、見出し(`#` で始まる行)の Markdown セルに付ける。
+    """
+    problems = []
+    appendix_indexes = []
+    for index, cell in enumerate(nb.cells):
+        for tag in sorted(cell_tags(cell)):
+            if tag in ZENN_TAG_TARGETS:
+                if cell.cell_type not in ZENN_TAG_TARGETS[tag]:
+                    problems.append(
+                        f"セル {index}: タグ {tag} は {cell.cell_type} セルには付けられません"
+                        f"(付けてよい種類: {list(ZENN_TAG_TARGETS[tag])})。"
+                    )
+                if tag == TAG_APPENDIX:
+                    appendix_indexes.append(index)
+            elif tag.startswith("zenn-"):
+                problems.append(f"セル {index}: 未知の Zenn のタグ {tag} です。")
+    if len(appendix_indexes) > 1:
+        problems.append(
+            f"{TAG_APPENDIX} が {len(appendix_indexes)} 個のセル({appendix_indexes})にあります。"
+            "1 つのノートブックに 1 つまでです。"
+        )
+    for index in appendix_indexes:
+        lines = [line for line in nb.cells[index].source.splitlines() if line.strip()]
+        if not lines or not lines[0].lstrip().startswith("#"):
+            problems.append(
+                f"セル {index}: {TAG_APPENDIX} は見出し(# で始まる行)の Markdown セルに付けます。"
+            )
+    if problems:
+        for problem in problems:
+            print(f"エラー: {problem}", file=sys.stderr)
+        sys.exit(1)
+
+
 def apply_zenn_tags(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNode, dict[int, str]]:
     """タグに従って、`zenn-hide` のセルを除き、折りたたみの開始・終了の印のセルを挿入する。
     折りたたみの見出しの文言は、印の番号をキーとした辞書で返す。
     タグ付きのセルがなければ、ノートブックをそのまま返す。
     """
-    if not any(cell_tags(cell) & ZENN_TAGS for cell in nb.cells):
+    if not any(tag.startswith("zenn-") for cell in nb.cells for tag in cell_tags(cell)):
         return nb, {}
+    validate_zenn_tags(nb)
 
     summaries: dict[int, str] = {}
     cells: list[nbformat.NotebookNode] = []

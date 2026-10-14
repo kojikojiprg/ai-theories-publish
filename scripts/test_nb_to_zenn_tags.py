@@ -152,6 +152,24 @@ class TagTest(unittest.TestCase):
         self.assertEqual(sum(":::details 付録" in c for c in chunks), 1)
         self.assertEqual(len([c for c in chunks if "## 付録の見出し" in c and ":::details" in c]), 1)
 
+    def assert_rejected(self, cells):
+        with self.assertRaises(SystemExit) as raised:
+            convert(cells)
+        self.assertEqual(raised.exception.code, 1)
+
+    def test_rejects_second_appendix(self):
+        self.assert_rejected(
+            [markdown("## 付録", "zenn-appendix"), markdown("## 付録 2", "zenn-appendix")]
+        )
+
+    def test_rejects_appendix_without_heading_or_on_code_cell(self):
+        self.assert_rejected([markdown("見出しなし", "zenn-appendix")])
+        self.assert_rejected([code("# 見出しのように見える", "zenn-appendix")])
+
+    def test_rejects_hide_input_on_markdown_and_unknown_zenn_tag(self):
+        self.assert_rejected([markdown("本文", "zenn-hide-input")])
+        self.assert_rejected([markdown("本文", "zenn-unknown")])
+
 
 if __name__ == "__main__":
     unittest.main()
