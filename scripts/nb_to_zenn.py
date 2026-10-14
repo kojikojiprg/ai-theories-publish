@@ -12,6 +12,7 @@ from pathlib import Path
 
 import nbformat
 from nbconvert import MarkdownExporter
+from traitlets.config import Config
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AI_THEORIES_THEORIES_DIR = REPO_ROOT / "ai-theories" / "theories"
@@ -48,6 +49,25 @@ CHAR_THRESHOLD = 45_000
 # 超えてしまうことがある)。
 PART_OVERHEAD_MARGIN = 800
 PACKING_THRESHOLD = CHAR_THRESHOLD - PART_OVERHEAD_MARGIN
+
+# セルのタグによる Zenn での表示の制御(ai-theories の「ノートブックの圧縮と保守」で定めるタグ)。
+TAG_HIDE = "zenn-hide"
+TAG_HIDE_INPUT = "zenn-hide-input"
+TAG_DETAILS = "zenn-details"
+TAG_APPENDIX = "zenn-appendix"
+ZENN_TAGS = {TAG_HIDE, TAG_HIDE_INPUT, TAG_DETAILS, TAG_APPENDIX}
+
+# 折りたたみ(`:::details`)の見出しの既定値。
+APPENDIX_SUMMARY = "付録"
+CODE_CELL_DETAILS_SUMMARY = "コード"
+MARKDOWN_CELL_DETAILS_SUMMARY = "詳細"
+
+# 折りたたみの開始・終了を本文中に仮置きするための印。変換後に `:::details` へ置き換える。
+FOLD_MARKER_PATTERN = re.compile(r"^@@ZENN_FOLD_(OPEN|CLOSE):(\d+)@@$")
+FIRST_HEADING_PATTERN = re.compile(r"^#{1,6}[ \t]+(\S.*?)[ \t]*$", re.MULTILINE)
+FOLD_OPEN_LINE_PATTERN = re.compile(r"^:::+details\b")
+FOLD_CLOSE_LINE_PATTERN = re.compile(r"^:::+$")
+CODE_FENCE_PATTERN = re.compile(r"^\s*(```+|~~~+)")
 
 # Zennのユーザー名。将来変わる可能性があるため、環境変数での上書きも可能にしておく。
 ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
@@ -211,8 +231,133 @@ def extract_title(nb: nbformat.NotebookNode) -> str:
     return first_line.lstrip("#").strip()
 
 
+def cell_tags(cell: nbformat.NotebookNode) -> set[str]:
+    return set(cell.get("metadata", {}).get("tags", []))
+
+
+def details_summary_and_cell(cell: nbformat.NotebookNode) -> tuple[str, nbformat.NotebookNode]:
+    """`zenn-details` のセルについて、折りたたみの見出しの文言と、(必要なら見出し行を除いた)セルを返す。
+
+    Markdownセルは最初の見出しを文言にし、その見出し行はセルから除く(見出しの重複と、
+    折りたたみの内側に章の分割境界となる`##`見出しが残ることを避けるため)。
+    見出しのないMarkdownセルは「詳細」、コードセルは「コード」とする。
+    """
+    if cell.cell_type != "markdown":
+        return CODE_CELL_DETAILS_SUMMARY, cell
+    match = FIRST_HEADING_PATTERN.search(cell.source)
+    if not match:
+        return MARKDOWN_CELL_DETAILS_SUMMARY, cell
+    remaining = cell.source[: match.start()] + cell.source[match.end() :].lstrip("\n")
+    return match.group(1), nbformat.v4.new_markdown_cell(remaining, metadata=cell.metadata)
+
+
+def apply_zenn_tags(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNode, dict[int, str]]:
+    """タグに従って、`zenn-hide` のセルを除き、折りたたみの開始・終了の印のセルを挿入する。
+    折りたたみの見出しの文言は、印の番号をキーとした辞書で返す。
+    タグ付きのセルがなければ、ノートブックをそのまま返す。
+    """
+    if not any(cell_tags(cell) & ZENN_TAGS for cell in nb.cells):
+        return nb, {}
+
+    summaries: dict[int, str] = {}
+    cells: list[nbformat.NotebookNode] = []
+
+    def marker(kind: str, number: int) -> nbformat.NotebookNode:
+        return nbformat.v4.new_markdown_cell(f"@@ZENN_FOLD_{kind}:{number}@@")
+
+    appendix_number: int | None = None
+    for cell in nb.cells:
+        tags = cell_tags(cell)
+        if TAG_HIDE in tags:
+            continue
+        if TAG_APPENDIX in tags and appendix_number is None:
+            appendix_number = len(summaries)
+            summaries[appendix_number] = APPENDIX_SUMMARY
+            cells.append(marker("OPEN", appendix_number))
+        if TAG_DETAILS in tags:
+            summary, cell = details_summary_and_cell(cell)
+            number = len(summaries)
+            summaries[number] = summary
+            cells.extend([marker("OPEN", number), cell, marker("CLOSE", number)])
+        else:
+            cells.append(cell)
+    if appendix_number is not None:
+        cells.append(marker("CLOSE", appendix_number))
+
+    nb = nbformat.from_dict(nb)
+    nb.cells = cells
+    return nb, summaries
+
+
+def render_folds(body: str, summaries: dict[int, str]) -> str:
+    """折りたたみの印を `:::details` に置き換える。
+    入れ子の場合は、外側のコロンの数を内側より 1 つ多くする。コードブロック内の印は置き換えない。
+    """
+    lines = body.splitlines(keepends=True)
+    markers: dict[int, tuple[str, int]] = {}
+    in_code = False
+    for index, line in enumerate(lines):
+        stripped = line.rstrip("\n")
+        if CODE_FENCE_PATTERN.match(stripped):
+            in_code = not in_code
+            continue
+        match = None if in_code else FOLD_MARKER_PATTERN.match(stripped)
+        if match:
+            markers[index] = (match.group(1), int(match.group(2)))
+    if not markers:
+        return body
+
+    # 各折りたたみの内側にある折りたたみの最大の段数。
+    inner_levels: dict[int, int] = {}
+    stack: list[int] = []
+    for kind, number in markers.values():
+        if kind == "OPEN":
+            inner_levels[number] = 0
+            stack.append(number)
+        else:
+            stack.pop()
+            if stack:
+                inner_levels[stack[-1]] = max(inner_levels[stack[-1]], inner_levels[number] + 1)
+
+    for index, (kind, number) in markers.items():
+        colons = ":" * (3 + inner_levels[number])
+        lines[index] = (
+            f"{colons}details {summaries[number]}\n" if kind == "OPEN" else f"{colons}\n"
+        )
+    return "".join(lines)
+
+
+def find_fold_spans(text: str) -> list[tuple[int, int]]:
+    """最も外側の折りたたみ(`:::details`〜`:::`)の範囲(開始位置, 終了位置)を返す。"""
+    spans = []
+    depth = 0
+    in_code = False
+    offset = 0
+    span_start = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.rstrip("\n")
+        if CODE_FENCE_PATTERN.match(stripped):
+            in_code = not in_code
+        elif not in_code:
+            if FOLD_OPEN_LINE_PATTERN.match(stripped):
+                if depth == 0:
+                    span_start = offset
+                depth += 1
+            elif FOLD_CLOSE_LINE_PATTERN.match(stripped) and depth > 0:
+                depth -= 1
+                if depth == 0:
+                    spans.append((span_start, offset + len(line)))
+        offset += len(line)
+    return spans
+
+
 def convert_to_markdown(nb: nbformat.NotebookNode, slug: str, publish_repo: str) -> str:
-    exporter = MarkdownExporter()
+    nb, summaries = apply_zenn_tags(nb)
+
+    config = Config()
+    config.TagRemovePreprocessor.enabled = True
+    config.TagRemovePreprocessor.remove_input_tags = {TAG_HIDE_INPUT}
+    exporter = MarkdownExporter(config=config)
     body, resources = exporter.from_notebook_node(nb)
 
     image_dir = IMAGES_DIR / slug
@@ -226,7 +371,7 @@ def convert_to_markdown(nb: nbformat.NotebookNode, slug: str, publish_repo: str)
         )
         body = body.replace(output_name, image_url)
 
-    return body
+    return render_folds(body, summaries)
 
 
 def build_frontmatter(title: str) -> str:
@@ -260,7 +405,12 @@ def split_at_headings(text: str, pattern: re.Pattern) -> list[str]:
     """`pattern` に一致する見出し単位で `text` を分割する。
     先頭の見出しより前のテキスト(存在する場合)も 1 つのチャンクとして扱う。
     """
-    matches = list(pattern.finditer(text))
+    fold_spans = find_fold_spans(text)
+    matches = [
+        m
+        for m in pattern.finditer(text)
+        if not any(start <= m.start() < end for start, end in fold_spans)
+    ]
     if not matches:
         return [text]
 
