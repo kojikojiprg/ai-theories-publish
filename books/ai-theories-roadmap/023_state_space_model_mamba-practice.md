@@ -511,8 +511,3 @@ C2 の $L_{\mathrm{test}}$ の正解率は 0.294〜0.363 に収まり、二峰�
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/06_architectures/023_state_space_model_mamba.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/06_architectures/023_state_space_model_mamba.ipynb

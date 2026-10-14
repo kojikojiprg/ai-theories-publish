@@ -958,8 +958,3 @@ $N_{90}^{\mathrm{format}}$ を過大に見積もる向きに働き、$\Delta$ �
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/016_supervised_fine_tuning.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/016_supervised_fine_tuning.ipynb

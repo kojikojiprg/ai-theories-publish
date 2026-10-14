@@ -514,8 +514,3 @@ $3$ seed の範囲で比較すると、**RoPE(0.988)・正弦波方式(0.986)** 
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/01_foundations/003_positional_encoding_rope.ipynb

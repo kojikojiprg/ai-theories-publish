@@ -768,8 +768,3 @@ $\Delta_{\mathrm{gap}}$(3.8 節)を、学習の前(初期化の時点)と後で�
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/020_clip_contrastive_learning.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/020_clip_contrastive_learning.ipynb

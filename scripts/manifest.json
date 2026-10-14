@@ -111,13 +111,11 @@
   },
   "013": {
     "slugs": [
-      "013_quantization_basics-theory",
-      "013_quantization_basics-practice"
+      "013_quantization_basics"
     ],
-    "split": true,
+    "split": false,
     "titles": [
-      "量子化の基礎(Quantization Basics)(理論編)",
-      "量子化の基礎(Quantization Basics)(実装・実験編)"
+      "量子化の基礎(Quantization Basics)"
     ]
   },
   "014": {

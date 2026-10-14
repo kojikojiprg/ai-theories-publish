@@ -454,8 +454,3 @@ Porian et al. (2024) の要因 1(最終層の計算量)の再現については�
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/02_pretraining/009_scaling_laws.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/02_pretraining/009_scaling_laws.ipynb

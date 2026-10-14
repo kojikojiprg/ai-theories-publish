@@ -318,9 +318,3 @@ ViT の方が大きいか** を検証する。帰納バイアスの弱いモデ�
 ### 3.7 アルゴリズム
 
 ViT の順伝播は、畳み込みでパッチを切り出して平坦化し、[CLS] トークンを先頭に連結して位置埋め込み(学習可能・2 次元正弦波・なしのいずれか)を加え、正規化前置の Transformer ブロックを $L$ 層重ねたのち、[CLS] の位置の出力を最終の正規化にかけ、分類ヘッドで $K$ クラスの logits にする。学習は、交差エントロピー損失、AdamW、warmup + cosine、gradient clipping、FP16 の autocast と動的損失スケーリング(CUDA のみ)で行う。擬似コードは付録 A.1。
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/05_vision_language/019_vision_transformer.ipynb

@@ -349,9 +349,3 @@ Recall@k の期待値は $1 - \binom{M - g}{k} / \binom{M}{k}$ である(query �
 ### 3.10 データの流れとアルゴリズム
 
 学習は、学習用の記事から重ならない 2 つの区間(query 側と passage 側)を切り出して組にし、同じ重みの encoder で埋め込み、in-batch negatives の InfoNCE(3.4 節)または Matryoshka Representation Learning の損失(3.7 節)を最小化する。評価は、評価用の記事の passage の索引と、その一部を query として全件の内積で順位をつけ、Recall@10(主指標)・MRR・nDCG@10(3.9 節)を求める。擬似コードは付録 F.1。
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/024_text_embedding_and_retriever.ipynb

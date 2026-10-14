@@ -44,12 +44,12 @@ CHAPTER_SLUG_MAX_LENGTH = 50
 # Zennの章のタイトルの文字数の上限(「Titleには最大70文字まで使用できます」)。
 CHAPTER_TITLE_MAX_LENGTH = 70
 CHAR_HARD_LIMIT = 50_000
-# 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文・元ノートブックへの
-# リンクなど分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
+# 分割要否の判定・パッキングに使う閾値。前後のナビゲーション文など
+# 分割後に追加されるテキストの分だけ、CHAR_HARD_LIMIT に安全マージンを持たせている。
 CHAR_THRESHOLD = 45_000
 # `##`/`###`見出し単位でのパッキング(split_body_into_chunks)に使う閾値。
-# パッキング後に build_part_intro() のナビゲーション文と build_source_link() の
-# リンクが追加されるため、CHAR_THRESHOLD よりさらに余裕を持たせておく必要がある
+# パッキング後に build_part_intro() のナビゲーション文が追加されるため、
+# CHAR_THRESHOLD よりさらに余裕を持たせておく必要がある
 # (そうしないと、パッキング結果ぎりぎりの章にナビ文を足しただけで CHAR_THRESHOLD を
 # 超えてしまうことがある)。
 PART_OVERHEAD_MARGIN = 800
@@ -493,11 +493,6 @@ def build_notebook_url(notebook_path: Path) -> str:
     return build_notebook_github_url(notebook_path)
 
 
-def build_source_link(notebook_path: Path) -> str:
-    url = build_notebook_url(notebook_path)
-    return f"\n\n## 元ノートブック(実装の全文はこちら)\n\n{url}\n"
-
-
 def split_body_at_implementation_plan(body: str) -> tuple[str, str]:
     match = IMPLEMENTATION_PLAN_HEADING_PATTERN.search(body)
     if not match:
@@ -634,6 +629,7 @@ def build_part_intro(part: dict, prev_part: dict | None, next_part: dict | None)
 
 
 def write_chapter(chapter_path: Path, title: str, content_body: str) -> int:
+    content_body = content_body.rstrip() + "\n"
     chapter_path.write_text(build_frontmatter(title) + content_body, encoding="utf-8")
     return len(content_body)
 
@@ -690,9 +686,8 @@ def convert_notebook(number: str, publish_repo: str, expect_same_structure: bool
     body, link_counts = rewrite_notebook_links(body, manifest)
     print_link_counts(number, link_counts)
     body = remove_not_yet_created_markers(body)
-    source_link = build_source_link(notebook_path)
 
-    if len(body + source_link) <= CHAR_THRESHOLD:
+    if len(body) <= CHAR_THRESHOLD:
         if expect_same_structure:
             check_structure_unchanged(number, manifest, [slug])
         manifest[number] = {
@@ -702,7 +697,7 @@ def convert_notebook(number: str, publish_repo: str, expect_same_structure: bool
         }
 
         chapter_path = BOOK_DIR / f"{slug}.md"
-        length = write_chapter(chapter_path, title, body + source_link)
+        length = write_chapter(chapter_path, title, body)
         print(f"{chapter_path.relative_to(REPO_ROOT)} を生成しました({length}文字)。")
         print(
             "本(book)の下書きの章として生成しました。"
@@ -737,7 +732,7 @@ def convert_notebook(number: str, publish_repo: str, expect_same_structure: bool
     for i, part in enumerate(parts):
         prev_part = parts[i - 1] if i > 0 else None
         next_part = parts[i + 1] if i + 1 < len(parts) else None
-        content = build_part_intro(part, prev_part, next_part) + part["body"] + source_link
+        content = build_part_intro(part, prev_part, next_part) + part["body"]
         check_char_limit(part["title"], content)
 
         chapter_path = BOOK_DIR / f"{part['slug']}.md"

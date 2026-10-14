@@ -1198,8 +1198,3 @@ Flash Attention は、タイリングと online softmax によって確率行列
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/011_mixed_precision_training.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/011_mixed_precision_training.ipynb

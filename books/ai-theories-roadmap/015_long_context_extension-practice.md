@@ -51,7 +51,7 @@ title: "長文脈拡張(実装・実験編)"
   `src/training/optimizer.py`の`AdamW`、学習率スケジュールは`src/training/schedule.py`の warmup + cosine を使う
   ([007](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/007_training_stabilization)・[012](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/012_low_rank_adaptation) と同じ部品)。
 - 判定の標準偏差は、記事を単位とする対応付きのクラスタブートストラップ(`paired_cluster_bootstrap_ratio_of_sums()`)で
-  求める。評価窓を単位とする`paired_bootstrap_ratio_of_sums()`([013](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/013_quantization_basics-theory) で追加)は、旧基準の
+  求める。評価窓を単位とする`paired_bootstrap_ratio_of_sums()`([013](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/013_quantization_basics) で追加)は、旧基準の
   診断量にのみ使う(6.1 節)。
 
 **Attention の実装**: 001 の標準の Attention(`MultiHeadAttention`)をそのまま使う。**KV キャッシュは使わない**
@@ -629,10 +629,5 @@ $\sigma_D = 0.0018$ で、$\Delta_D - 2\sigma_D \approx +0.0371 > 0$ である�
 - 静的なスケーリングのコストは微調整後の手法間の差の約 5.7 倍で、dynamic scaling の動機を定量的に示している(7.6 節)。
 
 付録(実行の手順・パイロット・設計の改訂の記録など)は、GitHub のノートブックを参照。
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/015_long_context_extension.ipynb
-
-
-## 元ノートブック(実装の全文はこちら)
 
 https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/015_long_context_extension.ipynb

@@ -416,9 +416,3 @@ $$
 ### 3.10 データの流れとアルゴリズム(擬似コード)
 
 実験の手順(準備、実験 A〜C の索引の掃引、実験 D・E の学習と評価)の擬似コードは付録 H。
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/07_retrieval/025_ann_search_and_reranking.ipynb

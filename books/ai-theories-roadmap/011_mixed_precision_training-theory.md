@@ -302,9 +302,3 @@ flowchart TB
     K -->|"キャスト"| B
     H -->|"なし、growth_interval 到達"| L["S を growth"]
 ```
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/011_mixed_precision_training.ipynb

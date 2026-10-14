@@ -337,9 +337,3 @@ $d(\alpha - \beta_{\mathrm{bon}} d)$ の形で上がってから下がり、報�
 ### 3.7 アルゴリズム
 
 RLHF の全体は、SFT 済みの参照方策 $\pi_{\mathrm{ref}}$ を作り、ラベルの尺度 $\kappa$ を決め、シード $s$・データ量 $N$ ごとに確率的なラベルで報酬モデルを学習し、評価用のプロンプトごとに参照方策から応答のプールを抽選して、$n$ ごとに best-of-n の真の報酬の期待値を求める手順である。PPO は、参照方策に LoRA を加えた方策と共有の本体の価値ヘッドを、トークン単位の KL ペナルティと報酬モデルの報酬から GAE とクリップ付き目的関数で更新する。擬似コードは付録 A.1。
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/04_alignment/017_reward_model_and_rlhf.ipynb

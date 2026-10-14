@@ -301,9 +301,3 @@ flowchart LR
     DYN["dynamic scaling"] -->|"s = max(1, l / L)<br/>l ≤ L では変換なし"| YARN
     ABF["ABF(学習時)"] -->|"底を大きくして継続事前学習"| dims
 ```
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/03_efficient_training/015_long_context_extension.ipynb

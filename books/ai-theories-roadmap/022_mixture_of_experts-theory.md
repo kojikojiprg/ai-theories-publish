@@ -354,9 +354,3 @@ flowchart TD
 ```
 
 順伝播(ルーティング・振り分け・集約)と補助損失、学習の損失の手順を擬似コードで書いたものは付録 F.1。
-
-
-
-## 元ノートブック(実装の全文はこちら)
-
-https://github.com/kojikojiprg/ai-theories/blob/main/theories/06_architectures/022_mixture_of_experts.ipynb
