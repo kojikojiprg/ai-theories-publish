@@ -23,6 +23,7 @@ ai-theories-publish/
 │       └── <slug>.md         # 各トピックの章(ノートブックからの変換結果)
 ├── scripts/
 │   ├── nb_to_zenn.py         # ノートブックを本の章に変換するスクリプト
+│   ├── png_check.py          # PNG に透明な画素があるかを調べる(標準ライブラリのみ)
 │   ├── generate_book.py      # theories/README.md・manifest.json から「はじめに」章・config.yamlのchaptersを生成するスクリプト
 │   └── manifest.json         # ノートブック番号 → 生成済み章slug・タイトルの対応表(生成物)
 └── .github/workflows/
@@ -62,7 +63,13 @@ Workflowによって生成される章は下書きです。公開前に、以下
 
 `books/ai-theories-roadmap/0_introduction.md` と `config.yaml` の `chapters` 配列は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(章化状況)から `scripts/generate_book.py` によって**自動生成**されます。
 
-- `0_introduction.md` には、本の目的・コードのライセンス・`ai-theories` 本体へのリンクに加え、`theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧表を掲載します。`manifest.json` に章が存在するトピックはトピック名が該当章へのリンクになり、まだ章になっていないトピックは「🚧 準備中」と表示されます(行自体は残ります)。
+- `0_introduction.md` には、本の目的・コードのライセンス・`ai-theories` 本体へのリンクに加え、`theories/README.md` の「全体像」(Mermaid の図)・「推奨学習順序」(表)・「各トピックの詳細」(`<details>` の折りたたみ)を転載します。
+  - Mermaid のコードブロックはそのまま通し、先頭に neutral テーマの指示だけを足します。Zenn の制限(1 ブロック 2,000 文字以内、`&` の数 10 以下。出典は [Zenn の Markdown 記法の「制限事項」](https://zenn.dev/zenn/articles/markdown-guide))を超えると検証エラーになります。
+  - `<details><summary>X</summary> … </details>` は Zenn の折りたたみ(`:::details X … :::`)に変換します。入れ子・対応の崩れ・中の `:::` があると検証エラーになります。
+  - 表のノートブックの列のリンクは Zenn の章 URL に解決します。章になっていない行は「🚧 準備中」と表示します。
+  - 本文が分割の閾値(45,000 文字)を超える場合は、「各トピックの詳細」を載せず、GitHub の `theories/README.md` の該当の節へのリンクに置き換えます。「はじめに」は分割しません。
+- `nb_to_zenn.py` は、変換後の画像に透明な画素を含む PNG があると検証エラーにします。変換の側では塗らないので、元のノートブックの図の背景を不透明にして直してください。
+- 試験は `uv run --with nbconvert python3 -m unittest discover -s scripts -p 'test_*.py'` で実行できます。
 - `config.yaml` の `chapters` 配列は、先頭が常に `0_introduction`、以降は `manifest.json` に存在する章slugをノートブック番号の昇順(前編・後編分割時は前編→後編の順)で並べたものに再構築されます。`title` ・`summary` ・`topics` ・`price` ・`published` は既存の値を保持します(`config.yaml` が存在しない場合のみ初期値を設定し、`published` の初期値は `false` です)。
 - 各トピックの章本文自体は `scripts/generate_book.py` ではなく `scripts/nb_to_zenn.py` が生成します。`scripts/generate_book.py` は `0_introduction.md` と `config.yaml` の chapters 以外のファイルには一切触れません。
 

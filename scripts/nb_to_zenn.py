@@ -7,12 +7,16 @@ import argparse
 import json
 import os
 import re
+import struct
 import sys
+import zlib
 from pathlib import Path
 
 import nbformat
 from nbconvert import MarkdownExporter
 from traitlets.config import Config
+
+import png_check
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 AI_THEORIES_THEORIES_DIR = REPO_ROOT / "ai-theories" / "theories"
@@ -461,6 +465,7 @@ def find_fold_spans(text: str) -> list[tuple[int, int]]:
 
 
 MERMAID_THEME_DIRECTIVE = "%%{init: {'theme': 'neutral'}}%%"
+MERMAID_BLOCK_PATTERN = re.compile(r"^```mermaid[ \t]*\n(.*?)^```", re.MULTILINE | re.DOTALL)
 MERMAID_OPEN_PATTERN = re.compile(r"^```mermaid[ \t]*\n", re.MULTILINE)
 
 
@@ -481,6 +486,26 @@ def add_mermaid_theme(body: str) -> str:
     return MERMAID_OPEN_PATTERN.sub(replace, body)
 
 
+def check_png_is_opaque(name: str, data: bytes, slug: str) -> None:
+    """透明な画素を含む PNG は検証エラーにする。暗い背景で図が読めなくなるため。
+    変換の側で白に塗って直すことはしない(元のノートブックの図の背景を不透明にして直す)。
+    """
+    if not name.lower().endswith(".png"):
+        return
+    try:
+        transparent = png_check.has_transparent_pixels(data)
+    except (ValueError, zlib.error, struct.error, IndexError) as error:
+        print(f"エラー: 画像 {slug}/{name} の PNG を検査できませんでした({error})。", file=sys.stderr)
+        sys.exit(1)
+    if transparent:
+        print(
+            f"エラー: 画像 {slug}/{name} に透明な画素があります。ノートブックの図の背景を"
+            "不透明な白にして保存し直してください(変換では塗りません)。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def convert_to_markdown(
     nb: nbformat.NotebookNode, slug: str, publish_repo: str, notebook_path: Path | None = None
 ) -> str:
@@ -496,6 +521,7 @@ def convert_to_markdown(
     image_dir.mkdir(parents=True, exist_ok=True)
 
     for output_name, output_data in resources.get("outputs", {}).items():
+        check_png_is_opaque(Path(output_name).name, output_data, slug)
         (image_dir / Path(output_name).name).write_bytes(output_data)
         image_url = (
             f"https://raw.githubusercontent.com/{publish_repo}/main/images/{slug}/"

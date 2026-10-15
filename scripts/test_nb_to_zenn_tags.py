@@ -17,10 +17,10 @@ from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook, new_outp
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nb_to_zenn  # noqa: E402
 
+# 不透明な 1 画素の PNG(RGBA)。
 PNG_1PIXEL = base64.b64encode(
     bytes.fromhex(
-        "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
-        "0000000d49444154789c6360000002000001e221bc330000000049454e44ae426082"
+        "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000b49444154789c63f80f040009fb03fdfb5e6b2b0000000049454e44ae426082"
     )
 ).decode()
 

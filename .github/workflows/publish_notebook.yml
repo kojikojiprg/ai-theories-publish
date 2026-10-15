@@ -35,7 +35,7 @@ jobs:
 
       - name: 本(book)のはじめに・章一覧を再生成
         run: |
-          python3 scripts/generate_book.py
+          uv run --with nbconvert python3 scripts/generate_book.py
 
       - name: 差分をコミット・push
         run: |

@@ -15,6 +15,8 @@ import re
 import sys
 from pathlib import Path
 
+import nb_to_zenn
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 THEORIES_README_PATH = REPO_ROOT / "ai-theories" / "theories" / "README.md"
 MANIFEST_PATH = REPO_ROOT / "scripts" / "manifest.json"
@@ -38,6 +40,22 @@ DEFAULT_BOOK_SUMMARY = (
 DEFAULT_BOOK_TOPICS = ["llm", "vlm", "pytorch", "deeplearning"]
 DEFAULT_PRICE = "0"
 DEFAULT_PUBLISHED = "false"
+
+# 「はじめに」章の本文の文字数の閾値。超える場合は「各トピックの詳細」を載せない(章は分割しない)。
+CHAR_THRESHOLD = nb_to_zenn.CHAR_THRESHOLD
+
+# Zenn の Mermaid の制限(https://zenn.dev/zenn/articles/markdown-guide の「制限事項」)。
+MERMAID_MAX_CHARS = 2000  # 1 ブロックあたりの文字数
+MERMAID_MAX_CHAINS = 10  # 1 ブロックあたりの & の数(Chain 数)
+
+OVERVIEW_HEADING = "## 全体像"
+ORDER_HEADING = "## 推奨学習順序"
+DETAILS_HEADING = "### 各トピックの詳細"
+AFTER_DETAILS_HEADING = "### 実装済みの共通モジュール"
+# GitHub 上の theories/README.md の「各トピックの詳細」の節へのアンカー。
+DETAILS_GITHUB_URL = (
+    f"{AI_THEORIES_GITHUB_URL}/blob/main/theories/README.md#各トピックの詳細--topic-details"
+)
 
 TABLE_HEADER_PREFIX = "| #"
 NUMBER_PATTERN = re.compile(r"^\d{3}$")
@@ -83,7 +101,8 @@ def parse_topics(readme_text: str) -> list[dict]:
         if len(cells) < 6:
             continue
 
-        number, topic, category, prerequisites, contents, notebook = cells[:6]
+        number, topic, category, prerequisites, contents = cells[:5]
+        notebook = cells[-1]
         if not NUMBER_PATTERN.match(number):
             continue
 
@@ -109,15 +128,6 @@ def parse_topics(readme_text: str) -> list[dict]:
     return topics
 
 
-def resolve_chapter_slug(number: str, manifest: dict) -> str | None:
-    entry = manifest.get(number)
-    if entry is None:
-        return None
-    if entry["split"]:
-        return next(s for s in entry["slugs"] if s.endswith("-theory"))
-    return entry["slugs"][0]
-
-
 def build_chapter_slugs(manifest: dict) -> list[str]:
     slugs = []
     for number in sorted(manifest.keys(), key=int):
@@ -125,58 +135,177 @@ def build_chapter_slugs(manifest: dict) -> list[str]:
     return slugs
 
 
-def build_topic_table_row(topic: dict, manifest: dict) -> str:
-    slug = resolve_chapter_slug(topic["number"], manifest)
-    if slug is not None:
-        topic_cell = f"[{topic['topic']}]({build_zenn_book_chapter_url(slug)})"
-    else:
-        topic_cell = f"{topic['topic']}(🚧 準備中)"
+def fail(message: str) -> None:
+    print(f"エラー: {message}", file=sys.stderr)
+    sys.exit(1)
 
-    return (
-        f"| {topic['number']} | {topic_cell} | {topic['category']} | "
-        f"{topic['prerequisites']} | {topic['contents']} |"
+
+def extract_section(readme_text: str, start_heading: str, end_heading: str) -> str:
+    """start_heading で始まる行から、end_heading で始まる行の直前までを返す(前後の空行は除く)。"""
+    lines = readme_text.splitlines()
+    start = next((i for i, line in enumerate(lines) if line.startswith(start_heading)), None)
+    if start is None:
+        fail(f"theories/README.md に「{start_heading}」の節がありません。")
+    end = next(
+        (i for i in range(start + 1, len(lines)) if lines[i].startswith(end_heading)), None
     )
+    if end is None:
+        fail(f"theories/README.md に「{end_heading}」の節がありません。")
+    return "\n".join(lines[start:end]).strip("\n")
 
 
-def build_topics_table(topics: list[dict], manifest: dict) -> str:
-    lines = [
-        "| # | トピック / Topic | カテゴリ / Category | 前提知識 / Prerequisites | 扱う内容 / Contents |",
-        "| --- | --- | --- | --- | --- |",
-    ]
-    lines.extend(build_topic_table_row(topic, manifest) for topic in topics)
-    return "\n".join(lines)
+def validate_mermaid_blocks(text: str) -> int:
+    """Mermaid のコードブロックが Zenn の制限内かを確かめる。超えていれば検証エラーにする。"""
+    count = 0
+    for match in nb_to_zenn.MERMAID_BLOCK_PATTERN.finditer(text):
+        count += 1
+        block = match.group(1)
+        if len(block) > MERMAID_MAX_CHARS:
+            fail(
+                f"{count} 個目の Mermaid のブロックが {len(block)} 文字で、Zenn の上限"
+                f"({MERMAID_MAX_CHARS} 文字)を超えています。"
+            )
+        if block.count("&") > MERMAID_MAX_CHAINS:
+            fail(
+                f"{count} 個目の Mermaid のブロックの & の数が {block.count('&')} で、Zenn の上限"
+                f"({MERMAID_MAX_CHAINS})を超えています。"
+            )
+    return count
 
 
-def build_introduction_body(topics: list[dict], manifest: dict) -> str:
-    topics_table = build_topics_table(topics, manifest)
+DETAILS_OPEN = "<details>"
+DETAILS_CLOSE = "</details>"
+SUMMARY_PATTERN = re.compile(r"^<summary>(.+)</summary>$")
 
-    return f"""---
+
+def convert_details(text: str) -> str:
+    """<details><summary>X</summary> … </details> を Zenn の折りたたみ(:::details X … :::)に変換する。
+    入れ子・対応の崩れ・本文や見出しの ::: との衝突は検証エラーにする。コードブロック内は対象外。
+    """
+    out: list[str] = []
+    in_details = False
+    in_code = False
+    expect_summary = False
+    for number, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if nb_to_zenn.CODE_FENCE_PATTERN.match(line):
+            in_code = not in_code
+        if not in_code and stripped == DETAILS_OPEN:
+            if in_details:
+                fail(f"<details> が入れ子になっています(「各トピックの詳細」の {number} 行目)。")
+            in_details = True
+            expect_summary = True
+            continue
+        if expect_summary:
+            match = SUMMARY_PATTERN.match(stripped)
+            if not match:
+                fail(f"<details> の次の行が <summary>…</summary> ではありません({number} 行目)。")
+            summary = match.group(1).strip()
+            if ":::" in summary:
+                fail(f"<summary> に ::: が含まれています({number} 行目)。")
+            out.append(f":::details {summary}")
+            expect_summary = False
+            continue
+        if not in_code and stripped == DETAILS_CLOSE:
+            if not in_details:
+                fail(f"対応する <details> のない </details> があります({number} 行目)。")
+            in_details = False
+            out.append(":::")
+            continue
+        if in_details and ":::" in line:
+            fail(f"<details> の中に ::: があり、Zenn の折りたたみと衝突します({number} 行目)。")
+        if not in_code and not in_details and (DETAILS_OPEN in line or DETAILS_CLOSE in line):
+            fail(f"<details> の書き方が想定外です({number} 行目)。")
+        out.append(line)
+    if in_details or expect_summary:
+        fail("閉じられていない <details> があります。")
+    return "\n".join(out)
+
+
+def convert_table(table_text: str, manifest: dict) -> str:
+    """学習順序の節のノートブックへのリンクを Zenn の章 URL に解決する(章が未変換なら GitHub の URL)。
+    章になっていない行は、ノートブックの列を「🚧 準備中」にする。
+    """
+    lines = []
+    for line in table_text.splitlines():
+        if line.startswith("|") and not is_separator_row(line) and "未作成" in line.split("|")[-2]:
+            cells = line.rstrip().rstrip("|").split("|")
+            cells[-1] = " 🚧 準備中 "
+            line = "|".join(cells) + "|"
+        lines.append(line)
+    body, counts = nb_to_zenn.rewrite_notebook_links("\n".join(lines), manifest)
+    print(
+        f"学習順序表のリンク: Zennの章のURL {counts['zenn']}件、"
+        f"GitHubのURL {counts['github']}件、変更なし {counts['unchanged']}件。"
+    )
+    return body
+
+
+INTRO_HEAD = f"""---
 title: "はじめに"
 ---
 
 ## この本について
 
-本書は [ai-theories]({AI_THEORIES_GITHUB_URL}) で学習している LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論学習ロードマップです。古典的な機械学習理論(SVM、決定木など)は対象外とし、**LLM / VLMに関する理論に限定**しています。
+本書は [ai-theories]({AI_THEORIES_GITHUB_URL}) で学習している LLM(大規模言語モデル)・VLM(視覚言語モデル)の理論学習ロードマップです。古典的な機械学習理論(SVM、決定木など)は対象外とし、 **LLM / VLM に関する理論に限定** しています。
 
-- 理論的に本質的な部分は、可能な限り**PyTorchによるスクラッチ実装**で確認します(Attention計算、正規化、LoRAの低ランク分解など)。
-- 学習・実験は**Google Colab無料枠(T4 GPUなど)で完結する規模**のモデル・データセットで構成しています。
+- 理論的に本質的な部分は、可能な限り **PyTorch によるスクラッチ実装** で確認します(Attention 計算、正規化、LoRA の低ランク分解など)。
+- 学習・実験は **Google Colab 無料枠(T4 GPU など)で完結する規模** のモデル・データセットで構成しています。
 
 ## 本書の構成
 
-以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。下表は `theories/README.md` の推奨学習順序表と同じ構成(トピック名・カテゴリ・前提知識・扱う内容)の一覧です。トピック名がリンクになっているものは既に章として収録済みで、リンクをクリックすると該当の章に移動します。**まだ章になっていないトピックは「🚧 準備中」と表示**しています。
+以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。この章には、トピックの全体像を示す図、推奨学習順序の表、各トピックの詳細を、 `theories/README.md` から転載しています。表のノートブックの列のリンクをクリックすると、該当の章に移動します。 **まだ章になっていないトピックは「🚧 準備中」と表示** します。
+"""
 
-## 推奨学習順序 / Recommended Order
-
-{topics_table}
-
-## コードのライセンス
+INTRO_TAIL = f"""## コードのライセンス
 
 本書内で参照するコード・ノートブックのライセンスは、[ai-theories]({AI_THEORIES_GITHUB_URL}) 本体の LICENSE に準拠します。
 
 ## リンク
 
-- [ai-theories(GitHubリポジトリ)]({AI_THEORIES_GITHUB_URL})
+- [ai-theories(GitHub リポジトリ)]({AI_THEORIES_GITHUB_URL})
 """
+
+DETAILS_LINK_TEXT = (
+    "各トピックの詳細(理論の範囲・実験の設計・本番の結果)は、分量が多く Zenn の章の文字数の上限に"
+    f"収まらないため、GitHub の [theories/README.md の「各トピックの詳細」の節]({DETAILS_GITHUB_URL}) に"
+    "掲載しています。"
+)
+
+
+def build_introduction_body(readme_text: str, manifest: dict, include_details: bool) -> str:
+    overview = extract_section(readme_text, OVERVIEW_HEADING, ORDER_HEADING)
+    order = extract_section(readme_text, ORDER_HEADING, DETAILS_HEADING)
+    details = extract_section(readme_text, DETAILS_HEADING, AFTER_DETAILS_HEADING)
+
+    order = convert_table(order, manifest)
+    if include_details:
+        details_part = convert_details(details)
+    else:
+        details_part = f"{DETAILS_HEADING} / Topic Details\n\n{DETAILS_LINK_TEXT}"
+
+    parts = [INTRO_HEAD, overview, order, details_part, INTRO_TAIL]
+    body = "\n\n".join(part.strip("\n") for part in parts) + "\n"
+    return nb_to_zenn.add_mermaid_theme(body)
+
+
+def generate_introduction(readme_text: str, manifest: dict) -> tuple[str, bool]:
+    """「はじめに」章の全文と、「各トピックの詳細」を載せたかを返す。"""
+    full = build_introduction_body(readme_text, manifest, include_details=True)
+    content_length = len(full.split("---\n", 2)[2])
+    if content_length <= CHAR_THRESHOLD:
+        body, included = full, True
+    else:
+        print(
+            f"「はじめに」の本文が {content_length} 文字で閾値({CHAR_THRESHOLD} 文字)を超えるため、"
+            "「各トピックの詳細」は載せず、GitHub へのリンクにします。"
+        )
+        body, included = build_introduction_body(readme_text, manifest, include_details=False), False
+    length = len(body.split("---\n", 2)[2])
+    if length > CHAR_THRESHOLD:
+        fail(f"「はじめに」の本文が詳細を除いても {length} 文字で、閾値({CHAR_THRESHOLD} 文字)を超えます。")
+    validate_mermaid_blocks(body)
+    return body, included
 
 
 def parse_existing_config(path: Path) -> dict[str, str]:
@@ -229,8 +358,11 @@ def generate_book() -> tuple[list[dict], list[str], int]:
     CONFIG_PATH.write_text(
         build_config_yaml(existing_config, chapter_slugs), encoding="utf-8"
     )
-    INTRODUCTION_PATH.write_text(
-        build_introduction_body(topics, manifest), encoding="utf-8"
+    introduction, included = generate_introduction(readme_text, manifest)
+    INTRODUCTION_PATH.write_text(introduction, encoding="utf-8")
+    print(
+        f"「はじめに」の本文: {len(introduction.split('---' + chr(10), 2)[2])} 文字"
+        f"(各トピックの詳細: {'載せた' if included else '載せない(GitHub へのリンク)'})"
     )
 
     tbd_count = sum(1 for topic in topics if topic["number"] not in manifest)
