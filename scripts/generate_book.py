@@ -320,22 +320,41 @@ def convert_details(text: str) -> str:
 
 
 def convert_table(table_text: str, manifest: dict) -> str:
-    """学習順序の節のノートブックへのリンクを Zenn の章 URL に解決する(章が未変換なら GitHub の URL)。
-    章になっていない行は、ノートブックの列を「🚧 準備中」にする。
+    """学習順序の表の、ノートブックの列のリンクを「#」の列に移し、ノートブックの列は除く。
+    リンク先は Zenn の章 URL に解決する(章が未変換なら GitHub の URL)。
+    章になっていない行は、「#」の列に「🚧 準備中」を添える。
     """
-    lines = []
+    out = []
+    counts_total = {"zenn": 0, "github": 0, "unchanged": 0}
     for line in table_text.splitlines():
-        if line.startswith("|") and not is_separator_row(line) and "未作成" in line.split("|")[-2]:
-            cells = line.rstrip().rstrip("|").split("|")
-            cells[-1] = " 🚧 準備中 "
-            line = "|".join(cells) + "|"
-        lines.append(line)
-    body, counts = nb_to_zenn.rewrite_notebook_links("\n".join(lines), manifest)
+        if not line.startswith("|"):
+            out.append(line)
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if is_separator_row(line):
+            out.append("|" + " --- |" * (len(cells) - 1))
+            continue
+        if cells[0].startswith("#"):
+            out.append("| " + " | ".join(cells[:-1]) + " |")
+            continue
+        if not NUMBER_PATTERN.match(cells[0]):
+            out.append(line)
+            continue
+        number, notebook = cells[0], cells[-1]
+        if "未作成" in notebook:
+            number_cell = f"{number} 🚧 準備中"
+        else:
+            resolved, counts = nb_to_zenn.rewrite_notebook_links(notebook, manifest)
+            for key, value in counts.items():
+                counts_total[key] += value
+            match = re.search(r"\]\(([^)]+)\)", resolved)
+            number_cell = f"[{number}]({match.group(1)})" if match else number
+        out.append("| " + " | ".join([number_cell] + cells[1:-1]) + " |")
     print(
-        f"学習順序表のリンク: Zennの章のURL {counts['zenn']}件、"
-        f"GitHubのURL {counts['github']}件、変更なし {counts['unchanged']}件。"
+        f"学習順序表のリンク: Zennの章のURL {counts_total['zenn']}件、"
+        f"GitHubのURL {counts_total['github']}件、変更なし {counts_total['unchanged']}件。"
     )
-    return body
+    return "\n".join(out)
 
 
 INTRO_HEAD = f"""---
@@ -351,7 +370,7 @@ title: "はじめに"
 
 ## 本書の構成
 
-以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。この章には、トピックの全体像を示す図、推奨学習順序の表、各トピックの詳細を、 `theories/README.md` から転載しています。表のノートブックの列のリンクをクリックすると、該当の章に移動します。 **まだ章になっていないトピックは「🚧 準備中」と表示** します。
+以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。この章には、トピックの全体像を示す図、推奨学習順序の表、各トピックの詳細を、 `theories/README.md` から転載しています。表の「#」の列の番号をクリックすると、該当の章に移動します。 **まだ章になっていないトピックは「🚧 準備中」と表示** します。
 """
 
 INTRO_TAIL = f"""## コードのライセンス

@@ -124,6 +124,30 @@ class DetailsTest(unittest.TestCase):
         self.assertEqual(generate_book.convert_details(text), text)
 
 
+class TableTest(unittest.TestCase):
+    TABLE = (
+        "| # | トピック | 何を学ぶか | ノートブック |\n| --- | --- | --- | --- |\n"
+        "| 001 | A | a | [001_x.ipynb](./01/001_x.ipynb) |\n| 002 | B | b | 未作成 / TBD |\n\n> 注"
+    )
+
+    def test_link_moves_to_number_column_and_notebook_column_is_dropped(self):
+        original = nb_to_zenn.find_notebook_by_number
+        nb_to_zenn.find_notebook_by_number = lambda n: Path("/x/01_foundations/001_x.ipynb")
+        try:
+            result = generate_book.convert_table(self.TABLE, {"001": {"slugs": ["001_x"], "split": False}})
+        finally:
+            nb_to_zenn.find_notebook_by_number = original
+        lines = result.splitlines()
+        self.assertEqual(lines[0], "| # | トピック | 何を学ぶか |")
+        self.assertEqual(lines[1], "| --- | --- | --- |")
+        self.assertEqual(
+            lines[2],
+            "| [001](https://zenn.dev/kojikojiprg/books/ai-theories-roadmap/viewer/001_x) | A | a |",
+        )
+        self.assertEqual(lines[3], "| 002 🚧 準備中 | B | b |")
+        self.assertEqual(lines[-1], "> 注")
+
+
 class MermaidTest(RenderPatch):
     def block(self, body: str) -> str:
         return f"```mermaid\n{body}\n```\n"
