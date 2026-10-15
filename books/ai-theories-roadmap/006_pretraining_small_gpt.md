@@ -60,6 +60,7 @@ $$
 `GPTLanguageModel`(`src/models/gpt.py`)は、この`DecoderBlock(use_cross_attention=False)`を $L$ 層積み、トークン埋め込み・最終正規化層・出力層(語彙への射影)を組み合わせた構成である(図 1)。**正規化前置(Pre-Layer Normalization、`norm_first=True`)** を採用する(002 の知見の通り、深い層でも学習が安定するため)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     TOK["トークン ID の系列<br/>(B, S)"] --> EMB["トークン埋め込み<br/>Token Embedding<br/>(V, d_model)"]
     EMB --> B1["DecoderBlock 1<br/>(use_cross_attention=False)<br/>因果マスク付き自己注意 + 順伝播ネットワーク"]
@@ -76,6 +77,7 @@ flowchart TB
 **図 1: decoder-only Transformer(`GPTLanguageModel`)の全体構成。** 破線はトークン埋め込み行列と出力層`lm_head`の重み共有(3.3 節)を表す。RoPE・RMSNorm・SwiGLU の配置は 3.4 節で述べる。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph INPUT["入力系列 x = (x_1, x_2, x_3, x_4)"]
         X1["x_1"] --- X2["x_2"] --- X3["x_3"] --- X4["x_4"]
@@ -137,6 +139,7 @@ $$
 **bits-per-byte を言語間で直接比較しない**: bits-per-byte はトークナイザ条件をまたいだ比較を可能にするが、**言語をまたいだ絶対値の比較には使えない**。日本語は 1 文字が平均して英語よりずっと多くの情報(エントロピー)を持ち、同じ文字数のテキストを表すのに必要なバイト数も約 3 倍になる(005 で述べた通り)。そのため、「日本語の bits-per-byte が英語より高い」という結果が出ても、それは日本語の方がモデルにとって「難しい」ことを意味するとは限らず、言語そのものの情報量の違いを反映しているだけの可能性がある。本トピックで日英を比較する際は、**各言語内での相対改善率**(例えば「$V{=}1024$ から $V{=}8192$ への改善率」)のみを比較し、絶対値そのものを日英間で比較しない(実験 F)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     LOSS["交差エントロピー損失(nats)<br/>各トークン位置の -log p(x_t | x_&lt;t) の平均"]
     LOSS -->|"exp()"| PPL["perplexity<br/>トークンあたりの指標<br/>⚠ トークナイザ間で比較不可"]

@@ -135,6 +135,7 @@ query が来たときには query を 1 回符号化して全 passage との内�
 検索の類似度を計算する構造は、query と passage をどの段階で結合するかで 2 つに分かれる。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph D["dual encoder(本トピック、DPR・Contriever)"]
         direction LR
@@ -245,6 +246,7 @@ uniformity と同様に、偏りの度合いを測るが、uniformity は距離�
 対照学習の正例の組をどう作るかが、手法の違いの中心である。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     A["正例の組の作り方"] --> B["同じ入力の変換"]
     A --> C["同じ文書の別の区間"]

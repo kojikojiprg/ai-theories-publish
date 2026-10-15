@@ -202,6 +202,7 @@ $d_{\text{ff}}'$ は整数でなければならないため、実装では丸め
 **図 1: 正規化の 4 条件(平均減算 × 分散除算)**
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TD
     subgraph SCALE["分散除算(re-scaling)あり"]
         A["center あり・scale あり<br/>= 層正規化 (Layer Normalization)<br/>実験 C 条件 1"]
@@ -216,6 +217,7 @@ graph TD
 **図 2: 標準の順伝播ネットワークと SwiGLU のデータフロー比較**
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph LR
     subgraph STD["標準の Feed-Forward Network(行列 2 本)"]
         x1["x"] --> W1["W_1"] --> ACT["activation(・)"] --> W2["W_2"] --> y1["出力"]
@@ -232,6 +234,7 @@ graph LR
 **図 3: 手法の系譜**
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TD
     LN["層正規化<br/>Ba et al., 2016 [1]"] -->|"平均減算を省略"| RMS["RMSNorm<br/>Zhang & Sennrich, 2019 [2]"]
     ReLU["ReLU"] -->|"滑らかな近似"| GELU["GELU<br/>Hendrycks & Gimpel, 2016 [3]"]

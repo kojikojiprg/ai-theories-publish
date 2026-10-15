@@ -50,6 +50,7 @@ title: "トークナイザと部分語分割"
 以下は、本ノートブックで扱う手法どうしの位置づけを整理した図である。文字レベルと単語レベルを両端に置き、BPE・WordPiece・Unigram 言語モデルは「どの粒度で分割するか」を決める **アルゴリズム** として横軸上に並ぶ。一方 SentencePiece は同じ横軸上のどこかに位置する 1 手法ではなく、BPE または Unigram 言語モデルを **内部アルゴリズムとして選択できる実装** であり、軸に対して直交する(3.6 節で詳述)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph AXIS["分割の粒度(アルゴリズム)"]
         direction LR
@@ -89,6 +90,7 @@ flowchart LR
 小さな例(`"low", "lower", "lowest", "newer", "newest"`という 5 語からなるコーパス)で、マージによってシンボル列がどう成長するかを示す。初期状態では各語は 1 文字ずつのシンボル列であり、頻度最大の隣接対(この例では`e`と`r`の対、`newer`と`lower`に共通して出現する)から順にマージされていく。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     S0["初期状態(1 文字ずつ)<br/>l o w<br/>l o w e r<br/>l o w e s t<br/>n e w e r<br/>n e w e s t"]
     S0 -->|"マージ 1: (e, r) → er<br/>(lower, newer に出現)"| S1["l o w<br/>l o w er<br/>l o w e s t<br/>n e w er<br/>n e w e s t"]
@@ -161,6 +163,7 @@ $$
 文字列`"unlock"`を例に、語彙に含まれる部分語ごとに 1 本の辺を持つ分割格子を示す。各辺の重みは対数確率 $\log p(v)$(値が大きい = 確率が高い)であり、Viterbi アルゴリズムは頂点 0(先頭)から頂点 6(末尾)までの重みの和が最大になる経路を動的計画法で求める。図中では、`["un", "lock"]`という分割(太字矢印)が`["u", "n", "lock"]`より高い対数確率の和を持ち、最尤分割として選ばれる例を示す。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     P0(("0"))
     P1(("1<br/>u"))

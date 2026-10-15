@@ -111,6 +111,7 @@ GPU のカーネル(1 回の演算の呼び出し)は、入力を HBM から読�
 状態で計算する方法が要る(3.4 節)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph standard["標準の実装(3 つのカーネル)"]
         direction TB
@@ -248,6 +249,7 @@ $T_r^2$ 個の約半分である。各行の最初に処理するブロック($j
 $m_i^{\mathrm{new}}$ は最初のブロックで有限になり、$e^{-\infty - m_i^{\mathrm{new}}} = 0$ で初期値が正しく消える。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     A["for i = 1 .. T_r(Query のブロック)"] --> B["Q_i を SRAM に読む<br/>m_i = −∞, ℓ_i = 0, Õ_i = 0"]
     B --> C{"for j = 1 .. T_c<br/>(Key・Value のブロック)"}

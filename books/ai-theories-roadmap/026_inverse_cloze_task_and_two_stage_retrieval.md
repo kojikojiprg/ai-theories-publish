@@ -121,6 +121,7 @@ $$
 である。本トピックの第 1 段の学習は、さらに Matryoshka Representation Learning [6] の入れ子の次元の和を使う(損失の形は 024 の条件 C5 と同じ。R1 と R2 で揃える量)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph B["同じ記事から 2 つの窓 p1・p2(重ならない)"]
         direction LR
@@ -211,6 +212,7 @@ $$
 並べ替えで到達できる Recall@10 の上限は、上位 $K$ 件に正例が入っている query の割合(coverage)である。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     q["query q"] --> e1["dual encoder f(R2)"]
     e1 --> s1["第 1 段: 索引(全探索 / HNSW)の上位 K 件"]

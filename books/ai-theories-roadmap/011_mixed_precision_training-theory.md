@@ -288,6 +288,7 @@ FP8([4])は、FP16 / BF16 と同じ「浮動小数点のビット幅を削減す
 ### 図 1: 混合精度学習の 1 ステップのデータフロー
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     A["FP32 マスター重み"] -->|"キャスト"| B["FP16 / autocast の重み"]
     B --> C["順伝播(autocast)"]

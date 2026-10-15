@@ -168,6 +168,7 @@ $K = c \sqrt{N}$($c$ は定数)とおけば $C = (c + p / c) \sqrt{N}$ で、費
 同じ recall に必要な $p$ は $N$ とデータに依存する(必要な $p$ が $N$ とともに増えれば、費用は $\sqrt{N}$ より速く増える)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     Q["query q"] --> C["K 個の重心と比較(K 回)"]
     C --> P["近い順に p 個のリストを選ぶ"]
@@ -207,6 +208,7 @@ $$
 なので、層 $j$ 以上に属する要素は $N M^{-j}$ 個程度、最上層の番号は $\log_M N$ 程度である(スキップリストの確率 $1/M$ に対応する)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     subgraph L2["層 2(要素が最も少ない)"]
         a2["入口 ep"] --> b2["query に近い頂点"]
@@ -299,6 +301,7 @@ $x$ と $y$ が同じ分布なら $-2D$ になる。誤差の分散も、$x$ の
 真の上位 $k$ 件は近似の距離の上位 $R$ 件($R > k$)に入っていることが多い。費用は $R$ 回(全次元)の距離計算が加わる。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     Y["ベクトル y(d 次元)"] --> S["m 個の部分ベクトルに分割"]
     S --> E1["部分空間 1 の符号帳で最も近い符号語の番号"]
@@ -336,6 +339,7 @@ $w \in \mathbb{R}^{d_{\mathrm{model}}}$ は重み、$b$ はバイアスである
 **008 のトークナイザの語彙には特殊トークンがない**(256 個のバイトと 7,936 個のマージ)。語彙を増やさずに、コーパスに一度も現れない単一バイトのトークン(区切りは 0x1F、終端は 0x1E の制御文字)を使う。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph D["dual encoder(第 1 段)"]
         direction LR

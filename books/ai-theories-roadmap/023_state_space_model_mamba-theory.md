@@ -160,6 +160,7 @@ $$
 Mamba ブロック(原論文 [1] の Figure 3)は、H3 のブロックと Transformer の順伝播ネットワークのブロックを 1 つにまとめた構造で、Transformer の注意機構と順伝播ネットワークの 2 つのブロックを交互に積む代わりに、Mamba ブロックだけを繰り返し積む。モデルの次元 $d_{\mathrm{model}}$ を拡大率 $E$ で $D = E \, d_{\mathrm{model}}$ に広げ、状態空間モデルは $D$ 個のチャネルのそれぞれに適用する。$E$ は 022 のエキスパート数とは別の量である。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     X["入力 x: (b, L, d_model)"] --> P["線形射影: d_model から 2D へ"]
     P --> XB["枝 1: x (D チャネル)"]

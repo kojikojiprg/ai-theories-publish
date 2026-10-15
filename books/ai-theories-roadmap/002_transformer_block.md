@@ -154,6 +154,7 @@ $$
 #### 図 1: 正規化後置と正規化前置のデータフロー対比
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     subgraph POST["正規化後置(Post-Layer Normalization): x + Sublayer(x) を正規化"]
         direction TB
@@ -244,6 +245,7 @@ Decoder Block は Encoder Block に **交差注意(cross-attention)** を追加�
 #### 図 2: Encoder Block と Decoder Block の構造対比
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     subgraph ENC["Encoder Block"]
         direction TB

@@ -107,6 +107,7 @@ CLIP(Contrastive Language-Image Pre-training、Radford et al. [1])は、イン�
 (5.4 節で確かめる)。位置の情報は、CLIP と同じ学習可能な絶対位置埋め込みで与える(008 は RoPE)。
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     img["画像 x_i"] --> vit["画像 encoder f_I<br/>(019 の ViT、[CLS] の表現)"]
     vit --> pi["射影 W_I"] --> ni["L2 正規化 -> u_i"]
