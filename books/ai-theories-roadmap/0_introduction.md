@@ -22,7 +22,7 @@ title: "はじめに"
 AI エージェントの中で LLM がどう動くかを示す。
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph AG["AI エージェント"]
     direction TB
     PLAN["計画(未作成)"]:::todo
@@ -72,7 +72,7 @@ flowchart LR
 事前学習(Pretraining)から、適応(Adaptation)、選好への整合(Preference Alignment)、推論(Inference)へ進む段階に、各トピックを置く。
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph PRE["事前学習"]
     direction TB
     T5["005 トークナイザ"]

@@ -114,11 +114,12 @@ class MermaidTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             generate_book.validate_mermaid_blocks(self.block("flowchart LR\n  A --> " + " & ".join("B" * 1 for _ in range(12))))
 
-    def test_blocks_are_passed_through_unchanged(self):
+    def test_blocks_are_made_vertical(self):
         source = "```mermaid\nflowchart LR\n  A --> B\n```"
         readme = f"## 全体像\n\n{source}\n\n## 推奨学習順序\n\n| # | a |\n| --- | --- |\n| 001 | x |\n\n### 各トピックの詳細\n"
         body = generate_book.build_introduction_body(readme, {})
-        self.assertIn(source, body)
+        self.assertIn(source.replace("flowchart LR", "flowchart TB"), body)
+        self.assertNotIn("flowchart LR", body)
         self.assertNotIn("%%{init", body)
         self.assertNotIn("![", body)
 

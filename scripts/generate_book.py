@@ -171,6 +171,15 @@ def validate_mermaid_blocks(text: str) -> int:
     return count
 
 
+def make_mermaid_vertical(text: str) -> str:
+    """Mermaid の図の全体の向きを左右(LR)から上下(TB)に変える。
+    横長の図は Zenn の本文の幅に収まらず、文字が小さくて読みにくいため。
+    """
+    return nb_to_zenn.MERMAID_BLOCK_PATTERN.sub(
+        lambda m: re.sub(r"^(\s*flowchart )LR\b", r"\1TB", m.group(0), count=1, flags=re.M), text
+    )
+
+
 def convert_table(table_text: str, manifest: dict) -> str:
     """学習順序の表の、ノートブックの列のリンクを「#」の列に移し、ノートブックの列は除く。
     リンク先は Zenn の章 URL に解決する(章が未変換なら GitHub の URL)。
@@ -243,6 +252,7 @@ def build_introduction_body(readme_text: str, manifest: dict) -> str:
     order = extract_section(readme_text, ORDER_HEADING, ORDER_END_HEADING)
 
     validate_mermaid_blocks(overview)
+    overview = make_mermaid_vertical(overview)
     order = convert_table(order, manifest)
 
     parts = [INTRO_HEAD, overview, order, INTRO_TAIL]
