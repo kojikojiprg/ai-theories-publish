@@ -271,5 +271,28 @@ class TitleTest(unittest.TestCase):
             nb_to_zenn.fit_title("あ" * 71)
 
 
+class MermaidThemeTest(unittest.TestCase):
+    def test_directive_is_added_to_each_block(self):
+        body = "前\n\n```mermaid\nflowchart TB\n  A --> B\n```\n\n```mermaid\ngraph LR\n  C --> D\n```\n"
+        result = nb_to_zenn.add_mermaid_theme(body)
+        self.assertEqual(result.count(nb_to_zenn.MERMAID_THEME_DIRECTIVE), 2)
+        self.assertIn("```mermaid\n%%{init: {'theme': 'neutral'}}%%\nflowchart TB\n", result)
+
+    def test_existing_init_is_kept(self):
+        body = "```mermaid\n%%{init: {'theme': 'dark'}}%%\nflowchart TB\n  A --> B\n```\n"
+        self.assertEqual(nb_to_zenn.add_mermaid_theme(body), body)
+
+    def test_other_code_blocks_are_unchanged(self):
+        body = "```python\nprint(1)\n```\n"
+        self.assertEqual(nb_to_zenn.add_mermaid_theme(body), body)
+
+    def test_conversion_adds_directive(self):
+        nb = new_notebook(cells=[new_markdown_cell("```mermaid\nflowchart TB\n  A --> B\n```")])
+        with tempfile.TemporaryDirectory() as tmp:
+            nb_to_zenn.IMAGES_DIR = Path(tmp)
+            body = nb_to_zenn.convert_to_markdown(nb, "slug", "owner/repo")
+        self.assertIn("%%{init: {'theme': 'neutral'}}%%\nflowchart TB", body)
+
+
 if __name__ == "__main__":
     unittest.main()
