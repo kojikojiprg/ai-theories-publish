@@ -80,7 +80,6 @@ InstructGPT(Ouyang et al., NeurIPS 2022 [5])は、RLHF を次の 3 段階で構�
 本トピックの $r^*$ は合成課題の正解から計算できる関数なので、ラベルの生成過程(3.3 節)を完全に制御できる。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     B["008 の事前学習済みモデル"] -->|"SFT(016 のレシピ)"| R["参照方策 pi_ref<br/>(LoRA をマージした重み)"]
     R -->|"応答の組をサンプリング"| P["(x, y1, y2)"]

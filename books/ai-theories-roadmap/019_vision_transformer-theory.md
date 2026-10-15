@@ -116,7 +116,6 @@ y = \mathrm{LN}(z_L^0), \qquad \mathrm{logits} = y W_{\mathrm{head}} + b_{\mathr
 $$
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     img["画像 H x W x C"] --> split["P x P のパッチに分割<br/>N = HW / P^2 個"]
     split --> flat["平坦化<br/>x_p^i (P^2 C 次元)"]

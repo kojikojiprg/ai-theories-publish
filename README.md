@@ -64,7 +64,7 @@ Workflowによって生成される章は下書きです。公開前に、以下
 `books/ai-theories-roadmap/0_introduction.md` と `config.yaml` の `chapters` 配列は、[ai-theories](https://github.com/kojikojiprg/ai-theories) の `theories/README.md`(トピック一覧・推奨学習順序)と `scripts/manifest.json`(章化状況)から `scripts/generate_book.py` によって**自動生成**されます。
 
 - `0_introduction.md` には、本の目的・コードのライセンス・`ai-theories` 本体へのリンクに加え、`theories/README.md` の「全体像」(Mermaid の図)・「推奨学習順序」(表)を転載します。「各トピックの詳細」と、表の「判定」の列は、文字数が多いため載せません。
-  - 全体像の Mermaid の図は、Zenn の埋め込みの描画が失敗することがあるため、PNG の画像(不透明な白背景)にして埋め込みます。`scripts/generate_book.py` が mermaid-cli(`npx` で実行。Node.js と Chrome が必要。Chrome の起動の設定は環境変数 `MERMAID_PUPPETEER_CONFIG` で渡す)で描画し、`images/introduction/` にソースのハッシュ入りの名前で書き出します。横長の図は Zenn の本文の幅で小さくなるため、描画のときだけ `flowchart LR` を `flowchart TB` にします(`ai-theories` 側の図は変えません)。ソースが Zenn の Mermaid の制限(1 ブロック 2,000 文字以内、`&` の数 10 以下。出典は [Zenn の Markdown 記法の「制限事項」](https://zenn.dev/zenn/articles/markdown-guide))を超えるときは検証エラーにします。
+  - 全体像の Mermaid の図は、コードブロックをそのまま通します。Zenn の制限(1 ブロック 2,000 文字以内、`&` の数 10 以下。出典は [Zenn の Markdown 記法の「制限事項」](https://zenn.dev/zenn/articles/markdown-guide))を超えると検証エラーになります。
   - 表のノートブックの列は載せず、そのリンクを「#」の列の番号に移して、Zenn の章 URL に解決します。章になっていない行は、番号に「🚧 準備中」を添えます。
   - 本文が分割の閾値(45,000 文字)を超える場合は検証エラーにします。「はじめに」は分割しません。
 - `nb_to_zenn.py` は、変換後の画像に透明な画素を含む PNG があると検証エラーにします。変換の側では塗らないので、元のノートブックの図の背景を不透明にして直してください。

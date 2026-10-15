@@ -110,7 +110,6 @@ Words: w1 w2 w3
 `### Response:`までを **指示部分**、その直後の空白から終端記号までを **応答部分** とする。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph prompt["指示部分(P)"]
         H1["### Instruction:"] --> I["前置き(長い水準のみ) + 指示文"]
@@ -184,7 +183,6 @@ Shi et al.(NeurIPS 2024 [5])は、指示部分にも損失をかけることが�
 という向きを、上の正規化の単位のもとで検証する。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph seq["1 事例のトークン列"]
         T0["先頭のトークン<br/>(予測対象外)"] --> TP["指示部分の残り(P)<br/>mask: 損失なし / unmask: 損失あり"]

@@ -338,7 +338,6 @@ $$
 ### 3.9 データの流れとアルゴリズム
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     X["トークンの表現 x(T 個)"] --> R["ルーター: h = W_r x(FP32)"]
     R --> P["softmax: p(x)"]

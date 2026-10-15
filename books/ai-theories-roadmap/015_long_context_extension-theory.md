@@ -288,7 +288,6 @@ $2 \cdot B H N^2 \cdot 4$ バイト(FP32 の $S$ と $P$、$B$ はバッチサ�
 | ABF | 底を $b'$ にする(NTK-aware と同じ形) | | | 1 | 継続事前学習 |
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph dims["RoPE の部分空間(左ほど高周波・波長が短い)"]
         direction LR

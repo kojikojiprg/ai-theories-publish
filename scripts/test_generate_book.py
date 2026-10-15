@@ -18,30 +18,6 @@ import nb_to_zenn  # noqa: E402
 import png_check  # noqa: E402
 
 
-def fake_render(source: str, output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fake_render.calls.append(source)
-    output_path.write_bytes(make_png(6, bytes([255, 255, 255, 255]), 1, 1))
-
-
-fake_render.calls = []
-
-
-class RenderPatch(unittest.TestCase):
-    """画像の描画と書き出し先を差し替える。"""
-
-    def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self._saved = (generate_book.render_mermaid_png, generate_book.OVERVIEW_IMAGE_DIR)
-        generate_book.render_mermaid_png = fake_render
-        generate_book.OVERVIEW_IMAGE_DIR = Path(self._tmp.name)
-        fake_render.calls = []
-
-    def tearDown(self):
-        generate_book.render_mermaid_png, generate_book.OVERVIEW_IMAGE_DIR = self._saved
-        self._tmp.cleanup()
-
-
 def make_png(color_type: int, pixels: bytes, width: int, height: int, extra: bytes = b"") -> bytes:
     """8 ビット・フィルタなしの PNG を作る。pixels は 1 行ぶんずつ連結した画素のバイト列。"""
     channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color_type]
@@ -119,7 +95,7 @@ class TableTest(unittest.TestCase):
         self.assertEqual(lines[-1], "> 注")
 
 
-class MermaidTest(RenderPatch):
+class MermaidTest(unittest.TestCase):
     def block(self, body: str) -> str:
         return f"```mermaid\n{body}\n```\n"
 
@@ -138,51 +114,21 @@ class MermaidTest(RenderPatch):
         with self.assertRaises(SystemExit):
             generate_book.validate_mermaid_blocks(self.block("flowchart LR\n  A --> " + " & ".join("B" * 1 for _ in range(12))))
 
-    def readme(self):
-        return (
-            "## 全体像\n\n### 図 1: 構成\n\n```mermaid\nflowchart LR\n  A --> B\n```\n\n## 推奨学習順序\n\n| # | a | b | c | d | e |\n"
-            "| --- | --- | --- | --- | --- | --- |\n| 001 | x | y | z | w | [001_a.ipynb](./01/001_a.ipynb) |\n\n### 各トピックの詳細\n\n"
-            "<details>\n<summary>S</summary>\n\nx\n\n</details>\n\n### 実装済みの共通モジュール\n"
-        )
+    def test_blocks_are_passed_through_unchanged(self):
+        source = "```mermaid\nflowchart LR\n  A --> B\n```"
+        readme = f"## 全体像\n\n{source}\n\n## 推奨学習順序\n\n| # | a |\n| --- | --- |\n| 001 | x |\n\n### 各トピックの詳細\n"
+        body = generate_book.build_introduction_body(readme, {})
+        self.assertIn(source, body)
+        self.assertNotIn("%%{init", body)
+        self.assertNotIn("![", body)
 
-    def build(self, readme):
-        original = nb_to_zenn.find_notebook_by_number
-        nb_to_zenn.find_notebook_by_number = lambda n: None
-        try:
-            return generate_book.build_introduction_body(readme, {})
-        finally:
-            nb_to_zenn.find_notebook_by_number = original
-
-    def test_block_becomes_image_and_is_rendered_top_to_bottom(self):
-        body = self.build(self.readme())
-        self.assertNotIn("```mermaid", body)
-        self.assertRegex(body, r"!\[図 1: 構成\]\(https://raw\.githubusercontent\.com/[^)]+/images/introduction/overview-1-[0-9a-f]{8}\.png\)")
-        self.assertEqual(fake_render.calls, ["flowchart TB\n  A --> B\n"])
-        self.assertNotIn("details", body)
-        self.assertNotIn("各トピックの詳細", body)
-
-    def test_same_source_is_not_rendered_again_and_stale_images_are_removed(self):
-        self.build(self.readme())
-        (generate_book.OVERVIEW_IMAGE_DIR / "overview-9-deadbeef.png").write_bytes(b"x")
-        self.build(self.readme())
-        self.assertEqual(len(fake_render.calls), 1)
-        self.assertFalse((generate_book.OVERVIEW_IMAGE_DIR / "overview-9-deadbeef.png").exists())
-
-    def test_transparent_render_is_error(self):
-        def transparent(source, output_path):
-            output_path.write_bytes(make_png(6, bytes([1, 2, 3, 0]), 1, 1))
-
-        generate_book.render_mermaid_png = transparent
+    def test_too_long_block_in_overview_is_error(self):
+        readme = "## 全体像\n\n```mermaid\nflowchart LR\n" + "A --> B\n" * 400 + "```\n\n## 推奨学習順序\n\n| # | a |\n| --- | --- |\n\n### 各トピックの詳細\n"
         with self.assertRaises(SystemExit):
-            self.build(self.readme())
-
-    def test_reorient(self):
-        self.assertEqual(generate_book.reorient_for_page("flowchart LR\n  A --> B\n"), "flowchart TB\n  A --> B\n")
-        self.assertEqual(generate_book.reorient_for_page("flowchart TB\n  A --> B\n"), "flowchart TB\n  A --> B\n")
-        self.assertEqual(generate_book.reorient_for_page("graph LR\n  A --> B\n"), "graph LR\n  A --> B\n")
+            generate_book.build_introduction_body(readme, {})
 
 
-class IntroductionTest(RenderPatch):
+class IntroductionTest(unittest.TestCase):
     def readme(self, details_chars: int) -> str:
         return (
             "## 全体像\n\n図\n\n## 推奨学習順序\n\n| # | a | 判定 | c |\n| --- | --- | --- | --- |\n"

@@ -464,26 +464,7 @@ def find_fold_spans(text: str) -> list[tuple[int, int]]:
     return spans
 
 
-MERMAID_THEME_DIRECTIVE = "%%{init: {'theme': 'neutral'}}%%"
 MERMAID_BLOCK_PATTERN = re.compile(r"^```mermaid[ \t]*\n(.*?)^```", re.MULTILINE | re.DOTALL)
-MERMAID_OPEN_PATTERN = re.compile(r"^```mermaid[ \t]*\n", re.MULTILINE)
-
-
-def add_mermaid_theme(body: str) -> str:
-    """Mermaid のコードブロックの先頭に、neutral テーマの指示を足す。
-
-    既定のテーマは、暗い背景でノードの外の矢印が背景に溶けて見えなくなる。neutral は明るい背景と
-    暗い背景のどちらでも、線と文字が見える。すでにテーマの指示(`%%{init`)があるブロックは変えない。
-    """
-
-    def replace(match: re.Match) -> str:
-        rest = body[match.end() :]
-        first_line = rest.split("\n", 1)[0].lstrip()
-        if first_line.startswith("%%{init"):
-            return match.group(0)
-        return match.group(0) + MERMAID_THEME_DIRECTIVE + "\n"
-
-    return MERMAID_OPEN_PATTERN.sub(replace, body)
 
 
 def check_png_is_opaque(name: str, data: bytes, slug: str) -> None:
@@ -529,7 +510,7 @@ def convert_to_markdown(
         )
         body = body.replace(output_name, image_url)
 
-    return add_mermaid_theme(render_folds(body, summaries))
+    return render_folds(body, summaries)
 
 
 def build_frontmatter(title: str) -> str:

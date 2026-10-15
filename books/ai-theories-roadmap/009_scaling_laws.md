@@ -120,7 +120,6 @@ $$
 （$a + b = 1$ は $C = 6ND$、$N_{opt} D_{opt} \propto C$ から自明に整合する。）この導出は **$C$ が $ND$ に比例することを前提としている** 点に注意する。出力層を含む数え方(実験 B)では $C$ は $ND$ に単純比例しないため、この閉形式は使えない。実験 C(6.7 節)で`compute_optimal_allocation_exponents`を使う際は、必ず本体のみの数え方で得られた $(\alpha, \beta)$ を用いる。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph Approach1["Approach 1: 訓練曲線の下側包絡線"]
         A1["N を固定"] --> A2["D(ステップ数)を振る"] --> A3["各 N の最小損失の軌跡"]
@@ -150,7 +149,6 @@ Porian et al. (2024) は、Kaplan らの指数($a \approx 0.73$)と Hoffmann ら
 学習グリッド(モデルサイズ x 計算量予算)から実験 A〜C の指数推定に至るデータフローを示す(6.4 節で詳述)。Mermaid は Google Colab 上では描画されないため、本文の数式・文章だけでも理解が成立するように 6.4 節に文章での説明を併記する。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     Grid["学習グリッド: 5 d_model x 5 計算量予算(+ノイズ床 5 シード)"]
     Grid --> Measure["各セルの実測 (N, D, L) を記録"]

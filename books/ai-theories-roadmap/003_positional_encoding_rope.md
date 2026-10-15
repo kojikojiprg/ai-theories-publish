@@ -71,7 +71,6 @@ title: "位置エンコーディング(Positional Encoding)/ RoPE"
 | Attention スコアへの加算 | Shaw et al. 方式、T5 の相対位置バイアス、ALiBi | 相対位置 |
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     ROOT["位置情報の注入方式"]
     ROOT --> ABS["絶対位置を符号化"]

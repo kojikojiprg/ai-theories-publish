@@ -94,7 +94,6 @@ $$
 #### 図 1: 連想記憶としての Query / Key / Value
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     Q["Query q_i<br/>「いま何の情報が欲しいか」"]
 
@@ -140,7 +139,6 @@ $$
 #### 図 2: Scaled Dot-Product Attention の計算の流れ
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     Q["Q (n × d_k)"] --> MM["行列積 Q K^T<br/>スコア S (n × m)"]
     K["K (m × d_k)"] --> MM
@@ -226,7 +224,6 @@ $$
 #### 図 3: Multi-Head Attention の構造
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     X["入力 X (n × d_model)<br/>Query 側"] --> WQ["線形射影 W^Q<br/>→ h 個へ分割"]
     Y["入力 Y (m × d_model)<br/>Key / Value 側"] --> WK["線形射影 W^K<br/>→ h 個へ分割"]

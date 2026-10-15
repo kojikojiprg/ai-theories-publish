@@ -116,7 +116,6 @@ LLaVA は、視覚トークン $H_v$ を指示の埋め込みの列 $H_q$ と **
 `### Instruction:\n`(7 トークン)の直後に $N_v$ 個の視覚トークンを置くので、視覚トークンの枠の開始位置は全事例で共通である。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     img["画像 X_v<br/>(32 x 32)"] --> vit["画像 encoder g<br/>(020 の CLIP の ViT、凍結)"]
     vit --> zv["最終層の一つ前の層の<br/>パッチトークン Z_v<br/>(N = 64, d_v = 128)"]

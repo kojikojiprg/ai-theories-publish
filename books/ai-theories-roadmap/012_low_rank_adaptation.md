@@ -154,7 +154,6 @@ $$
 ベースモデルに複数のタスクの LoRA を差し替えて使える。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph train["学習時(並列の 2 経路)"]
         x1["x"] --> W0["W0(凍結)"]

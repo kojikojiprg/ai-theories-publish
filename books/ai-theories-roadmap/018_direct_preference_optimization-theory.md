@@ -88,7 +88,6 @@ DPO(Rafailov et al., NeurIPS 2023 [1])は、017 の 3.4 節で導出した最適
 1 つの損失** に置き換える。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph RLHF["RLHF(017): 3 段階"]
         S1["SFT"] --> R1["報酬モデル r_phi を学習<br/>(Bradley-Terry の損失)"]
@@ -196,7 +195,6 @@ $y_w$ と $y_l$ で共通なので差をとると消える。これは [016](htt
 トークンを損失に含めない)と同じ区別である。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     B["選好の組のバッチ<br/>(x, y_w, y_l)"] --> P["方策 pi_theta(LoRA)で順伝播<br/>log pi_theta(y_w), log pi_theta(y_l)<br/>(応答部分のトークンの和)"]
     B --> R["参照方策 pi_ref(事前計算)<br/>log pi_ref(y_w), log pi_ref(y_l)"]

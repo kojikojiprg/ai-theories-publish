@@ -92,7 +92,6 @@ $T$ に対する次数がそれぞれ 1 つずつ下がる。これが実験 A �
 過去の結果に追記する)。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart LR
     subgraph NOCACHE["キャッシュなし(No Cache)"]
         direction TB
@@ -195,7 +194,6 @@ Key / Value ヘッドを共有する)を提案した。いずれも、キャッ�
 $g/h$ 倍に縮小する(Query 側の射影 $W^Q$・出力射影 $W^O$ は変更しない)。
 
 ```mermaid
-%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     subgraph MHA["多頭注意機構(h=8, g=8)"]
         direction LR
