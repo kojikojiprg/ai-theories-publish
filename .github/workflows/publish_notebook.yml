@@ -33,6 +33,12 @@ jobs:
             "${{ inputs.notebook_number }}" \
             --repo "${{ github.repository }}"
 
+      - name: 「はじめに」の図の描画用に Chrome を用意
+        run: |
+          npx -y -p @mermaid-js/mermaid-cli@11.12.0 puppeteer browsers install chrome-headless-shell
+          echo '{"args":["--no-sandbox"]}' > "$RUNNER_TEMP/puppeteer.json"
+          echo "MERMAID_PUPPETEER_CONFIG=$RUNNER_TEMP/puppeteer.json" >> "$GITHUB_ENV"
+
       - name: 本(book)のはじめに・章一覧を再生成
         run: |
           uv run --with nbconvert python3 scripts/generate_book.py

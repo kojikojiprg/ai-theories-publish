@@ -11,11 +11,14 @@ from __future__ import annotations
 
 import json
 import os
+import hashlib
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 import nb_to_zenn
+import png_check
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 THEORIES_README_PATH = REPO_ROOT / "ai-theories" / "theories" / "README.md"
@@ -30,6 +33,8 @@ INTRODUCTION_PATH = BOOK_DIR / "0_introduction.md"
 ZENN_USERNAME = os.environ.get("ZENN_USERNAME", "kojikojiprg")
 
 AI_THEORIES_GITHUB_URL = "https://github.com/kojikojiprg/ai-theories"
+# 画像の URL に使う公開先リポジトリ。環境変数 GITHUB_REPOSITORY があればそちらを使う。
+DEFAULT_PUBLISH_REPO = "kojikojiprg/ai-theories-publish"
 
 # config.yaml が存在しない場合の初期値。既存の config.yaml があればそちらの値を優先する。
 DEFAULT_BOOK_TITLE = "LLM / VLM理論学習ロードマップ"
@@ -47,6 +52,16 @@ CHAR_THRESHOLD = nb_to_zenn.CHAR_THRESHOLD
 # Zenn の Mermaid の制限(https://zenn.dev/zenn/articles/markdown-guide の「制限事項」)。
 MERMAID_MAX_CHARS = 2000  # 1 ブロックあたりの文字数
 MERMAID_MAX_CHAINS = 10  # 1 ブロックあたりの & の数(Chain 数)
+
+# 全体像の図は、Zenn の埋め込みの Mermaid が描画に失敗することがあるため、画像にして埋め込む。
+# 横長の図は Zenn の本文の幅で小さくなるため、描画のときだけ左右(LR)を上下(TB)にする。
+MERMAID_CLI_PACKAGE = "@mermaid-js/mermaid-cli@11.12.0"
+# Chrome の起動の設定ファイル(JSON)のパス。CI では --no-sandbox を指定するために使う。
+PUPPETEER_CONFIG_ENV = "MERMAID_PUPPETEER_CONFIG"
+OVERVIEW_IMAGE_DIR = nb_to_zenn.IMAGES_DIR / "introduction"
+OVERVIEW_IMAGE_PREFIX = "overview"
+RENDER_SCALE = 2
+HEADING_LINE_PATTERN = re.compile(r"^#{1,6}[ \t]+(\S.*?)[ \t]*$")
 
 OVERVIEW_HEADING = "## 全体像"
 ORDER_HEADING = "## 推奨学習順序"
@@ -173,6 +188,88 @@ def validate_mermaid_blocks(text: str) -> int:
     return count
 
 
+def reorient_for_page(source: str) -> str:
+    """描画用に、先頭の `flowchart LR` を `flowchart TB` にする(図の中身は変えない)。"""
+    return re.sub(r"^(\s*flowchart)[ \t]+(?:LR|RL)\b", r"\1 TB", source, count=1)
+
+
+def render_mermaid_png(source: str, output_path: Path) -> None:
+    """Mermaid のソースを、不透明な白背景の PNG にする(mermaid-cli を npx で呼ぶ)。"""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_input = output_path.with_suffix(".mmd")
+    tmp_input.write_text(source, encoding="utf-8")
+    command = [
+        "npx", "-y", MERMAID_CLI_PACKAGE,
+        "-i", str(tmp_input), "-o", str(output_path),
+        "-t", "neutral", "-b", "white", "-s", str(RENDER_SCALE),
+    ]
+    config = os.environ.get(PUPPETEER_CONFIG_ENV)
+    if config:
+        command += ["-p", config]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True)
+    finally:
+        tmp_input.unlink(missing_ok=True)
+    if result.returncode != 0 or not output_path.exists():
+        fail(f"Mermaid の図を画像にできませんでした。\n{result.stderr.strip()}")
+
+
+def replace_mermaid_with_images(text: str, repo: str) -> str:
+    """Mermaid のコードブロックを、PNG の画像の記法に置き換える。
+    画像は images/introduction/ に、ソースのハッシュを含む名前で書き出す(同じソースなら描画しない)。
+    透明な画素を含む PNG は検証エラーにする。
+    """
+    OVERVIEW_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    used: set[str] = set()
+    lines = text.split("\n")
+    count = 0
+
+    def image_markdown(source: str, alt: str) -> str:
+        nonlocal count
+        count += 1
+        rendered = reorient_for_page(source)
+        digest = hashlib.sha256(rendered.encode("utf-8")).hexdigest()[:8]
+        name = f"{OVERVIEW_IMAGE_PREFIX}-{count}-{digest}.png"
+        path = OVERVIEW_IMAGE_DIR / name
+        if not path.exists():
+            render_mermaid_png(rendered, path)
+        try:
+            transparent = png_check.has_transparent_pixels(path.read_bytes())
+        except (ValueError, OSError) as error:
+            fail(f"画像 {name} を検査できませんでした({error})。")
+        if transparent:
+            fail(f"画像 {name} に透明な画素があります。")
+        used.add(name)
+        url = f"https://raw.githubusercontent.com/{repo}/main/images/introduction/{name}"
+        return f"![{alt}]({url})"
+
+    out: list[str] = []
+    heading = ""
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        match = HEADING_LINE_PATTERN.match(line)
+        if match:
+            heading = match.group(1)
+        if re.match(r"^```mermaid[ \t]*$", line):
+            j = i + 1
+            while j < len(lines) and not lines[j].startswith("```"):
+                j += 1
+            if j >= len(lines):
+                fail("閉じられていない Mermaid のコードブロックがあります。")
+            source = "\n".join(lines[i + 1 : j]) + "\n"
+            out.append(image_markdown(source, heading or "図"))
+            i = j + 1
+            continue
+        out.append(line)
+        i += 1
+
+    for stale in OVERVIEW_IMAGE_DIR.glob(f"{OVERVIEW_IMAGE_PREFIX}-*.png"):
+        if stale.name not in used:
+            stale.unlink()
+    return "\n".join(out)
+
+
 DETAILS_OPEN = "<details>"
 DETAILS_CLOSE = "</details>"
 SUMMARY_PATTERN = re.compile(r"^<summary>(.+)</summary>$")
@@ -278,6 +375,10 @@ def build_introduction_body(readme_text: str, manifest: dict, include_details: b
     order = extract_section(readme_text, ORDER_HEADING, DETAILS_HEADING)
     details = extract_section(readme_text, DETAILS_HEADING, AFTER_DETAILS_HEADING)
 
+    validate_mermaid_blocks(overview)
+    # Zenn では画像として表示するため、GitHub 上の描画の説明は除く。
+    overview = overview.replace(" Mermaid の図は GitHub 上で描画される。", "")
+    overview = replace_mermaid_with_images(overview, os.environ.get("GITHUB_REPOSITORY", DEFAULT_PUBLISH_REPO))
     order = convert_table(order, manifest)
     if include_details:
         details_part = convert_details(details)
@@ -285,8 +386,7 @@ def build_introduction_body(readme_text: str, manifest: dict, include_details: b
         details_part = f"{DETAILS_HEADING} / Topic Details\n\n{DETAILS_LINK_TEXT}"
 
     parts = [INTRO_HEAD, overview, order, details_part, INTRO_TAIL]
-    body = "\n\n".join(part.strip("\n") for part in parts) + "\n"
-    return nb_to_zenn.add_mermaid_theme(body)
+    return "\n\n".join(part.strip("\n") for part in parts) + "\n"
 
 
 def generate_introduction(readme_text: str, manifest: dict) -> tuple[str, bool]:
@@ -304,7 +404,6 @@ def generate_introduction(readme_text: str, manifest: dict) -> tuple[str, bool]:
     length = len(body.split("---\n", 2)[2])
     if length > CHAR_THRESHOLD:
         fail(f"「はじめに」の本文が詳細を除いても {length} 文字で、閾値({CHAR_THRESHOLD} 文字)を超えます。")
-    validate_mermaid_blocks(body)
     return body, included
 
 
