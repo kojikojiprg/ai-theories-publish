@@ -46,7 +46,7 @@ DEFAULT_BOOK_TOPICS = ["llm", "vlm", "pytorch", "deeplearning"]
 DEFAULT_PRICE = "0"
 DEFAULT_PUBLISHED = "false"
 
-# 「はじめに」章の本文の文字数の閾値。超える場合は「各トピックの詳細」を載せない(章は分割しない)。
+# 「はじめに」章の本文の文字数の閾値。超える場合は検証エラーにする(章は分割しない)。
 CHAR_THRESHOLD = nb_to_zenn.CHAR_THRESHOLD
 
 # Zenn の Mermaid の制限(https://zenn.dev/zenn/articles/markdown-guide の「制限事項」)。
@@ -65,12 +65,10 @@ HEADING_LINE_PATTERN = re.compile(r"^#{1,6}[ \t]+(\S.*?)[ \t]*$")
 
 OVERVIEW_HEADING = "## 全体像"
 ORDER_HEADING = "## 推奨学習順序"
-DETAILS_HEADING = "### 各トピックの詳細"
-AFTER_DETAILS_HEADING = "### 実装済みの共通モジュール"
-# GitHub 上の theories/README.md の「各トピックの詳細」の節へのアンカー。
-DETAILS_GITHUB_URL = (
-    f"{AI_THEORIES_GITHUB_URL}/blob/main/theories/README.md#各トピックの詳細--topic-details"
-)
+# 「推奨学習順序」の節の終わり。この後の「各トピックの詳細」は、文字数が多いため Zenn に載せない。
+ORDER_END_HEADING = "### 各トピックの詳細"
+# 表から除く列(見出しの先頭の文字列)。文字数が多いため。
+DROPPED_COLUMN_PREFIXES = ("判定",)
 
 TABLE_HEADER_PREFIX = "| #"
 NUMBER_PATTERN = re.compile(r"^\d{3}$")
@@ -270,60 +268,12 @@ def replace_mermaid_with_images(text: str, repo: str) -> str:
     return "\n".join(out)
 
 
-DETAILS_OPEN = "<details>"
-DETAILS_CLOSE = "</details>"
-SUMMARY_PATTERN = re.compile(r"^<summary>(.+)</summary>$")
-
-
-def convert_details(text: str) -> str:
-    """<details><summary>X</summary> … </details> を Zenn の折りたたみ(:::details X … :::)に変換する。
-    入れ子・対応の崩れ・本文や見出しの ::: との衝突は検証エラーにする。コードブロック内は対象外。
-    """
-    out: list[str] = []
-    in_details = False
-    in_code = False
-    expect_summary = False
-    for number, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if nb_to_zenn.CODE_FENCE_PATTERN.match(line):
-            in_code = not in_code
-        if not in_code and stripped == DETAILS_OPEN:
-            if in_details:
-                fail(f"<details> が入れ子になっています(「各トピックの詳細」の {number} 行目)。")
-            in_details = True
-            expect_summary = True
-            continue
-        if expect_summary:
-            match = SUMMARY_PATTERN.match(stripped)
-            if not match:
-                fail(f"<details> の次の行が <summary>…</summary> ではありません({number} 行目)。")
-            summary = match.group(1).strip()
-            if ":::" in summary:
-                fail(f"<summary> に ::: が含まれています({number} 行目)。")
-            out.append(f":::details {summary}")
-            expect_summary = False
-            continue
-        if not in_code and stripped == DETAILS_CLOSE:
-            if not in_details:
-                fail(f"対応する <details> のない </details> があります({number} 行目)。")
-            in_details = False
-            out.append(":::")
-            continue
-        if in_details and ":::" in line:
-            fail(f"<details> の中に ::: があり、Zenn の折りたたみと衝突します({number} 行目)。")
-        if not in_code and not in_details and (DETAILS_OPEN in line or DETAILS_CLOSE in line):
-            fail(f"<details> の書き方が想定外です({number} 行目)。")
-        out.append(line)
-    if in_details or expect_summary:
-        fail("閉じられていない <details> があります。")
-    return "\n".join(out)
-
-
 def convert_table(table_text: str, manifest: dict) -> str:
     """学習順序の表の、ノートブックの列のリンクを「#」の列に移し、ノートブックの列は除く。
     リンク先は Zenn の章 URL に解決する(章が未変換なら GitHub の URL)。
     章になっていない行は、「#」の列に「🚧 準備中」を添える。
     """
+    drop: set[int] = set()
     out = []
     counts_total = {"zenn": 0, "github": 0, "unchanged": 0}
     for line in table_text.splitlines():
@@ -331,6 +281,9 @@ def convert_table(table_text: str, manifest: dict) -> str:
             out.append(line)
             continue
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if cells[0].startswith("#"):
+            drop = {i for i, cell in enumerate(cells) if cell.startswith(DROPPED_COLUMN_PREFIXES)}
+        cells = [cell for i, cell in enumerate(cells) if i not in drop]
         if is_separator_row(line):
             out.append("|" + " --- |" * (len(cells) - 1))
             continue
@@ -370,7 +323,7 @@ title: "はじめに"
 
 ## 本書の構成
 
-以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。この章には、トピックの全体像を示す図、推奨学習順序の表、各トピックの詳細を、 `theories/README.md` から転載しています。表の「#」の列の番号をクリックすると、該当の章に移動します。 **まだ章になっていないトピックは「🚧 準備中」と表示** します。
+以降の章は、[ai-theories]({AI_THEORIES_GITHUB_URL}) の各学習トピックのノートブックをそのまま章として収録したものです。この章には、トピックの全体像を示す図と推奨学習順序の表を、 `theories/README.md` から転載しています。表の「#」の列の番号をクリックすると、該当の章に移動します。 **まだ章になっていないトピックは「🚧 準備中」と表示** します。
 """
 
 INTRO_TAIL = f"""## コードのライセンス
@@ -382,48 +335,27 @@ INTRO_TAIL = f"""## コードのライセンス
 - [ai-theories(GitHub リポジトリ)]({AI_THEORIES_GITHUB_URL})
 """
 
-DETAILS_LINK_TEXT = (
-    "各トピックの詳細(理論の範囲・実験の設計・本番の結果)は、分量が多く Zenn の章の文字数の上限に"
-    f"収まらないため、GitHub の [theories/README.md の「各トピックの詳細」の節]({DETAILS_GITHUB_URL}) に"
-    "掲載しています。"
-)
-
-
-def build_introduction_body(readme_text: str, manifest: dict, include_details: bool) -> str:
+def build_introduction_body(readme_text: str, manifest: dict) -> str:
     overview = extract_section(readme_text, OVERVIEW_HEADING, ORDER_HEADING)
-    order = extract_section(readme_text, ORDER_HEADING, DETAILS_HEADING)
-    details = extract_section(readme_text, DETAILS_HEADING, AFTER_DETAILS_HEADING)
+    order = extract_section(readme_text, ORDER_HEADING, ORDER_END_HEADING)
 
     validate_mermaid_blocks(overview)
     # Zenn では画像として表示するため、GitHub 上の描画の説明は除く。
     overview = overview.replace(" Mermaid の図は GitHub 上で描画される。", "")
     overview = replace_mermaid_with_images(overview, os.environ.get("GITHUB_REPOSITORY", DEFAULT_PUBLISH_REPO))
     order = convert_table(order, manifest)
-    if include_details:
-        details_part = convert_details(details)
-    else:
-        details_part = f"{DETAILS_HEADING} / Topic Details\n\n{DETAILS_LINK_TEXT}"
 
-    parts = [INTRO_HEAD, overview, order, details_part, INTRO_TAIL]
+    parts = [INTRO_HEAD, overview, order, INTRO_TAIL]
     return "\n\n".join(part.strip("\n") for part in parts) + "\n"
 
 
-def generate_introduction(readme_text: str, manifest: dict) -> tuple[str, bool]:
-    """「はじめに」章の全文と、「各トピックの詳細」を載せたかを返す。"""
-    full = build_introduction_body(readme_text, manifest, include_details=True)
-    content_length = len(full.split("---\n", 2)[2])
-    if content_length <= CHAR_THRESHOLD:
-        body, included = full, True
-    else:
-        print(
-            f"「はじめに」の本文が {content_length} 文字で閾値({CHAR_THRESHOLD} 文字)を超えるため、"
-            "「各トピックの詳細」は載せず、GitHub へのリンクにします。"
-        )
-        body, included = build_introduction_body(readme_text, manifest, include_details=False), False
+def generate_introduction(readme_text: str, manifest: dict) -> str:
+    """「はじめに」章の全文を返す。本文が閾値を超えるときは検証エラーにする(章は分割しない)。"""
+    body = build_introduction_body(readme_text, manifest)
     length = len(body.split("---\n", 2)[2])
     if length > CHAR_THRESHOLD:
-        fail(f"「はじめに」の本文が詳細を除いても {length} 文字で、閾値({CHAR_THRESHOLD} 文字)を超えます。")
-    return body, included
+        fail(f"「はじめに」の本文が {length} 文字で、閾値({CHAR_THRESHOLD} 文字)を超えます。")
+    return body
 
 
 def parse_existing_config(path: Path) -> dict[str, str]:
@@ -476,11 +408,10 @@ def generate_book() -> tuple[list[dict], list[str], int]:
     CONFIG_PATH.write_text(
         build_config_yaml(existing_config, chapter_slugs), encoding="utf-8"
     )
-    introduction, included = generate_introduction(readme_text, manifest)
+    introduction = generate_introduction(readme_text, manifest)
     INTRODUCTION_PATH.write_text(introduction, encoding="utf-8")
     print(
         f"「はじめに」の本文: {len(introduction.split('---' + chr(10), 2)[2])} 文字"
-        f"(各トピックの詳細: {'載せた' if included else '載せない(GitHub へのリンク)'})"
     )
 
     tbd_count = sum(1 for topic in topics if topic["number"] not in manifest)

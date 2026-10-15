@@ -87,48 +87,19 @@ class PngTest(unittest.TestCase):
         nb_to_zenn.check_png_is_opaque("a.svg", b"<svg/>", "slug")
 
 
-class DetailsTest(unittest.TestCase):
-    def test_converts(self):
-        text = "前\n\n<details>\n<summary>001 注意機構</summary>\n\n本文 $x$\n\n</details>\n\n<details>\n<summary>B</summary>\n\n本文 2\n\n</details>"
-        self.assertEqual(
-            generate_book.convert_details(text),
-            "前\n\n:::details 001 注意機構\n\n本文 $x$\n\n:::\n\n:::details B\n\n本文 2\n\n:::",
-        )
-
-    def test_colons_in_body_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("<details>\n<summary>A</summary>\n\n:::message\nx\n:::\n\n</details>")
-
-    def test_colons_in_summary_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("<details>\n<summary>A ::: B</summary>\n\nx\n</details>")
-
-    def test_nested_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("<details>\n<summary>A</summary>\n<details>\n<summary>B</summary>\n</details>\n</details>")
-
-    def test_unclosed_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("<details>\n<summary>A</summary>\n\nx\n")
-
-    def test_stray_close_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("x\n</details>\n")
-
-    def test_missing_summary_is_error(self):
-        with self.assertRaises(SystemExit):
-            generate_book.convert_details("<details>\n本文\n</details>")
-
-    def test_code_block_is_left_alone(self):
-        text = "```html\n<details>\n:::\n</details>\n```"
-        self.assertEqual(generate_book.convert_details(text), text)
-
-
 class TableTest(unittest.TestCase):
     TABLE = (
         "| # | トピック | 何を学ぶか | ノートブック |\n| --- | --- | --- | --- |\n"
         "| 001 | A | a | [001_x.ipynb](./01/001_x.ipynb) |\n| 002 | B | b | 未作成 / TBD |\n\n> 注"
     )
+
+    def test_verdict_column_is_dropped(self):
+        table = (
+            "| # | トピック | 判定 / Verdicts | ノートブック |\n| --- | --- | --- | --- |\n"
+            "| 002 | B | A 支持 | 未作成 / TBD |"
+        )
+        lines = generate_book.convert_table(table, {}).splitlines()
+        self.assertEqual(lines, ["| # | トピック |", "| --- | --- |", "| 002 🚧 準備中 | B |"])
 
     def test_link_moves_to_number_column_and_notebook_column_is_dropped(self):
         original = nb_to_zenn.find_notebook_by_number
@@ -178,7 +149,7 @@ class MermaidTest(RenderPatch):
         original = nb_to_zenn.find_notebook_by_number
         nb_to_zenn.find_notebook_by_number = lambda n: None
         try:
-            return generate_book.build_introduction_body(readme, {}, include_details=True)
+            return generate_book.build_introduction_body(readme, {})
         finally:
             nb_to_zenn.find_notebook_by_number = original
 
@@ -187,7 +158,8 @@ class MermaidTest(RenderPatch):
         self.assertNotIn("```mermaid", body)
         self.assertRegex(body, r"!\[図 1: 構成\]\(https://raw\.githubusercontent\.com/[^)]+/images/introduction/overview-1-[0-9a-f]{8}\.png\)")
         self.assertEqual(fake_render.calls, ["flowchart TB\n  A --> B\n"])
-        self.assertIn(":::details S", body)
+        self.assertNotIn("details", body)
+        self.assertNotIn("各トピックの詳細", body)
 
     def test_same_source_is_not_rendered_again_and_stale_images_are_removed(self):
         self.build(self.readme())
@@ -213,23 +185,22 @@ class MermaidTest(RenderPatch):
 class IntroductionTest(RenderPatch):
     def readme(self, details_chars: int) -> str:
         return (
-            "## 全体像\n\n図\n\n## 推奨学習順序\n\n| # | a | b | c | d | e |\n| --- | --- | --- | --- | --- | --- |\n"
-            "| 001 | x | y | z | w | v |\n\n### 各トピックの詳細\n\n<details>\n<summary>S</summary>\n\n"
+            "## 全体像\n\n図\n\n## 推奨学習順序\n\n| # | a | 判定 | c |\n| --- | --- | --- | --- |\n"
+            "| 001 | x | y | v |\n\n### 各トピックの詳細\n\n<details>\n<summary>S</summary>\n\n"
             + "あ" * details_chars
             + "\n\n</details>\n\n### 実装済みの共通モジュール\n"
         )
 
-    def test_small_includes_details(self):
-        body, included = generate_book.generate_introduction(self.readme(100), {})
-        self.assertTrue(included)
-        self.assertIn(":::details S", body)
-
-    def test_large_replaces_details_with_link(self):
-        body, included = generate_book.generate_introduction(self.readme(46_000), {})
-        self.assertFalse(included)
-        self.assertNotIn(":::details", body)
-        self.assertIn(generate_book.DETAILS_GITHUB_URL, body)
+    def test_details_section_is_not_included(self):
+        body = generate_book.generate_introduction(self.readme(100_000), {})
+        self.assertNotIn("各トピックの詳細", body)
+        self.assertNotIn("あああ", body)
         self.assertLessEqual(len(body), generate_book.CHAR_THRESHOLD)
+
+    def test_too_long_is_error(self):
+        readme = self.readme(0).replace("図", "あ" * 46_000, 1)
+        with self.assertRaises(SystemExit):
+            generate_book.generate_introduction(readme, {})
 
 
 if __name__ == "__main__":
