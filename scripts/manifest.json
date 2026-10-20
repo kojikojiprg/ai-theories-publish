@@ -250,5 +250,14 @@
     "titles": [
       "Inverse Cloze Task と passage 単位の 2 段階検索"
     ]
+  },
+  "027": {
+    "slugs": [
+      "027_inference_serving"
+    ],
+    "split": false,
+    "titles": [
+      "推論サーバ: continuous batching と PagedAttention"
+    ]
   }
 }

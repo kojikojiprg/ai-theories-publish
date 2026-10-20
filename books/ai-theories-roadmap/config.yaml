@@ -40,3 +40,4 @@ chapters:
   - "025_ann_search_and_reranking-theory"
   - "025_ann_search_and_reranking-practice"
   - "026_inverse_cloze_task_and_two_stage_retrieval"
+  - "027_inference_serving"
